@@ -1,0 +1,105 @@
+lab:
+  id: "ospf-basic"
+  title: "Basic OSPF Configuration"
+  topic: "OSPF"
+  difficulty: "Beginner"
+  estimated_time_minutes: 30
+  objective: |
+    Configure OSPF Area 0 between IOU1 and IOU2. Ensure both routers
+    form a FULL adjacency and can ping each other.
+
+  prerequisites:
+    - "Understanding of basic router navigation (enable, configure terminal)"
+    - "Familiarity with interface configuration mode"
+
+  command_reference:
+    - command: "router ospf <process-id>"
+      description: "Enter OSPF routing process configuration"
+    - command: "network <ip> <wildcard> area <id>"
+      description: "Advertise a network into OSPF"
+    - command: "show ip ospf neighbor"
+      description: "Verify OSPF adjacencies"
+
+  nodes:
+    - name: IOU1
+      host: "192.168.1.200"
+      console_port: 5000
+      device_type: "cisco_ios_telnet"
+
+    - name: IOU2
+      host: "192.168.1.200"
+      console_port: 5001
+      device_type: "cisco_ios_telnet"
+
+  tasks:
+    - id: 1
+      description: "IOU1's Ethernet0/0 has IP address 192.168.1.1"
+      points: 20
+      verification:
+        node: "IOU1"
+        command: "show ip interface brief"
+        expect_contains: "192.168.1.1"
+      hint: "Did you configure 'ip address 192.168.1.1 255.255.255.0' on interface Et0/0 and type 'no shutdown'?"
+      instructions: |
+        Navigate to IOU1's terminal. Enter privileged exec mode, then enter global configuration mode, and finally enter interface configuration mode for Ethernet0/0 to assign the IP address.
+      answer_commands:
+        - "enable"
+        - "configure terminal"
+        - "interface Ethernet0/0"
+        - "ip address 192.168.1.1 255.255.255.0"
+        - "no shutdown"
+        - "end"
+
+    - id: 2
+      description: "IOU2's Ethernet0/0 has IP address 192.168.1.2"
+      points: 20
+      verification:
+        node: "IOU2"
+        command: "show ip interface brief"
+        expect_contains: "192.168.1.2"
+      hint: "Did you configure 'ip address 192.168.1.2 255.255.255.0' on interface Et0/0 and type 'no shutdown'?"
+      instructions: |
+        Navigate to IOU2's terminal. Follow the same steps as Task 1 to assign the IP address to Ethernet0/0 on IOU2.
+      answer_commands:
+        - "enable"
+        - "configure terminal"
+        - "interface Ethernet0/0"
+        - "ip address 192.168.1.2 255.255.255.0"
+        - "no shutdown"
+        - "end"
+
+    - id: 3
+      description: "IOU1 and IOU2 have a FULL OSPF adjacency"
+      points: 30
+      verification:
+        node: "IOU1"
+        command: "show ip ospf neighbor"
+        expect_contains: "FULL"
+      hint: "Make sure OSPF is enabled on both routers and the correct network is advertised. Check 'router ospf 1' and 'network 192.168.1.0 0.0.0.255 area 0'."
+      instructions: |
+        Configure OSPF process 1 on both routers and advertise the 192.168.1.0/24 network into area 0.
+      answer_commands:
+        - "IOU1:"
+        - "configure terminal"
+        - "router ospf 1"
+        - "network 192.168.1.0 0.0.0.255 area 0"
+        - "end"
+        - ""
+        - "IOU2:"
+        - "configure terminal"
+        - "router ospf 1"
+        - "network 192.168.1.0 0.0.0.255 area 0"
+        - "end"
+
+    - id: 4
+      description: "IOU1 can successfully ping IOU2 (192.168.1.2)"
+      points: 30
+      verification:
+        node: "IOU1"
+        command: "ping 192.168.1.2"
+        expect_contains: "!!!!!"
+      hint: "If OSPF is configured correctly and IPs are set, a ping should work. Ensure the interfaces are 'no shutdown'."
+      instructions: |
+        From IOU1, issue a ping to IOU2's IP address (192.168.1.2) to verify end-to-end connectivity.
+      answer_commands:
+        - "ping 192.168.1.2"
