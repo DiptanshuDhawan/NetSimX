@@ -65,16 +65,16 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content (Spans all columns) */}
-      <div style={{ gridArea: 'left / left / right / right', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-bg-base)', overflowY: 'auto' }}>
+      <div style={{ gridArea: 'left / left / right / right', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-base)', overflowY: 'auto' }}>
         
         <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto', padding: '48px 24px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
           
           {/* Page Title & Search */}
           <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
             <div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>Labs</div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '8px', color: 'var(--color-text-primary)', letterSpacing: '-0.5px' }}>Available Labs</h2>
-              <p style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>Labs</div>
+              <h2 style={{ fontSize: '2rem', marginBottom: '8px', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Available Labs</h2>
+              <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
                 {filteredLabs.length} lab{filteredLabs.length !== 1 ? 's' : ''} found across {topics.length - 1} topics. {completedCount} completed.
               </p>
             </div>
@@ -107,7 +107,7 @@ export default function Dashboard() {
 
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
-              <Activity size={32} color="var(--color-accent-600)" style={{ animation: 'pulse 1.5s infinite' }} />
+              <Activity size={32} color="var(--accent-blue)" style={{ animation: 'pulse 1.5s infinite' }} />
             </div>
           ) : (
             <div className="nx-lab-card-grid">
@@ -123,31 +123,31 @@ export default function Dashboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <div style={{ 
                         width: '8px', height: '8px', borderRadius: '50%', 
-                        background: lab.difficulty === 'BEGINNER' ? 'var(--color-success)' : lab.difficulty === 'INTERMEDIATE' ? 'var(--color-warning)' : 'var(--color-danger)' 
+                        background: lab.difficulty === 'BEGINNER' ? 'var(--green-bright)' : lab.difficulty === 'INTERMEDIATE' ? 'var(--amber)' : 'var(--red)' 
                       }} />
-                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                         {lab.difficulty.charAt(0) + lab.difficulty.slice(1).toLowerCase()}
                       </span>
                     </div>
                     
                     <div style={{ display: 'flex', gap: '12px' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                         <LayoutList size={14} /> {lab.tasks?.length || 0}
                       </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                         <Clock size={14} /> {lab.estimated_time_minutes}m
                       </span>
                     </div>
                   </div>
                   
-                  <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: 'var(--color-text-primary)' }}>{lab.title}</h3>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, marginBottom: '24px', flex: 1 }}>{lab.description}</p>
+                  <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: 'var(--text-primary)' }}>{lab.title}</h3>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '24px', flex: 1 }}>{lab.description}</p>
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>
                       {lab.topic}
                     </span>
-                    <button className="nx-btn-action" style={{ border: 'none', color: 'var(--color-accent-600)', padding: '4px 8px' }}>
+                    <button className="nx-btn-action" style={{ border: 'none', color: 'var(--accent-blue)', padding: '4px 8px' }}>
                       Start <ChevronRight size={16} />
                     </button>
                   </div>
@@ -158,17 +158,17 @@ export default function Dashboard() {
               {filteredLabs.length > 0 && filteredLabs.length < 3 && (
                 <>
                   <div className="nx-lab-card-home coming-soon">
-                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', color: 'var(--color-text-muted)', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)', textAlign: 'center' }}>
                       <Lock size={24} style={{ marginBottom: '12px', opacity: 0.5 }} />
-                      <h3 style={{ fontSize: '1.05rem', marginBottom: '8px', color: 'var(--color-text-secondary)' }}>OSPF Advanced (Multi-Area)</h3>
+                      <h3 style={{ fontSize: '1.05rem', marginBottom: '8px', color: 'var(--text-secondary)' }}>OSPF Advanced (Multi-Area)</h3>
                       <p style={{ fontSize: '0.85rem' }}>Coming Soon</p>
                     </div>
                   </div>
                   {filteredLabs.length < 2 && (
                      <div className="nx-lab-card-home coming-soon">
-                      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', color: 'var(--color-text-muted)', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)', textAlign: 'center' }}>
                         <Lock size={24} style={{ marginBottom: '12px', opacity: 0.5 }} />
-                        <h3 style={{ fontSize: '1.05rem', marginBottom: '8px', color: 'var(--color-text-secondary)' }}>BGP Fundamentals</h3>
+                        <h3 style={{ fontSize: '1.05rem', marginBottom: '8px', color: 'var(--text-secondary)' }}>BGP Fundamentals</h3>
                         <p style={{ fontSize: '0.85rem' }}>Coming Soon</p>
                       </div>
                     </div>
@@ -177,9 +177,9 @@ export default function Dashboard() {
               )}
               
               {filteredLabs.length === 0 && (
-                <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'var(--color-bg-surface)', borderRadius: '8px', border: '1px solid var(--color-border-subtle)' }}>
+                <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--text-muted)', background: 'var(--bg-surface)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                   <Search size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
-                  <h3 style={{ fontSize: '1.2rem', color: 'var(--color-text-primary)', marginBottom: '8px' }}>No labs found</h3>
+                  <h3 style={{ fontSize: '1.2rem', color: 'var(--text-primary)', marginBottom: '8px' }}>No labs found</h3>
                   <p>Try adjusting your search or filters.</p>
                 </div>
               )}
@@ -187,7 +187,7 @@ export default function Dashboard() {
             </div>
           )}
           
-          <footer style={{ marginTop: 'auto', paddingTop: '40px', borderTop: '1px solid var(--color-border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
+          <footer style={{ marginTop: 'auto', paddingTop: '40px', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
             <div>NetLabX v1.0.0</div>
             <div>Real Network Emulation Platform</div>
           </footer>

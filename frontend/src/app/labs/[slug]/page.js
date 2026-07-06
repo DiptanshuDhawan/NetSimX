@@ -4,8 +4,8 @@ import { useState, useEffect, use, useRef } from 'react';
 import { api } from '@/lib/api';
 import dynamic from 'next/dynamic';
 const Terminal = dynamic(() => import('@/components/Terminal'), { ssr: false });
-
-import { Play, Square, CheckCircle, RotateCcw, Copy, Folder, ChevronRight, Server, Search, FileText, MousePointer2, Settings, HelpCircle, Save, Printer, Network, TerminalSquare } from 'lucide-react';
+import TopologyDiagram from '@/components/TopologyDiagram';
+import { Play, Square, CheckCircle, RotateCcw, Copy, Folder, ChevronRight, Server, Search, FileText, MousePointer2, Settings, HelpCircle, Save, Printer, Network } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function LabEnvironment({ params }) {
@@ -17,7 +17,7 @@ export default function LabEnvironment({ params }) {
   const [session, setSession] = useState(null);
   
   const [activeTerminal, setActiveTerminal] = useState('IOU1');
-  const [activeCenterTab, setActiveCenterTab] = useState('topology'); // 'instructions' or 'topology'
+  const [activeCenterTab, setActiveCenterTab] = useState('instructions'); // 'instructions' or 'topology'
   
   const [isGrading, setIsGrading] = useState(false);
   const [gradeReport, setGradeReport] = useState(null);
@@ -259,214 +259,188 @@ export default function LabEnvironment({ params }) {
 
   return (
     <div className="nx-layout">
-      
-      {/* Unified Header */}
-      <div className="nx-header">
+
+      {/* ── TOP NAV ── */}
+      <header className="nx-header">
+        {/* Left: logo + breadcrumbs */}
         <div className="nx-brand">
-          <div className="nx-logo">NX</div>
-          <div className="nx-breadcrumbs">
-            <span className="nx-breadcrumb-link">Labs</span>
-            <ChevronRight size={14} color="var(--border-muted)" />
-            <span className="nx-breadcrumb-chip">{lab.topic}</span>
-            <ChevronRight size={14} color="var(--border-muted)" />
-            <span className="nx-breadcrumb-mono">{lab.title}</span>
-          </div>
+          <div className="nx-logo" onClick={() => router.push('/')}>NX</div>
+          <nav className="nx-breadcrumbs">
+            <span style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} onClick={() => router.push('/')}>Labs</span>
+            <span className="sep">›</span>
+            <span className="crumb-topic">{lab.topic}</span>
+            <span className="sep">›</span>
+            <span className="crumb-title">{lab.title}</span>
+          </nav>
         </div>
-        
+
+        {/* Right: controls */}
         <div className="nx-toolbar">
-          {session && !isBooting && (
-            <div className="nx-status-pill active">
-              <div className="nx-status-dot active"></div>
-              <span>Running {formatTime(labTimer)}</span>
+          {session && (
+            <div className="nx-status-pill">
+              <div className="nx-status-dot" />
+              {isBooting ? `Booting ${bootProgress}%` : `Running ${formatTime(labTimer)}`}
             </div>
           )}
-          
-          <div className="nx-btn-group">
-            <button className="nx-btn-action nx-btn-start" onClick={handleStart} disabled={session || isBooting} title="Power On">
-              <Play size={14} fill={!session && !isBooting ? "currentColor" : "none"} />
-            </button>
-            <button className="nx-btn-action nx-btn-stop" onClick={handleStop} disabled={!session || isBooting} title="Power Off">
-              <Square size={14} fill={session && !isBooting ? "currentColor" : "none"} />
-            </button>
-            <div className="nx-btn-separator"></div>
-            <button className="nx-btn-action" onClick={() => setShowResetModal(true)} disabled={!session || isBooting} title="Reset">
-              <RotateCcw size={14} />
-            </button>
-            <button className="nx-btn-action nx-btn-grade" onClick={handleGrade} disabled={!session || isBooting || isGrading} title="Grade">
-              <CheckCircle size={14} /> Grade
-            </button>
+
+          {/* Play */}
+          <button className="nx-icon-btn" onClick={handleStart} disabled={!!session || isBooting} title="Start Lab">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          {/* Stop */}
+          <button className="nx-icon-btn" onClick={handleStop} disabled={!session || isBooting} title="Stop Lab">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>
+          </button>
+          {/* Reset */}
+          <button className="nx-icon-btn" onClick={() => setShowResetModal(true)} disabled={!session || isBooting} title="Reset">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          </button>
+          {/* Grade */}
+          <button className="nx-grade-btn" onClick={handleGrade} disabled={!session || isBooting || isGrading}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Grade
+          </button>
+          {/* Avatar */}
+          <div className="nx-avatar">N</div>
+        </div>
+      </header>
+
+      {/* ── LEFT SIDEBAR ── */}
+      <aside className="nx-sidebar-left nx-card">
+
+        {/* Section 1 – Lab Content */}
+        <div className="nx-section-header">
+          <span className="nx-section-title">Lab Content</span>
+          <svg className="nx-section-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </div>
+
+        {/* Search */}
+        <div className="nx-search-wrap">
+          <div className="nx-search-inner">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search Labs..." />
           </div>
+        </div>
 
-          <div className="nx-avatar" title="User Profile">JD</div>
-        </div>
-      </div>
-
-      {/* Left Sidebar: Labs Tree */}
-      <div className="nx-sidebar" style={{ gridArea: 'left' }}>
-        <div className="nx-sidebar-header left-border">
-          <div style={{ width: '16px', height: '16px', background: 'var(--accent-blue)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '10px', fontWeight: 'bold' }}>N</div>
-          <span>Labs</span>
-        </div>
-        <div className="nx-search-container">
-          <Search size={14} className="nx-search-icon" />
-          <input type="text" className="nx-input" placeholder="Search Labs..." />
-        </div>
-        <div style={{ flex: 1, overflowY: 'auto' }}>
+        {/* Labs tree */}
+        <div style={{ borderBottom: '1px solid var(--border)' }}>
           {Object.entries(topics).map(([topic, topicLabs]) => (
-            <div key={topic} className="nx-sidebar-group">
-              <div className="nx-sidebar-group-title">
-                {topic}
-              </div>
+            <div key={topic}>
+              <div className="nx-tree-section-label">{topic}</div>
               {topicLabs.map(l => (
-                <div key={l.slug} className={`nx-lab-item ${l.slug === slug ? 'active' : ''}`} onClick={() => router.push(`/labs/${l.slug}`)}>
-                  <FileText size={14} style={{ opacity: 0.8 }} />
+                <div
+                  key={l.slug}
+                  className={`nx-tree-item ${l.slug === slug ? 'selected' : ''}`}
+                  onClick={() => router.push(`/labs/${l.slug}`)}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                   <span>{l.title}</span>
                 </div>
               ))}
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Center Column */}
-      <div className="nx-workspace" style={{ padding: '6px', gap: '6px' }}>
-        
-        {/* Top pane: Document / Topology */}
-        <div className="nx-panel" style={{ flex: 5, borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-          <div className="nx-tab-bar">
-            <button className={`nx-tab ${activeCenterTab === 'instructions' ? 'active' : ''}`} onClick={() => setActiveCenterTab('instructions')}>
-              Instructions
-            </button>
-            <button className={`nx-tab ${activeCenterTab === 'topology' ? 'active' : ''}`} onClick={() => setActiveCenterTab('topology')}>
-              Topology Map
-            </button>
-          </div>
-          
-          <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-            {activeCenterTab === 'instructions' && (
-              <div className="nx-document">
-                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                  <h1 style={{ fontSize: '1.75rem', marginBottom: '16px', paddingLeft: '16px', borderLeft: '3px solid var(--accent-blue)' }}>{lab.title}</h1>
-                  <p style={{ fontSize: '1rem', marginBottom: '32px' }}>{lab.description}</p>
+        {/* Section 2 – Lab Instructions */}
+        <div className="nx-section-header" style={{ marginTop: 0 }}>
+          <span className="nx-section-title">Lab Instructions</span>
+          <svg className="nx-section-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </div>
 
-                  {/* Prerequisites */}
-                  {lab.prerequisites && lab.prerequisites.length > 0 && (
-                    <div style={{ marginBottom: '32px' }}>
-                      <div className="nx-section-header">Prerequisites</div>
-                      <ul style={{ paddingLeft: '20px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                        {lab.prerequisites.map((req, i) => (
-                          <li key={i}>{req}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+        <div className="nx-instructions-body">
+          {/* Topology description paragraph */}
+          <p>
+            The topology for this lab contains a single point-to-point Ethernet network,{' '}
+            <strong>192.168.1.0/24</strong>, connecting the e0/0 interface of IOU1 to the e0/0 interface of
+            IOU2. <strong>OSPF Area 0</strong> is enabled on this link so that both routers can dynamically
+            learn and advertise routes to one another.
+          </p>
 
-                  <div className="nx-section-header">Implementation Tasks</div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {mergedTasks.map((task, index) => (
-                      <div key={task.task_id} className={`nx-task-card ${task.passed ? 'passed' : ''}`}>
-                        <div className="nx-task-header">
-                          <div className="nx-task-badge">
-                            {task.passed ? <CheckCircle size={14} style={{margin: '0 2px'}} /> : index + 1}
-                          </div>
-                          
-                          <div style={{ flex: 1 }}>
-                            <h4 className="nx-task-title" style={{ color: task.passed ? 'var(--accent-blue)' : 'var(--text-primary)' }}>
-                              {task.description}
-                            </h4>
-                            
-                            {!task.passed && (
-                              <>
-                                {task.instructions && (
-                                  <p style={{ marginBottom: '16px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{task.instructions}</p>
-                                )}
-                                
-                                <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
-                                  {task.hint && (
-                                    <button 
-                                      onClick={() => toggleHint(task.task_id)}
-                                      className="nx-hint-link"
-                                    >
-                                      {visibleHints[task.task_id] ? 'Hide Hint' : 'Show Hint'}
-                                    </button>
-                                  )}
-                                  {task.answer_commands && (
-                                    <button 
-                                      onClick={() => toggleAnswer(task.task_id)}
-                                      className="nx-hint-link"
-                                    >
-                                      {visibleAnswers[task.task_id] ? 'Hide Answer' : 'Show Answer'}
-                                    </button>
-                                  )}
-                                </div>
-                                
-                                {visibleHints[task.task_id] && task.hint && (
-                                  <div style={{ background: 'rgba(255, 176, 0, 0.1)', border: '1px solid rgba(255, 176, 0, 0.2)', padding: '12px', borderRadius: '6px', marginBottom: '16px', color: '#e5a000', fontSize: '0.9rem' }}>
-                                    <strong>Hint:</strong> {task.hint}
-                                  </div>
-                                )}
-                                
-                                {visibleAnswers[task.task_id] && task.answer_commands && (
-                                  <div style={{ background: '#000', border: '1px solid var(--border-subtle)', borderRadius: '6px', padding: '12px', fontFamily: 'monospace', fontSize: '0.85rem', marginBottom: '16px', color: 'var(--text-primary)' }}>
-                                    {task.answer_commands.join('\n')}
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+          {/* Command Summary */}
+          <div className="nx-cmd-section-title">Command Summary</div>
 
-                </div>
+          {lab.command_reference && lab.command_reference.map((cmd, i) => (
+            <div className="nx-cmd-card" key={i}>
+              <div className="nx-cmd-label">Command</div>
+              <span className="nx-cmd-code">{cmd.command}</span>
+              <div className="nx-cmd-label">Description</div>
+              <span className="nx-cmd-desc">{cmd.description}</span>
+            </div>
+          ))}
+          {/* Fallback commands if none from YAML */}
+          {(!lab.command_reference || lab.command_reference.length === 0) && activeTerminal === 'IOU1' && (
+            <>
+              <div className="nx-cmd-section-title">Command Summary</div>
+              <div className="nx-cmd-card">
+                <div className="nx-cmd-label">Command</div>
+                <div className="nx-cmd-code">{'router ospf 1'}</div>
+                <div className="nx-cmd-label">Description</div>
+                <div className="nx-cmd-desc">Enter OSPF process mode</div>
               </div>
-            )}
-            
-            {activeCenterTab === 'topology' && (
-               <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)' }}>
-                 <iframe 
-                   src={`http://localhost:8000/api/labs/${slug}/topology.pdf#toolbar=0&navpanes=0&scrollbar=0`}
-                   style={{ width: '100%', height: '100%', border: 'none' }}
-                   title="Lab Topology PDF"
-                 />
-               </div>
-            )}
+              <div className="nx-cmd-card">
+                <div className="nx-cmd-label">Command</div>
+                <div className="nx-cmd-code">{'network 192.168.1.0\n0.0.0.255 area 0'}</div>
+                <div className="nx-cmd-label">Description</div>
+                <div className="nx-cmd-desc">Advertise subnet into OSPF Area 0</div>
+              </div>
+              <div className="nx-cmd-card">
+                <div className="nx-cmd-label">Command</div>
+                <div className="nx-cmd-code">{'show ip ospf\nneighbor'}</div>
+                <div className="nx-cmd-label">Description</div>
+                <div className="nx-cmd-desc">Verify OSPF adjacencies</div>
+              </div>
+            </>
+          )}
+        </div>
+      </aside>
+
+      {/* ── CENTER WORKSPACE ── */}
+      <div className="nx-workspace">
+
+        {/* Topology panel */}
+        <div className="nx-topo-panel nx-card">
+          <div className="nx-topo-header">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            Persistent Topology · OSPF Lab
+          </div>
+          <div className="nx-topo-canvas">
+            <TopologyDiagram
+              nodes={nodes.map(n => ({ name: n, status: session ? (isBooting ? 'booting' : 'running') : 'offline' }))}
+              linkStatus={linkStatus}
+              activeNode={activeTerminal}
+              onNodeClick={(name) => setActiveTerminal(name)}
+            />
           </div>
         </div>
 
-        {/* Bottom pane: Terminal */}
-        <div className="nx-panel" style={{ flex: 5, borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-          <div className="nx-tab-bar">
+        {/* Terminal panel */}
+        <div className="nx-term-panel nx-card" style={{ padding: 0 }}>
+          <div className="nx-term-tabs">
             {nodes.map(node => (
-              <button 
+              <button
                 key={node}
-                className={`nx-tab-terminal ${activeTerminal === node ? 'active' : ''}`}
+                className={`nx-term-tab ${activeTerminal === node ? 'active' : ''}`}
                 onClick={() => setActiveTerminal(node)}
                 disabled={!session || isBooting}
               >
-                <TerminalSquare size={14} />
+                <span className="tab-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="3" ry="3"/>
+                    <polyline points="7 10 10 13 7 16"/>
+                    <line x1="12" y1="16" x2="16" y2="16"/>
+                  </svg>
+                </span>
                 {node}
               </button>
             ))}
           </div>
-          
-          <div className="nx-terminal-container">
+          <div className="nx-term-body">
             {!session || isBooting ? (
-              <div className="nx-offline-state">
-                <div className="nx-offline-icon">
-                  <TerminalSquare size={32} />
-                </div>
-                <div style={{ fontSize: '1.2rem', color: 'var(--text-primary)', fontWeight: 500, marginTop: '8px' }}>
-                  {isBooting ? 'Booting Environment...' : 'Lab is Offline'}
-                </div>
-                <div style={{ fontSize: '0.85rem' }}>
-                  {isBooting ? 'Please wait while devices power on.' : 'Click Start to power on the environment.'}
-                </div>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', fontSize: 12 }}>
+                {isBooting ? `Booting devices… ${bootProgress}%` : 'Environment is offline. Press ▶ to start.'}
               </div>
             ) : (
-              <Terminal 
+              <Terminal
                 ws={wsRefs.current[activeTerminal]}
                 buffer={bufRefs.current[activeTerminal] || []}
                 nodeName={activeTerminal}
@@ -477,57 +451,63 @@ export default function LabEnvironment({ params }) {
         </div>
       </div>
 
-      {/* Right Sidebar: Devices Pane */}
-      <div className="nx-sidebar right" style={{ gridArea: 'right' }}>
-        <div className="nx-sidebar-header">
-          Devices
+      {/* ── RIGHT SIDEBAR ── */}
+      <aside className="nx-sidebar-right nx-card">
+        {/* Header */}
+        <div className="nx-section-header">
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.6px' }}>Devices</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          
-          <div style={{ flex: 1, overflowY: 'auto', borderBottom: '1px solid var(--border-subtle)' }}>
-            <div className="nx-sidebar-group-title" style={{ marginTop: '12px' }}>
-              TOPOLOGY
-            </div>
-            <div className="nx-lab-item" style={{ paddingLeft: '20px' }}>
-              <Network size={14} /> Router
-            </div>
-            <div className="nx-lab-item" style={{ paddingLeft: '20px', color: 'var(--border-muted)', cursor: 'default' }}>
-              <Server size={14} /> Switch
-            </div>
-          </div>
-          
-          <div style={{ flex: 1, background: 'var(--bg-base)' }}>
-            <div className="nx-tab-bar">
-              <button className="nx-tab active" style={{ padding: '12px 16px' }}>Active Nodes</button>
-            </div>
-            <div style={{ padding: '8px 0' }}>
-              {nodes.map(node => (
-                <div key={node} className={`nx-node-card ${activeTerminal === node ? 'active' : ''}`} onClick={() => setActiveTerminal(node)}>
-                  <div className="nx-node-info">
-                    <div className="nx-node-icon">
-                      <Server size={16} />
-                    </div>
-                    <span className="nx-node-name">{node}</span>
-                  </div>
-                  <div style={{ 
-                    width: '8px', height: '8px', borderRadius: '50%', 
-                    background: (session && !isBooting) ? 'var(--green-bright)' : 'var(--text-muted)',
-                    boxShadow: (session && !isBooting) ? '0 0 8px var(--green-bright)' : 'none'
-                  }}></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Modals */}
+        {/* Topology palette */}
+        <div>
+          <div className="nx-right-section-label">Topology</div>
+          <div className="nx-right-topo-item">
+            <div className="nx-right-topo-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15.3 15.3 0 0 1 0 18"/></svg>
+            </div>
+            <span>Router</span>
+          </div>
+          <div className="nx-right-topo-item">
+            <div className="nx-right-topo-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6" y2="12.01"/><line x1="10" y1="12" x2="10" y2="12.01"/></svg>
+            </div>
+            <span>Switch</span>
+          </div>
+          <div className="nx-right-topo-item">
+            <div className="nx-right-topo-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+            </div>
+            <span>Cloud</span>
+          </div>
+        </div>
+
+        <div style={{ flex: 1, borderTop: '1px solid var(--border)', marginTop: 8 }}>
+          <div className="nx-right-section-label" style={{ marginTop: 12 }}>Active Nodes</div>
+          <div style={{ padding: '4px 0' }}>
+            {nodes.map(node => (
+              <div
+                key={node}
+                className={`nx-node-row ${activeTerminal === node ? 'active' : ''}`}
+                onClick={() => setActiveTerminal(node)}
+              >
+                <div className="nx-node-icon">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6" y2="12.01"/></svg>
+                </div>
+                <span className="nx-node-name">{node}</span>
+                <div className={(session && !isBooting) ? 'nx-node-online' : 'nx-node-offline'} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
+
+      {/* ── MODALS ── */}
       {showResetModal && (
         <div className="nx-modal-overlay">
           <div className="nx-modal-box">
-            <h3 style={{ marginBottom: '8px' }}>Reset Lab Environment</h3>
-            <p style={{ marginBottom: '24px' }}>Are you sure you want to wipe all configurations? You will lose all unsaved progress.</p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+            <h3 style={{ marginBottom: 8, fontSize: 15 }}>Reset Lab Environment</h3>
+            <p style={{ marginBottom: 24, color: 'var(--text-secondary)', fontSize: 13 }}>Are you sure you want to wipe all configurations? You will lose all unsaved progress.</p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
               <button className="nx-btn" onClick={() => setShowResetModal(false)}>Cancel</button>
               <button className="nx-btn nx-btn-primary" onClick={handleReset}>Yes, Reset</button>
             </div>
@@ -537,30 +517,28 @@ export default function LabEnvironment({ params }) {
 
       {showCompletionModal && gradeReport && (
         <div className="nx-modal-overlay">
-          <div className="nx-modal-box" style={{ textAlign: 'center', width: '400px' }}>
-            <div style={{ width: '64px', height: '64px', background: 'rgba(63, 185, 80, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-              <CheckCircle size={32} color="var(--green-bright)" />
+          <div className="nx-modal-box" style={{ textAlign: 'center' }}>
+            <div style={{ width: 60, height: 60, background: 'var(--green-bg)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Lab Complete!</h3>
-            <p style={{ marginBottom: '24px' }}>Great job. You've successfully configured all requirements.</p>
-            
-            <div style={{ display: 'flex', gap: '16px', background: 'var(--bg-base)', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid var(--border-subtle)' }}>
+            <h3 style={{ fontSize: 20, marginBottom: 8 }}>Lab Complete!</h3>
+            <p style={{ marginBottom: 24, color: 'var(--text-secondary)' }}>Great job. You've successfully configured all requirements.</p>
+            <div style={{ display: 'flex', gap: 16, background: '#f9fafb', padding: 16, borderRadius: 12, marginBottom: 24, border: '1px solid var(--border)' }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '4px' }}>Score</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{gradeReport.percentage}%</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>Score</div>
+                <div style={{ fontSize: 22, fontWeight: 700 }}>{gradeReport.percentage}%</div>
               </div>
-              <div style={{ width: '1px', background: 'var(--border-muted)' }}></div>
+              <div style={{ width: 1, background: 'var(--border)' }} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '4px' }}>Time</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{formatTime(labTimer)}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>Time</div>
+                <div style={{ fontSize: 22, fontWeight: 700 }}>{formatTime(labTimer)}</div>
               </div>
             </div>
-            
-            <button className="nx-btn nx-btn-primary" style={{ width: '100%' }} onClick={() => { setShowCompletionModal(false); router.push('/'); }}>Return to Dashboard</button>
+            <button className="nx-btn nx-btn-primary" style={{ width: '100%', borderRadius: 12, padding: '10px 0' }} onClick={() => { setShowCompletionModal(false); router.push('/'); }}>Return to Dashboard</button>
           </div>
         </div>
       )}
-
     </div>
   );
 }
+
