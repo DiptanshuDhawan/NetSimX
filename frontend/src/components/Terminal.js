@@ -17,10 +17,10 @@ export default function Terminal({ ws, buffer, nodeName }) {
 
     const term = new XTerm({
       theme: {
-        background: '#0A0C12',
-        foreground: '#F0F2F8',
-        cursor: '#5A67F2',
-        selectionBackground: 'rgba(90,103,242,0.3)',
+        background: '#141517',
+        foreground: '#E5E7EB',
+        cursor: '#E5E7EB',
+        selectionBackground: 'rgba(255,255,255,0.2)',
       },
       fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
       fontSize: 14,
@@ -72,7 +72,7 @@ export default function Terminal({ ws, buffer, nodeName }) {
   }, []);
 
   return (
-    <div style={{ height: '100%', width: '100%', background: '#0A0C12', overflow: 'hidden' }}>
+    <div style={{ height: '100%', width: '100%', background: 'var(--bg-terminal)', overflow: 'hidden' }}>
       <div ref={containerRef} style={{ height: '100%', width: '100%' }} />
     </div>
   );

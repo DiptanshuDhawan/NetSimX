@@ -37,12 +37,50 @@ export default function LabEnvironment({ params }) {
   const [passedTaskIds, setPassedTaskIds] = useState([]);
   const [showResetModal, setShowResetModal] = useState(false);
 
+  // Sidebar drag resizer state
+  const [sidebarTopHeight, setSidebarTopHeight] = useState(50);
+  const isSidebarDragging = useRef(false);
+  const sidebarRef = useRef(null);
+
   // Static list of node names for this lab
   const nodes = ['IOU1', 'IOU2'];
 
   // Persistent WebSocket connections and scroll-back buffers — one per node
   const wsRefs = useRef({});   // { IOU1: WebSocket, IOU2: WebSocket }
   const bufRefs = useRef({});  // { IOU1: Uint8Array[], IOU2: Uint8Array[] }
+
+  const handleSidebarDragStart = (e) => {
+    e.preventDefault();
+    isSidebarDragging.current = true;
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isSidebarDragging.current || !sidebarRef.current) return;
+      const rect = sidebarRef.current.getBoundingClientRect();
+      const newHeight = ((e.clientY - rect.top) / rect.height) * 100;
+      if (newHeight >= 15 && newHeight <= 85) {
+        setSidebarTopHeight(newHeight);
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (isSidebarDragging.current) {
+        isSidebarDragging.current = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
 
   // Load current lab and all labs for tree
   useEffect(() => {
@@ -265,13 +303,16 @@ export default function LabEnvironment({ params }) {
         {/* Left: logo + breadcrumbs */}
         <div className="nx-brand">
           <div className="nx-logo" onClick={() => router.push('/')}>NX</div>
-          <nav className="nx-breadcrumbs">
-            <span style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} onClick={() => router.push('/')}>Labs</span>
-            <span className="sep">›</span>
+          <div className="nx-breadcrumbs">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#E5E7EB' }} onClick={() => router.push('/')}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+              <span>Labs</span>
+            </div>
+            <span className="sep">{'>'}</span>
             <span className="crumb-topic">{lab.topic}</span>
-            <span className="sep">›</span>
+            <span className="sep">{'>'}</span>
             <span className="crumb-title">{lab.title}</span>
-          </nav>
+          </div>
         </div>
 
         {/* Right: controls */}
@@ -283,48 +324,58 @@ export default function LabEnvironment({ params }) {
             </div>
           )}
 
-          {/* Play */}
-          <button className="nx-icon-btn" onClick={handleStart} disabled={!!session || isBooting} title="Start Lab">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          {/* Stop */}
-          <button className="nx-icon-btn" onClick={handleStop} disabled={!session || isBooting} title="Stop Lab">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>
-          </button>
-          {/* Reset */}
-          <button className="nx-icon-btn" onClick={() => setShowResetModal(true)} disabled={!session || isBooting} title="Reset">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          </button>
+          {/* Action Button Group */}
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {/* Play */}
+            <button className="nx-icon-btn" onClick={handleStart} disabled={!!session || isBooting} title="Start Lab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+
+            {/* Stop */}
+            <button className="nx-icon-btn" onClick={handleStop} disabled={!session || isBooting} title="Stop Lab">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>
+            </button>
+
+            {/* Refresh (Reset) */}
+            <button className="nx-icon-btn" onClick={() => setShowResetModal(true)} disabled={!session || isBooting} title="Reset Lab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </button>
+          </div>
+
           {/* Grade */}
           <button className="nx-grade-btn" onClick={handleGrade} disabled={!session || isBooting || isGrading}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             Grade
           </button>
+          
           {/* Avatar */}
           <div className="nx-avatar">N</div>
         </div>
       </header>
 
       {/* ── LEFT SIDEBAR ── */}
-      <aside className="nx-sidebar-left nx-card">
-
-        {/* Section 1 – Lab Content */}
-        <div className="nx-section-header">
-          <span className="nx-section-title">Lab Content</span>
-          <svg className="nx-section-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-        </div>
-
-        {/* Search */}
-        <div className="nx-search-wrap">
-          <div className="nx-search-inner">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Search Labs..." />
+      <aside className="nx-sidebar-left nx-card" ref={sidebarRef}>
+        
+        {/* Top Section */}
+        <div style={{ flex: `0 0 ${sidebarTopHeight}%`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          
+          {/* Section 1 – Lab Content */}
+        <div className="nx-section-header" style={{ flexShrink: 0 }}>
+            <span className="nx-section-title">Lab Content</span>
+            <svg className="nx-section-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
           </div>
-        </div>
 
-        {/* Labs tree */}
-        <div style={{ borderBottom: '1px solid var(--border)' }}>
-          {Object.entries(topics).map(([topic, topicLabs]) => (
+          {/* Search */}
+          <div className="nx-search-wrap" style={{ flexShrink: 0 }}>
+            <div className="nx-search-inner">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Search Labs..." />
+            </div>
+          </div>
+
+          {/* Labs tree */}
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {Object.entries(topics).map(([topic, topicLabs]) => (
             <div key={topic}>
               <div className="nx-tree-section-label">{topic}</div>
               {topicLabs.map(l => (
@@ -339,16 +390,33 @@ export default function LabEnvironment({ params }) {
               ))}
             </div>
           ))}
+          </div>
         </div>
 
-        {/* Section 2 – Lab Instructions */}
-        <div className="nx-section-header" style={{ marginTop: 0 }}>
-          <span className="nx-section-title">Lab Instructions</span>
-          <svg className="nx-section-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-        </div>
+        {/* Resizer Handle */}
+        <div 
+          onMouseDown={handleSidebarDragStart}
+          style={{
+            height: '4px',
+            background: 'var(--bg-card)',
+            borderTop: '1px solid var(--border)',
+            borderBottom: '1px solid var(--border)',
+            cursor: 'row-resize',
+            flexShrink: 0,
+            zIndex: 10
+          }}
+        />
 
-        <div className="nx-instructions-body">
-          {/* Topology description paragraph */}
+        {/* Bottom Section */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* Section 2 – Lab Instructions */}
+          <div className="nx-section-header" style={{ flexShrink: 0, marginTop: 0 }}>
+            <span className="nx-section-title">Lab Instructions</span>
+            <svg className="nx-section-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+
+          <div className="nx-instructions-body" style={{ flex: 1, overflowY: 'auto' }}>
+            {/* Topology description paragraph */}
           <p>
             The topology for this lab contains a single point-to-point Ethernet network,{' '}
             <strong>192.168.1.0/24</strong>, connecting the e0/0 interface of IOU1 to the e0/0 interface of
@@ -391,6 +459,7 @@ export default function LabEnvironment({ params }) {
               </div>
             </>
           )}
+          </div>
         </div>
       </aside>
 
@@ -483,7 +552,7 @@ export default function LabEnvironment({ params }) {
 
         <div style={{ flex: 1, borderTop: '1px solid var(--border)', marginTop: 8 }}>
           <div className="nx-right-section-label" style={{ marginTop: 12 }}>Active Nodes</div>
-          <div style={{ padding: '4px 0' }}>
+          <div style={{ padding: '8px 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {nodes.map(node => (
               <div
                 key={node}
