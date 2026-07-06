@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import { BookOpen, Clock, Activity, ChevronRight, Server, Search, CheckCircle, Lock, LayoutList, Star, Award, Play, TrendingUp, Network } from 'lucide-react';
+import { BookOpen, Clock, Activity, ChevronRight, Server, Search, CheckCircle, Lock, LayoutList, Star, Award, Play, TrendingUp, Network, MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
@@ -11,6 +11,7 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTopic, setActiveTopic] = useState('All Topics');
   const [completedCount, setCompletedCount] = useState(0);
+  const [heroBookmarked, setHeroBookmarked] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -44,7 +45,15 @@ export default function Dashboard() {
     return matchesTopic && matchesSearch;
   });
 
-  // Dashboard is simplified for initial launch phase
+  const featuredLab = filteredLabs.length > 0 ? filteredLabs[0] : null;
+  const remainingLabs = filteredLabs;
+
+  const getDifficultyColor = (diff) => {
+    const d = (diff || 'BEGINNER').toUpperCase();
+    if (d === 'INTERMEDIATE') return { bg: 'rgba(245, 158, 11, 0.15)', text: '#f59e0b' };
+    if (d === 'ADVANCED') return { bg: 'rgba(239, 68, 68, 0.15)', text: 'var(--red)' };
+    return { bg: 'rgba(34, 197, 94, 0.15)', text: 'var(--green)' };
+  };
 
   return (
     <div className="nx-dashboard-layout">
@@ -70,56 +79,125 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="nx-dashboard-content">
+        <div style={{ marginBottom: '24px', fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>Home</span>
+          <ChevronRight size={14} />
+          <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Dashboard</span>
+        </div>
           
-        {/* 1. Simple Header */}
-        <section style={{ marginBottom: '24px' }}>
-          <div>
-            <h1 className="nx-analytics-title" style={{ fontSize: '1.75rem' }}>Lab Catalog</h1>
-            <p className="nx-analytics-subtitle">Select a lab below to start your networking journey.</p>
-          </div>
-        </section>
+        {/* 1. Featured Lab Banner */}
 
-        {/* 3. Search and Filters Toolbar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: 'var(--bg-card)', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-            {topics.map(topic => (
-              <button 
+        {featuredLab ? (
+          <div className="nx-featured-lab">
+            {/* Background Texture */}
+            <div style={{ position: 'absolute', right: '-20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.03, pointerEvents: 'none' }}>
+              <Network size={340} />
+            </div>
+
+            <div 
+              className="nx-featured-lab-bookmark" 
+              onClick={(e) => { e.stopPropagation(); setHeroBookmarked(!heroBookmarked); }}
+              title="Save for later"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill={heroBookmarked ? "var(--primary)" : "none"} stroke={heroBookmarked ? "var(--primary)" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'all 0.15s ease-out' }}>
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </div>
+            
+            <div className="nx-featured-lab-icon">
+              <BookOpen size={40} color="var(--primary)" />
+            </div>
+
+            <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', background: getDifficultyColor(featuredLab.difficulty).bg, padding: '4px 10px', borderRadius: '999px', color: getDifficultyColor(featuredLab.difficulty).text, display: 'inline-flex', marginBottom: '12px' }}>
+                {featuredLab.difficulty || 'BEGINNER'}
+              </div>
+              
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#fff', margin: '0 0 8px 0' }}>{featuredLab.title}</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', margin: '0 0 24px 0', maxWidth: '600px' }}>{featuredLab.description}</p>
+              
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '24px', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 500 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={16} /> {featuredLab.estimated_time_minutes} min</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><LayoutList size={16} /> 5 Tasks</div>
+                  </div>
+                  <div className="nx-hero-progress-track" style={{ width: '200px', marginTop: '4px' }}>
+                    <div className="nx-hero-progress-fill" style={{ width: '0%' }}></div>
+                  </div>
+                </div>
+                <button className="nx-btn nx-btn-primary" onClick={() => router.push(`/labs/${featuredLab.slug}`)} style={{ padding: '8px 24px', fontWeight: 600 }}>
+                  Start Lab &gt;
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '32px' }}>
+              <Search size={32} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
+              <p>No featured lab found.</p>
+           </div>
+        )}
+
+        {/* 2. Browse by Category */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0, letterSpacing: '0.5px' }}>Browse by Category</h3>
+          <span className="nx-link-view-all">View all</span>
+        </div>
+
+        <div className="nx-category-grid">
+          {topics.map(topic => {
+            const isActive = activeTopic === topic;
+            const topicLabs = topic === 'All Topics' ? labs : labs.filter(l => l.topic === topic);
+            
+            let TopicIcon = Network;
+            if (topic.toLowerCase().includes('switch')) TopicIcon = Server;
+            if (topic.toLowerCase().includes('security')) TopicIcon = Lock;
+            if (topic.toLowerCase().includes('auto')) TopicIcon = Activity;
+            let topicColor = 'gray';
+            if (topic.toLowerCase().includes('routing')) topicColor = 'blue';
+            if (topic.toLowerCase().includes('switch')) topicColor = 'purple';
+            if (topic.toLowerCase().includes('security')) topicColor = 'red';
+            if (topic.toLowerCase().includes('auto')) topicColor = 'orange';
+            if (topic.toLowerCase().includes('wireless')) topicColor = 'teal';
+
+            return (
+              <div 
                 key={topic}
+                className={`nx-category-card ${isActive ? 'active' : ''}`}
                 onClick={() => setActiveTopic(topic)}
-                style={{
-                  background: activeTopic === topic ? 'var(--primary)' : 'transparent',
-                  color: activeTopic === topic ? '#fff' : 'var(--text-secondary)',
-                  border: 'none',
-                  padding: '6px 16px',
-                  borderRadius: '999px',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s ease-out, color 0.2s ease-out'
-                }}
+                data-topic-color={topicColor}
               >
-                {topic}
-              </button>
-            ))}
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-terminal)', border: '1px solid var(--border)', borderRadius: '999px', padding: '6px 16px', minWidth: '240px' }}>
-            <Search size={14} style={{ color: 'var(--text-muted)' }} />
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontSize: '0.85rem', width: '100%' }}
-            />
+                <div className="nx-category-icon-badge">
+                  <TopicIcon size={22} className="nx-category-card-icon" />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                  <span className="nx-category-card-title">{topic}</span>
+                  <span className="nx-category-card-count">{topicLabs.length} {topicLabs.length === 1 ? 'Lab' : 'Labs'}</span>
+                </div>
+              </div>
+            );
+          })}
+          
+          {/* Coming Soon Placeholder */}
+          <div className="nx-category-card" style={{ borderStyle: 'dashed', borderColor: 'rgba(255, 255, 255, 0.1)', opacity: 0.6, cursor: 'default', background: 'transparent' }}>
+            <div className="nx-category-icon-badge" style={{ background: 'rgba(255, 255, 255, 0.03)', boxShadow: 'none' }}>
+              <MoreHorizontal size={22} className="nx-category-card-icon" />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+              <span className="nx-category-card-title">More Topics</span>
+              <span className="nx-category-card-count">Coming Soon</span>
+            </div>
           </div>
         </div>
 
+        {/* Divider */}
+        <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.05)', width: '100%', margin: '24px 0' }} />
 
-
-        {/* 5. Available Labs */}
-        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>
-          Available Labs
+        {/* 4. Recently Added */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0, letterSpacing: '0.5px' }}>Recently Added</h3>
+          <span className="nx-link-view-all">View all</span>
         </div>
 
         {loading ? (
@@ -127,53 +205,53 @@ export default function Dashboard() {
             <Activity size={32} color="var(--primary)" style={{ animation: 'pulse 1.5s infinite' }} />
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             
-            {filteredLabs.map((lab) => {
-              let difficultyColor = 'var(--green)';
-              let difficultyEmoji = '🟢';
-              if (lab.difficulty?.toLowerCase() === 'intermediate') { difficultyColor = 'var(--tertiary)'; difficultyEmoji = '🟡'; }
-              if (lab.difficulty?.toLowerCase() === 'advanced') { difficultyColor = 'var(--red)'; difficultyEmoji = '🔴'; }
+            {remainingLabs.map((lab, idx) => {
+              // Cycle colors for icons like in the screenshot
+              const colorPalette = [
+                { bg: 'rgba(34, 197, 94, 0.1)', color: 'var(--green)' },
+                { bg: 'rgba(239, 68, 68, 0.1)', color: 'var(--red)' },
+                { bg: 'rgba(47, 128, 237, 0.1)', color: 'var(--primary)' },
+                { bg: 'rgba(234, 179, 8, 0.1)', color: '#eab308' }
+              ];
+              const iconStyle = colorPalette[idx % colorPalette.length];
 
               return (
               <div 
                 key={lab.id} 
                 className="nx-lab-list-item"
                 onClick={() => router.push(`/labs/${lab.slug}`)}
-                style={{ borderLeft: '1px solid var(--border)' }}
+                style={{ padding: '20px', gap: '16px' }}
               >
-                <div className="nx-lab-list-item-left">
-                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)' }}>
-                    <BookOpen size={24} />
+                <div className="nx-lab-list-item-bookmark" title="Save for later">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                </div>
+                
+                <div className="nx-lab-list-item-left" style={{ gap: '16px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: iconStyle.bg, color: iconStyle.color }}>
+                    <BookOpen size={20} />
                   </div>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: 'rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '4px', color: difficultyColor, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        {difficultyEmoji} {lab.difficulty}
-                      </span>
-                      <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0, marginLeft: '4px' }}>{lab.title}</h3>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', margin: 0 }}>{lab.description}</p>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>{lab.title}</h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>{lab.description}</p>
                   </div>
                 </div>
 
-                <div className="nx-lab-list-item-right" style={{ flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', gap: '16px', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {lab.estimated_time_minutes} min</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Award size={14} /> 150 XP</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><LayoutList size={14} /> 5 Tasks</div>
+                <div className="nx-lab-list-item-right" style={{ gap: '24px' }}>
+                  <div style={{ display: 'flex', gap: '16px', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 500 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={14} /> {lab.estimated_time_minutes} min</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><LayoutList size={14} /> 4 Tasks</div>
                   </div>
-                  <button className="nx-btn nx-btn-primary">
-                    Start Lab
+                  <button className="nx-btn" style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-primary)', padding: '6px 16px', fontSize: '0.85rem' }}>
+                    Start Lab &gt;
                   </button>
                 </div>
               </div>
             )})}
-
-
             
-            {filteredLabs.length === 0 && (
-              <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--text-muted)', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+            {remainingLabs.length === 0 && (
+              <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-muted)', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)' }}>
                 <Search size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
                 <h3 style={{ fontSize: '1.2rem', color: 'var(--text-primary)', marginBottom: '8px' }}>No Labs Available</h3>
                 <p>Try selecting another topic.</p>
@@ -183,8 +261,11 @@ export default function Dashboard() {
           </div>
         )}
         
-        <footer style={{ marginTop: 'auto', paddingTop: '48px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-          <div>NetLabX v1.0.0</div>
+        <footer style={{ marginTop: 'auto', paddingTop: '48px', paddingBottom: '24px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '20px', height: '20px', background: 'var(--text-muted)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: 'var(--bg-base)', fontWeight: 700 }}>N</div>
+            <span>NetLabX v1.0.0</span>
+          </div>
           <div>Real Network Emulation Platform</div>
         </footer>
 

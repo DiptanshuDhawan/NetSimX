@@ -23,7 +23,7 @@ export default function Terminal({ ws, buffer, nodeName }) {
         selectionBackground: 'rgba(255,255,255,0.2)',
       },
       fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
-      fontSize: 14,
+      fontSize: 16,
       lineHeight: 1.4,
       cursorBlink: true,
       cursorStyle: 'block',

@@ -1,5 +1,5 @@
-const API_URL = 'http://localhost:8000';
-const WS_URL = 'ws://localhost:8000';
+const API_URL = typeof window !== 'undefined' ? `http://${window.location.hostname}:8000` : 'http://localhost:8000';
+const WS_URL = typeof window !== 'undefined' ? `ws://${window.location.hostname}:8000` : 'ws://localhost:8000';
 
 export const api = {
   // Fetch all labs

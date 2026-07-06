@@ -272,8 +272,12 @@ export default function LabEnvironment({ params }) {
   };
 
   const formatTime = (totalSeconds) => {
-    const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
     const s = (totalSeconds % 60).toString().padStart(2, '0');
+    if (h > 0) {
+      return `${h.toString().padStart(2, '0')}:${m}:${s}`;
+    }
     return `${m}:${s}`;
   };
 

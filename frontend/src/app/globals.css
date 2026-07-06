@@ -33,7 +33,10 @@
 html, body {
   margin: 0; padding: 0;
   height: 100%; overflow: hidden;
-  background: var(--bg-base);
+  background-color: var(--bg-base);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: center center;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -580,15 +583,47 @@ html, body {
   font-weight: 500;
   cursor: pointer;
   color: var(--text-primary);
-  transition: filter 0.2s ease-out;
+  transition: transform 0.15s ease-out, filter 0.15s ease-out;
 }
-.nx-btn:hover { filter: brightness(1.1); }
+.nx-btn:hover { 
+  transform: scale(1.02);
+  filter: brightness(1.1); 
+}
 .nx-btn-primary {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
 }
-.nx-btn-primary:hover { filter: brightness(1.1); }
+.nx-btn-primary:hover { 
+  transform: scale(1.02);
+  filter: brightness(1.1); 
+}
+
+/* View All Links */
+.nx-link-view-all {
+  position: relative;
+  font-size: 0.85rem;
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+}
+.nx-link-view-all::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: 0;
+  left: 0;
+  background-color: var(--primary);
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+.nx-link-view-all:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
 
 /* ═══════════════════════════════════════════════
    TIMELINE LAB INSTRUCTIONS
@@ -774,7 +809,7 @@ html, body {
 }
 
 .nx-dashboard-content {
-  max-width: 1200px;
+  max-width: 1500px;
   width: 100%;
   margin: 0 auto;
   padding: 48px 24px;
@@ -1066,16 +1101,32 @@ html, body {
   gap: 24px;
   padding: 24px;
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   background: var(--bg-card);
-  transition: transform 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.2s ease-out;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: transform 0.15s ease-out, border-color 0.15s ease-out, box-shadow 0.15s ease-out, background-color 0.15s ease-out;
   cursor: pointer;
+  position: relative;
 }
 .nx-lab-list-item:hover {
   background: var(--bg-card-hover);
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: var(--shadow);
+  border-color: rgba(47, 128, 237, 0.5);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+.nx-lab-list-item-bookmark {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.2s ease-out, color 0.2s ease-out;
+}
+.nx-lab-list-item:hover .nx-lab-list-item-bookmark {
+  opacity: 1;
+}
+.nx-lab-list-item-bookmark:hover {
+  color: var(--primary);
 }
 .nx-lab-list-item-left {
   display: flex;
@@ -1128,4 +1179,156 @@ html, body {
     width: 100%;
     justify-content: space-between;
   }
+  .nx-category-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
 }
+
+/* ═══════════════════════════════════════════════
+   FEATURED LAB & CATEGORIES (Redesign)
+═══════════════════════════════════════════════ */
+.nx-featured-lab {
+  background: radial-gradient(circle at 15% 50%, rgba(47, 128, 237, 0.22), transparent 60%), linear-gradient(145deg, rgba(16, 24, 39, 0.95), rgba(17, 24, 39, 0.85));
+  border: 1px solid rgba(47, 128, 237, 0.25);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+  flex-shrink: 0;
+}
+.nx-featured-lab:hover {
+  border-color: rgba(47, 128, 237, 0.4);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+.nx-featured-lab-icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(47, 128, 237, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 24px rgba(47, 128, 237, 0.2);
+}
+.nx-featured-lab-bookmark {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.nx-featured-lab-bookmark:hover {
+  color: var(--text-primary);
+}
+
+.nx-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 220px));
+  justify-content: flex-start;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.nx-category-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease-out;
+  border-bottom: 2px solid transparent;
+}
+.nx-category-card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.1);
+  border-bottom-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.nx-category-card.active {
+  background: rgba(47, 128, 237, 0.1);
+  border-color: var(--primary);
+}
+.nx-category-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(47, 128, 237, 0.12);
+  box-shadow: inset 0 0 12px rgba(47, 128, 237, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+/* Hero Progress Bar */
+.nx-hero-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.nx-hero-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+  width: 0%;
+  transition: width 0.3s ease-out;
+}
+.nx-category-card-icon {
+  color: var(--text-secondary);
+  transition: color 0.2s ease-out;
+}
+.nx-category-card:hover .nx-category-card-icon {
+  color: var(--text-primary);
+}
+.nx-category-card.active .nx-category-card-icon {
+  color: var(--primary);
+}
+.nx-category-card-title {
+  font-size: 1.0625rem; /* 17px */
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+}
+.nx-category-card-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.nx-category-card.active .nx-category-card-count {
+  color: var(--primary);
+}
+
+/* Category Colors */
+.nx-category-card[data-topic-color="blue"].active { border-color: #3b82f6; background: rgba(59,130,246,0.1); }
+.nx-category-card[data-topic-color="blue"].active .nx-category-card-icon, .nx-category-card[data-topic-color="blue"].active .nx-category-card-count { color: #3b82f6; }
+
+.nx-category-card[data-topic-color="purple"].active { border-color: #8b5cf6; background: rgba(139,92,246,0.1); }
+.nx-category-card[data-topic-color="purple"].active .nx-category-card-icon, .nx-category-card[data-topic-color="purple"].active .nx-category-card-count { color: #8b5cf6; }
+
+.nx-category-card[data-topic-color="red"].active { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+.nx-category-card[data-topic-color="red"].active .nx-category-card-icon, .nx-category-card[data-topic-color="red"].active .nx-category-card-count { color: #ef4444; }
+
+.nx-category-card[data-topic-color="orange"].active { border-color: #f97316; background: rgba(249,115,22,0.1); }
+.nx-category-card[data-topic-color="orange"].active .nx-category-card-icon, .nx-category-card[data-topic-color="orange"].active .nx-category-card-count { color: #f97316; }
+
+.nx-category-card[data-topic-color="teal"].active { border-color: #14b8a6; background: rgba(20,184,166,0.1); }
+.nx-category-card[data-topic-color="teal"].active .nx-category-card-icon, .nx-category-card[data-topic-color="teal"].active .nx-category-card-count { color: #14b8a6; }
+
+.nx-category-card[data-topic-color="gray"].active { border-color: #9ca3af; background: rgba(156,163,175,0.1); }
+.nx-category-card[data-topic-color="gray"].active .nx-category-card-icon, .nx-category-card[data-topic-color="gray"].active .nx-category-card-count { color: #9ca3af; }
