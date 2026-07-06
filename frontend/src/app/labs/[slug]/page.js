@@ -38,7 +38,10 @@ export default function LabEnvironment({ params }) {
   const [showResetModal, setShowResetModal] = useState(false);
 
   // Sidebar drag resizer state
-  const [sidebarTopHeight, setSidebarTopHeight] = useState(50);
+  const [sidebarTopHeight, setSidebarTopHeight] = useState(25);
+  const [isCommandSummaryOpen, setIsCommandSummaryOpen] = useState(false);
+  const [isLabContentOpen, setIsLabContentOpen] = useState(true);
+  const [isLabInstructionsOpen, setIsLabInstructionsOpen] = useState(true);
   const isSidebarDragging = useRef(false);
   const sidebarRef = useRef(null);
 
@@ -357,109 +360,200 @@ export default function LabEnvironment({ params }) {
       <aside className="nx-sidebar-left nx-card" ref={sidebarRef}>
         
         {/* Top Section */}
-        <div style={{ flex: `0 0 ${sidebarTopHeight}%`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ flex: isLabContentOpen ? (isLabInstructionsOpen ? `0 0 ${sidebarTopHeight}%` : '1') : '0 0 auto', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'flex 0.2s ease-out' }}>
           
           {/* Section 1 – Lab Content */}
-        <div className="nx-section-header" style={{ flexShrink: 0 }}>
+          <div className="nx-section-header" style={{ flexShrink: 0, cursor: 'pointer' }} onClick={() => setIsLabContentOpen(!isLabContentOpen)}>
             <span className="nx-section-title">Lab Content</span>
-            <svg className="nx-section-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+            <svg className="nx-section-chevron" style={{ transform: isLabContentOpen ? 'none' : 'rotate(-90deg)', transition: 'transform 0.2s ease-out' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
 
-          {/* Search */}
-          <div className="nx-search-wrap" style={{ flexShrink: 0 }}>
-            <div className="nx-search-inner">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" placeholder="Search Labs..." />
-            </div>
-          </div>
+          {isLabContentOpen && (
+            <>
+              {/* Search */}
+              <div className="nx-search-wrap" style={{ flexShrink: 0 }}>
+                <div className="nx-search-inner">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" placeholder="Search Labs..." />
+                </div>
+              </div>
 
-          {/* Labs tree */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            {Object.entries(topics).map(([topic, topicLabs]) => (
-            <div key={topic}>
-              <div className="nx-tree-section-label">{topic}</div>
-              {topicLabs.map(l => (
-                <div
-                  key={l.slug}
-                  className={`nx-tree-item ${l.slug === slug ? 'selected' : ''}`}
-                  onClick={() => router.push(`/labs/${l.slug}`)}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  <span>{l.title}</span>
+              {/* Labs tree */}
+              <div style={{ flex: 1, overflowY: 'auto' }}>
+                {Object.entries(topics).map(([topic, topicLabs]) => (
+                <div key={topic}>
+                  <div className="nx-tree-section-label">{topic}</div>
+                  {topicLabs.map(l => (
+                    <div
+                      key={l.slug}
+                      className={`nx-tree-item ${l.slug === slug ? 'selected' : ''}`}
+                      onClick={() => router.push(`/labs/${l.slug}`)}
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      <span>{l.title}</span>
+                    </div>
+                  ))}
                 </div>
               ))}
-            </div>
-          ))}
-          </div>
-        </div>
-
-        {/* Resizer Handle */}
-        <div 
-          onMouseDown={handleSidebarDragStart}
-          style={{
-            height: '4px',
-            background: 'var(--bg-card)',
-            borderTop: '1px solid var(--border)',
-            borderBottom: '1px solid var(--border)',
-            cursor: 'row-resize',
-            flexShrink: 0,
-            zIndex: 10
-          }}
-        />
-
-        {/* Bottom Section */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* Section 2 – Lab Instructions */}
-          <div className="nx-section-header" style={{ flexShrink: 0, marginTop: 0 }}>
-            <span className="nx-section-title">Lab Instructions</span>
-            <svg className="nx-section-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-          </div>
-
-          <div className="nx-instructions-body" style={{ flex: 1, overflowY: 'auto' }}>
-            {/* Topology description paragraph */}
-          <p>
-            The topology for this lab contains a single point-to-point Ethernet network,{' '}
-            <strong>192.168.1.0/24</strong>, connecting the e0/0 interface of IOU1 to the e0/0 interface of
-            IOU2. <strong>OSPF Area 0</strong> is enabled on this link so that both routers can dynamically
-            learn and advertise routes to one another.
-          </p>
-
-          {/* Command Summary */}
-          <div className="nx-cmd-section-title">Command Summary</div>
-
-          {lab.command_reference && lab.command_reference.map((cmd, i) => (
-            <div className="nx-cmd-card" key={i}>
-              <div className="nx-cmd-label">Command</div>
-              <span className="nx-cmd-code">{cmd.command}</span>
-              <div className="nx-cmd-label">Description</div>
-              <span className="nx-cmd-desc">{cmd.description}</span>
-            </div>
-          ))}
-          {/* Fallback commands if none from YAML */}
-          {(!lab.command_reference || lab.command_reference.length === 0) && activeTerminal === 'IOU1' && (
-            <>
-              <div className="nx-cmd-section-title">Command Summary</div>
-              <div className="nx-cmd-card">
-                <div className="nx-cmd-label">Command</div>
-                <div className="nx-cmd-code">{'router ospf 1'}</div>
-                <div className="nx-cmd-label">Description</div>
-                <div className="nx-cmd-desc">Enter OSPF process mode</div>
-              </div>
-              <div className="nx-cmd-card">
-                <div className="nx-cmd-label">Command</div>
-                <div className="nx-cmd-code">{'network 192.168.1.0\n0.0.0.255 area 0'}</div>
-                <div className="nx-cmd-label">Description</div>
-                <div className="nx-cmd-desc">Advertise subnet into OSPF Area 0</div>
-              </div>
-              <div className="nx-cmd-card">
-                <div className="nx-cmd-label">Command</div>
-                <div className="nx-cmd-code">{'show ip ospf\nneighbor'}</div>
-                <div className="nx-cmd-label">Description</div>
-                <div className="nx-cmd-desc">Verify OSPF adjacencies</div>
               </div>
             </>
           )}
+        </div>
+
+        {/* Resizer Handle */}
+        {isLabContentOpen && isLabInstructionsOpen && (
+          <div 
+            onMouseDown={handleSidebarDragStart}
+            style={{
+              height: '4px',
+              background: 'var(--bg-card)',
+              borderTop: '1px solid var(--border)',
+              borderBottom: '1px solid var(--border)',
+              cursor: 'row-resize',
+              flexShrink: 0,
+              zIndex: 10
+            }}
+          />
+        )}
+
+        {/* Bottom Section */}
+        <div style={{ flex: isLabInstructionsOpen ? '1' : '0 0 auto', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'flex 0.2s ease-out' }}>
+          {/* Section 2 – Lab Instructions */}
+          <div className="nx-section-header" style={{ flexShrink: 0, marginTop: 0, cursor: 'pointer' }} onClick={() => setIsLabInstructionsOpen(!isLabInstructionsOpen)}>
+            <span className="nx-section-title">Lab Instructions</span>
+            <svg className="nx-section-chevron" style={{ transform: isLabInstructionsOpen ? 'none' : 'rotate(-90deg)', transition: 'transform 0.2s ease-out' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
+
+          {isLabInstructionsOpen && (
+            <div className="nx-instructions-body" style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+            
+            {/* Overview Card */}
+            <div className="nx-overview-card">
+              <div className="nx-overview-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Overview
+              </div>
+              <div className="nx-overview-desc">
+                The topology contains a point-to-point Ethernet network connecting IOU1 and IOU2.<br/><br/>
+                Network: <span className="nx-inline-code">192.168.1.0/24</span><br/>
+                Area: <span className="nx-inline-code">OSPF Area 0</span>
+              </div>
+            </div>
+
+            {/* Vertical Timeline */}
+            <div className="nx-timeline">
+              
+              <div className={`nx-timeline-step ${passedTaskIds.includes('t1') ? 'is-completed' : (activeTerminal === 'IOU1' ? 'is-current' : 'is-pending')}`}>
+                <div className="nx-timeline-node">
+                  {passedTaskIds.includes('t1') ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                  )}
+                </div>
+                <div className="nx-timeline-content">
+                  <div className="nx-timeline-title">Configure OSPF on IOU1</div>
+                  <div className="nx-timeline-desc">Enter OSPF routing process configuration mode.</div>
+                </div>
+              </div>
+
+              <div className={`nx-timeline-step ${passedTaskIds.includes('t2') ? 'is-completed' : (activeTerminal === 'IOU1' ? 'is-current' : 'is-pending')}`}>
+                <div className="nx-timeline-node">
+                  {passedTaskIds.includes('t2') ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                  )}
+                </div>
+                <div className="nx-timeline-content">
+                  <div className="nx-timeline-title">Advertise Network on IOU1</div>
+                  <div className="nx-timeline-desc">Advertise <span style={{color:'var(--text-primary)'}}>192.168.1.0/24</span></div>
+                </div>
+              </div>
+
+              <div className={`nx-timeline-step ${passedTaskIds.includes('t3') ? 'is-completed' : (activeTerminal === 'IOU2' ? 'is-current' : 'is-pending')}`}>
+                <div className="nx-timeline-node">
+                  {passedTaskIds.includes('t3') ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                  )}
+                </div>
+                <div className="nx-timeline-content">
+                  <div className="nx-timeline-title">Configure OSPF on IOU2</div>
+                  <div className="nx-timeline-desc">Enter routing process.</div>
+                </div>
+              </div>
+
+              <div className={`nx-timeline-step ${passedTaskIds.includes('t4') ? 'is-completed' : (activeTerminal === 'IOU2' ? 'is-current' : 'is-pending')}`}>
+                <div className="nx-timeline-node">
+                  {passedTaskIds.includes('t4') ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                  )}
+                </div>
+                <div className="nx-timeline-content">
+                  <div className="nx-timeline-title">Advertise Network on IOU2</div>
+                  <div className="nx-timeline-desc">Advertise <span style={{color:'var(--text-primary)'}}>192.168.1.0/24</span></div>
+                </div>
+              </div>
+
+              <div className={`nx-timeline-step ${isGrading || gradeReport ? 'is-current' : 'is-pending'}`}>
+                <div className="nx-timeline-node">
+                  {gradeReport && gradeReport.score === 100 ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  )}
+                </div>
+                <div className="nx-timeline-content">
+                  <div className="nx-timeline-title">Verify OSPF Neighbors</div>
+                  <div className="nx-timeline-desc">Verify adjacency (Grade lab).</div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Collapsible Command Summary */}
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+              <button className="nx-command-summary-btn" onClick={() => setIsCommandSummaryOpen(!isCommandSummaryOpen)}>
+                {isCommandSummaryOpen ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                )}
+                View Command Summary
+              </button>
+
+              {isCommandSummaryOpen && (
+                <div style={{ marginTop: '12px' }}>
+                  {lab?.command_reference ? lab.command_reference.map((cmd, i) => (
+                    <div className="nx-command-block" key={i}>
+                      <div className="nx-command-text">{cmd.command}</div>
+                      <div className="nx-command-desc">{cmd.description}</div>
+                    </div>
+                  )) : (
+                    <>
+                      <div className="nx-command-block">
+                        <div className="nx-command-text">router ospf 1</div>
+                        <div className="nx-command-desc">Enter OSPF process mode</div>
+                      </div>
+                      <div className="nx-command-block">
+                        <div className="nx-command-text">network 192.168.1.0 0.0.0.255 area 0</div>
+                        <div className="nx-command-desc">Advertise subnet into OSPF Area 0</div>
+                      </div>
+                      <div className="nx-command-block">
+                        <div className="nx-command-text">show ip ospf neighbor</div>
+                        <div className="nx-command-desc">Verify OSPF adjacencies</div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+          )}
         </div>
       </aside>
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import { BookOpen, Clock, Activity, ChevronRight, Server, Search, CheckCircle, Lock, LayoutList } from 'lucide-react';
+import { BookOpen, Clock, Activity, ChevronRight, Server, Search, CheckCircle, Lock, LayoutList, Star, Award, Play, TrendingUp, Network } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
@@ -44,155 +44,150 @@ export default function Dashboard() {
     return matchesTopic && matchesSearch;
   });
 
+  // Dashboard is simplified for initial launch phase
+
   return (
-    <div className="nx-layout">
-      {/* 1. Header (Same as lab page) */}
-      <div className="nx-header">
-        <div className="nx-brand">
-          <div className="nx-logo">N</div>
-          <span style={{ fontWeight: 600, letterSpacing: '0.5px' }}>NetLabX</span>
-        </div>
-        
-        <div className="nx-toolbar">
-          <div style={{ display: 'flex', gap: '24px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginRight: '16px' }}>
-            <span style={{ color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 500 }}>Dashboard</span>
-            <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">My Progress</span>
-            <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">Settings</span>
+    <div className="nx-dashboard-layout">
+      {/* 1. Floating Pill Header */}
+      <div style={{ padding: '16px 16px 0 16px', flexShrink: 0 }}>
+        <div className="nx-header">
+          <div className="nx-brand">
+            <div className="nx-logo">N</div>
+            <span style={{ fontWeight: 600, letterSpacing: '0.5px' }}>NetLabX</span>
           </div>
-          <div className="nx-btn-separator"></div>
-          <div className="nx-avatar" title="User Profile">JD</div>
+          
+          <div className="nx-toolbar">
+            <div style={{ display: 'flex', gap: '24px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginRight: '16px' }}>
+              <span style={{ color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 500 }}>Dashboard</span>
+              <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">My Progress</span>
+              <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">Settings</span>
+            </div>
+            <div className="nx-btn-separator"></div>
+            <div className="nx-avatar" title="User Profile">JD</div>
+          </div>
         </div>
       </div>
 
-      {/* Main Content (Spans all columns) */}
-      <div style={{ gridArea: 'left / left / right / right', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-bg-base)', overflowY: 'auto' }}>
-        
-        <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto', padding: '48px 24px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+      {/* Main Content */}
+      <div className="nx-dashboard-content">
           
-          {/* Page Title & Search */}
-          <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
-            <div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>Labs</div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '8px', color: 'var(--color-text-primary)', letterSpacing: '-0.5px' }}>Available Labs</h2>
-              <p style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)' }}>
-                {filteredLabs.length} lab{filteredLabs.length !== 1 ? 's' : ''} found across {topics.length - 1} topics. {completedCount} completed.
-              </p>
-            </div>
-            
-            <div className="nx-search-container" style={{ width: '320px', padding: 0 }}>
-              <Search size={14} className="nx-search-icon" style={{ left: '12px' }} />
-              <input 
-                type="text" 
-                className="nx-input" 
-                placeholder="Search labs by title or topic..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ paddingLeft: '36px' }}
-              />
-            </div>
-          </header>
+        {/* 1. Simple Header */}
+        <section style={{ marginBottom: '24px' }}>
+          <div>
+            <h1 className="nx-analytics-title" style={{ fontSize: '1.75rem' }}>Lab Catalog</h1>
+            <p className="nx-analytics-subtitle">Select a lab below to start your networking journey.</p>
+          </div>
+        </section>
 
-          {/* Filter Buttons */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', flexWrap: 'wrap' }}>
+        {/* 3. Search and Filters Toolbar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: 'var(--bg-card)', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             {topics.map(topic => (
               <button 
                 key={topic}
                 onClick={() => setActiveTopic(topic)}
-                className={`nx-filter-btn ${activeTopic === topic ? 'active' : ''}`}
+                style={{
+                  background: activeTopic === topic ? 'var(--primary)' : 'transparent',
+                  color: activeTopic === topic ? '#fff' : 'var(--text-secondary)',
+                  border: 'none',
+                  padding: '6px 16px',
+                  borderRadius: '999px',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s ease-out, color 0.2s ease-out'
+                }}
               >
                 {topic}
               </button>
             ))}
           </div>
 
-          {loading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
-              <Activity size={32} color="var(--color-accent-600)" style={{ animation: 'pulse 1.5s infinite' }} />
-            </div>
-          ) : (
-            <div className="nx-lab-card-grid">
-              
-              {/* Lab Cards */}
-              {filteredLabs.map(lab => (
-                <div 
-                  key={lab.id} 
-                  className="nx-lab-card-home"
-                  onClick={() => router.push(`/labs/${lab.slug}`)}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ 
-                        width: '8px', height: '8px', borderRadius: '50%', 
-                        background: lab.difficulty === 'BEGINNER' ? 'var(--color-success)' : lab.difficulty === 'INTERMEDIATE' ? 'var(--color-warning)' : 'var(--color-danger)' 
-                      }} />
-                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                        {lab.difficulty.charAt(0) + lab.difficulty.slice(1).toLowerCase()}
-                      </span>
-                    </div>
-                    
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
-                        <LayoutList size={14} /> {lab.tasks?.length || 0}
-                      </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
-                        <Clock size={14} /> {lab.estimated_time_minutes}m
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: 'var(--color-text-primary)' }}>{lab.title}</h3>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, marginBottom: '24px', flex: 1 }}>{lab.description}</p>
-                  
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                      {lab.topic}
-                    </span>
-                    <button className="nx-btn-action" style={{ border: 'none', color: 'var(--color-accent-600)', padding: '4px 8px' }}>
-                      Start <ChevronRight size={16} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              {/* Coming Soon Cards */}
-              {filteredLabs.length > 0 && filteredLabs.length < 3 && (
-                <>
-                  <div className="nx-lab-card-home coming-soon">
-                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', color: 'var(--color-text-muted)', textAlign: 'center' }}>
-                      <Lock size={24} style={{ marginBottom: '12px', opacity: 0.5 }} />
-                      <h3 style={{ fontSize: '1.05rem', marginBottom: '8px', color: 'var(--color-text-secondary)' }}>OSPF Advanced (Multi-Area)</h3>
-                      <p style={{ fontSize: '0.85rem' }}>Coming Soon</p>
-                    </div>
-                  </div>
-                  {filteredLabs.length < 2 && (
-                     <div className="nx-lab-card-home coming-soon">
-                      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', color: 'var(--color-text-muted)', textAlign: 'center' }}>
-                        <Lock size={24} style={{ marginBottom: '12px', opacity: 0.5 }} />
-                        <h3 style={{ fontSize: '1.05rem', marginBottom: '8px', color: 'var(--color-text-secondary)' }}>BGP Fundamentals</h3>
-                        <p style={{ fontSize: '0.85rem' }}>Coming Soon</p>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-              
-              {filteredLabs.length === 0 && (
-                <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'var(--color-bg-surface)', borderRadius: '8px', border: '1px solid var(--color-border-subtle)' }}>
-                  <Search size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
-                  <h3 style={{ fontSize: '1.2rem', color: 'var(--color-text-primary)', marginBottom: '8px' }}>No labs found</h3>
-                  <p>Try adjusting your search or filters.</p>
-                </div>
-              )}
-
-            </div>
-          )}
-          
-          <footer style={{ marginTop: 'auto', paddingTop: '40px', borderTop: '1px solid var(--color-border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
-            <div>NetLabX v1.0.0</div>
-            <div>Real Network Emulation Platform</div>
-          </footer>
-
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-terminal)', border: '1px solid var(--border)', borderRadius: '999px', padding: '6px 16px', minWidth: '240px' }}>
+            <Search size={14} style={{ color: 'var(--text-muted)' }} />
+            <input 
+              type="text" 
+              placeholder="Search..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontSize: '0.85rem', width: '100%' }}
+            />
+          </div>
         </div>
+
+
+
+        {/* 5. Available Labs */}
+        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>
+          Available Labs
+        </div>
+
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
+            <Activity size={32} color="var(--primary)" style={{ animation: 'pulse 1.5s infinite' }} />
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            
+            {filteredLabs.map((lab) => {
+              let difficultyColor = 'var(--green)';
+              let difficultyEmoji = '🟢';
+              if (lab.difficulty?.toLowerCase() === 'intermediate') { difficultyColor = 'var(--tertiary)'; difficultyEmoji = '🟡'; }
+              if (lab.difficulty?.toLowerCase() === 'advanced') { difficultyColor = 'var(--red)'; difficultyEmoji = '🔴'; }
+
+              return (
+              <div 
+                key={lab.id} 
+                className="nx-lab-list-item"
+                onClick={() => router.push(`/labs/${lab.slug}`)}
+                style={{ borderLeft: '1px solid var(--border)' }}
+              >
+                <div className="nx-lab-list-item-left">
+                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)' }}>
+                    <BookOpen size={24} />
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', background: 'rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '4px', color: difficultyColor, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {difficultyEmoji} {lab.difficulty}
+                      </span>
+                      <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0, marginLeft: '4px' }}>{lab.title}</h3>
+                    </div>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', margin: 0 }}>{lab.description}</p>
+                  </div>
+                </div>
+
+                <div className="nx-lab-list-item-right" style={{ flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: '16px', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {lab.estimated_time_minutes} min</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Award size={14} /> 150 XP</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><LayoutList size={14} /> 5 Tasks</div>
+                  </div>
+                  <button className="nx-btn nx-btn-primary">
+                    Start Lab
+                  </button>
+                </div>
+              </div>
+            )})}
+
+
+            
+            {filteredLabs.length === 0 && (
+              <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--text-muted)', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                <Search size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
+                <h3 style={{ fontSize: '1.2rem', color: 'var(--text-primary)', marginBottom: '8px' }}>No Labs Available</h3>
+                <p>Try selecting another topic.</p>
+              </div>
+            )}
+
+          </div>
+        )}
+        
+        <footer style={{ marginTop: 'auto', paddingTop: '48px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+          <div>NetLabX v1.0.0</div>
+          <div>Real Network Emulation Platform</div>
+        </footer>
+
       </div>
     </div>
   );

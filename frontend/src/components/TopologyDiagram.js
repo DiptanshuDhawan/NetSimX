@@ -6,12 +6,12 @@ const RouterIcon = ({ x, y }) => (
     <path d="M-38,-10 v22 a38,14 0 0,0 76,0 v-22 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
     {/* Top face */}
     <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
-    {/* 4 arrows pointing inward, perfectly centered around (0, -10) */}
+    {/* 4 arrows: top/bottom point inward, left/right point outward */}
     <g stroke="#E2E8F0" strokeWidth="1.9" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M-15,-10 L-4,-10 M-8,-14 L-4,-10 L-8,-6" />
-      <path d="M15,-10 L4,-10 M8,-14 L4,-10 L8,-6" />
-      <path d="M0,-21 L0,-14 M-4,-18 L0,-14 L4,-18" />
-      <path d="M0,1 L0,-6 M-4,-2 L0,-6 L4,-2" />
+      <path d="M-4,-10 L-15,-10 M-11,-14 L-15,-10 L-11,-6" /> {/* Left arrow pointing OUT */}
+      <path d="M4,-10 L15,-10 M11,-14 L15,-10 L11,-6" /> {/* Right arrow pointing OUT */}
+      <path d="M0,-21 L0,-14 M-4,-18 L0,-14 L4,-18" /> {/* Top arrow pointing IN */}
+      <path d="M0,1 L0,-6 M-4,-2 L0,-6 L4,-2" /> {/* Bottom arrow pointing IN */}
     </g>
   </g>
 );
