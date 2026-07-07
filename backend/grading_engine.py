@@ -91,11 +91,11 @@ def run_node_verification(connection: ConnectHandler, node_name: str, lab_dir: s
         if not connection.check_enable_mode():
             connection.enable()
             
-        # Write to save the config
-        connection.send_command("write memory", read_timeout=30)
+        # Disable pagination so show run output is never truncated by --More--
+        connection.send_command("terminal length 0", read_timeout=10)
 
         # Issue show run to see the configuration
-        actual_text = connection.send_command("show run", read_timeout=30)
+        actual_text = connection.send_command("show run", read_timeout=60)
         
         # Compare them
         expected_set = sanitize_config(solution_text)
@@ -139,7 +139,13 @@ def grade_lab(yaml_path: str, skip_tasks: list = None, lab_dir: str = None) -> d
             result = run_node_verification(conn, node_name, lab_dir)
             all_results.append(result)
             conn.disconnect()
-        except (NetMikoTimeoutException, ConnectionRefusedError, Exception) as e:
+        except (NetMikoTimeoutException, ConnectionRefusedError) as e:
+            all_results.append({
+                "node": node_name,
+                "passed": False,
+                "error": f"Could not connect to {node_name} — make sure the lab is running and routers have finished booting. ({type(e).__name__})"
+            })
+        except Exception as e:
             all_results.append({
                 "node": node_name,
                 "passed": False,
