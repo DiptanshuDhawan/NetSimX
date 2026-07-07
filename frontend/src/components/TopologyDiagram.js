@@ -63,41 +63,43 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
   if (isComprehensive) {
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-        <svg width="100%" height="100%" viewBox="0 0 800 380" style={{ fontFamily: 'Inter, sans-serif' }}>
-          <g transform="translate(0, 0)">
-            {/* Connection Line: S1 to R1 */}
-            <line x1="250" y1="100" x2="450" y2="100" stroke="#2F80ED" strokeWidth="2.5" />
-            {/* Connection Line: R1 to R2 */}
-            <line x1="450" y1="100" x2="650" y2="100" stroke="#2F80ED" strokeWidth="2.5" />
+        <svg width="100%" height="100%" viewBox="0 0 800 450" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <g transform="translate(0, 30)">
+            {/* VLAN Backgrounds (rendered first so they are behind everything) */}
+            {/* PC0 - Blue (VLAN 10) */}
+            <rect x="50" y="220" width="120" height="150" fill="#0000FF" opacity="0.8" stroke="#000" strokeWidth="1" />
+            {/* PC1 - Red (VLAN 20) */}
+            <rect x="180" y="220" width="100" height="150" fill="#FF0000" opacity="0.8" stroke="#000" strokeWidth="1" />
+            
+            {/* PC2 - Purple (VLAN 30) */}
+            <rect x="380" y="220" width="120" height="150" fill="#8A2BE2" opacity="0.9" stroke="#000" strokeWidth="1" />
+            {/* PC3 - Red (VLAN 20) */}
+            <rect x="510" y="220" width="100" height="150" fill="#FF0000" opacity="0.8" stroke="#000" strokeWidth="1" />
+
+            {/* Connection Line: R1 to S2 */}
+            <line x1="500" y1="40" x2="480" y2="150" stroke="#000000" strokeWidth="2.5" />
+            
+            {/* Connection Line: S1 to S2 (Trunk - dashed) */}
+            <line x1="200" y1="150" x2="480" y2="150" stroke="#000000" strokeWidth="2.5" strokeDasharray="8 4" />
             
             {/* Connection Lines: S1 to PCs */}
-            <line x1="250" y1="100" x2="150" y2="250" stroke="#2F80ED" strokeWidth="2.5" />
-            <line x1="250" y1="100" x2="350" y2="250" stroke="#2F80ED" strokeWidth="2.5" />
+            <line x1="200" y1="150" x2="110" y2="290" stroke="#000000" strokeWidth="2.5" />
+            <line x1="200" y1="150" x2="230" y2="290" stroke="#000000" strokeWidth="2.5" />
 
-            {/* S1 to R1 labels */}
-            <text x="350" y="80" textAnchor="middle" fill="#E2E8F0" fontSize="13" fontWeight="600">802.1Q Trunk</text>
-            <text x="290" y="90" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
-            <text x="410" y="90" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/0</text>
+            {/* Connection Lines: S2 to PCs */}
+            <line x1="480" y1="150" x2="440" y2="290" stroke="#000000" strokeWidth="2.5" />
+            <line x1="480" y1="150" x2="560" y2="290" stroke="#000000" strokeWidth="2.5" />
 
-            {/* R1 to R2 labels */}
-            <text x="550" y="80" textAnchor="middle" fill="#E2E8F0" fontSize="13" fontWeight="600">10.0.0.0/30 (OSPF)</text>
-            <text x="490" y="90" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/1</text>
-            <text x="610" y="90" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/1</text>
+            {/* Nodes (using simple Packet Tracer style colors for exact match if desired, but our icons are already cool) */}
+            {/* However, the user said "like this" and the screenshot has Cisco packet tracer icons. We will use our React icons. */}
+            <RouterIcon x="500" y="40" label="R1" scale={1.3} active={activeNode === 'R1'} />
+            <SwitchIcon x="200" y="150" label="S1" scale={1.3} active={activeNode === 'S1'} />
+            <SwitchIcon x="480" y="150" label="S2" scale={1.3} active={activeNode === 'S2'} />
             
-            {/* S1 to PC1 labels */}
-            <text x="210" y="160" fill="#E2E8F0" fontSize="12" fontWeight="500" textAnchor="end">e0/1 (VLAN 10)</text>
-            <text x="210" y="175" fill="#A1A9B6" fontSize="11" textAnchor="end">192.168.10.0/24</text>
-
-            {/* S1 to PC2 labels */}
-            <text x="290" y="160" fill="#E2E8F0" fontSize="12" fontWeight="500" textAnchor="start">e0/2 (VLAN 20)</text>
-            <text x="290" y="175" fill="#A1A9B6" fontSize="11" textAnchor="start">192.168.20.0/24</text>
-
-            {/* Nodes */}
-            <SwitchIcon x="250" y="100" label="S1" scale={1.3} active={activeNode === 'S1'} />
-            <RouterIcon x="450" y="100" label="R1" scale={1.3} active={activeNode === 'R1'} />
-            <RouterIcon x="650" y="100" label="R2" scale={1.3} active={activeNode === 'R2'} />
-            <PCIcon x="150" y="250" label="PC1" scale={1.2} active={activeNode === 'PC1'} />
-            <PCIcon x="350" y="250" label="PC2" scale={1.2} active={activeNode === 'PC2'} />
+            <PCIcon x="110" y="290" label="PC0" scale={1.2} active={activeNode === 'PC0'} />
+            <PCIcon x="230" y="290" label="PC1" scale={1.2} active={activeNode === 'PC1'} />
+            <PCIcon x="440" y="290" label="PC2" scale={1.2} active={activeNode === 'PC2'} />
+            <PCIcon x="560" y="290" label="PC3" scale={1.2} active={activeNode === 'PC3'} />
           </g>
         </svg>
       </div>
