@@ -627,21 +627,19 @@ export default function LabEnvironment({ params }) {
         <div className="nx-term-panel nx-card" style={{ padding: 0 }}>
           <div className="nx-term-tabs" style={{ display: 'flex', justifyContent: 'space-between', paddingRight: '12px', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '4px' }}>
-              {nodes.map(node => (
+              {lab?.nodes?.map(node => (
                 <button
-                  key={node}
-                  className={`nx-term-tab ${activeTerminal === node ? 'active' : ''}`}
-                  onClick={() => setActiveTerminal(node)}
+                  key={node.name}
+                  className={`nx-term-tab ${activeTerminal === node.name ? 'active' : ''}`}
+                  onClick={() => setActiveTerminal(node.name)}
                   disabled={!session || isBooting}
                 >
                   <span className="tab-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="4" width="20" height="16" rx="3" ry="3"/>
-                      <polyline points="7 10 10 13 7 16"/>
-                      <line x1="12" y1="16" x2="16" y2="16"/>
-                    </svg>
+                    {node.device_type === 'cisco_iol_l2' ? <SidebarSwitchIcon /> : 
+                     (node.device_type === 'linux' || node.device_type === 'vpcs') ? <SidebarPCIcon /> : 
+                     <SidebarRouterIcon />}
                   </span>
-                  {node}
+                  {node.name}
                 </button>
               ))}
             </div>
