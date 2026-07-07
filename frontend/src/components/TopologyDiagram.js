@@ -33,7 +33,7 @@ export default function TopologyDiagram() {
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
       <svg width="100%" height="100%" viewBox="0 0 800 320" style={{ fontFamily: 'Inter, sans-serif' }}>
-        <g transform="translate(0, 0)">
+        <g transform="translate(75, 0)">
           {/* Connection Line: R1 to R2 */}
           <line x1="150" y1="140" x2="500" y2="140" stroke="#2F80ED" strokeWidth="2.5" />
 
