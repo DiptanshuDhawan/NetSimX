@@ -21,10 +21,12 @@ def grade_session(lab_yaml_path: str, gns3_project_id: str, skip_tasks: list = N
     with open(lab_yaml_path, "r") as f:
         lab_def = yaml.safe_load(f)
 
-    # Dynamically update console ports from live GNS3 session
+    # Dynamically update console ports and host from live GNS3 session
+    from services.gns3_service import GNS3_HOST
     for node in lab_def["lab"]["nodes"]:
         live_port = get_node_console_port(gns3_project_id, node["name"])
         node["console_port"] = live_port
+        node["host"] = GNS3_HOST
 
     # Write updated definition to a temporary file
     import tempfile
