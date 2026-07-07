@@ -21,7 +21,7 @@ const RouterIcon = ({ x, y, scale = 1.4, label }) => (
 );
 
 const SwitchIcon = ({ x, y, scale = 1.4, label }) => (
-  <g transform={`translate(${x}, y) scale(${scale})`}>
+  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
     {/* Top face */}
     <path d="M-30,-12 L30,-12 L45,2 L-45,2 Z" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
     {/* Front face (made taller) */}
