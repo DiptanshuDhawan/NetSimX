@@ -1,7 +1,7 @@
 import React from 'react';
 
-const RouterIcon = ({ x, y }) => (
-  <g transform={`translate(${x}, ${y}) scale(1.4)`}>
+const RouterIcon = ({ x, y, scale = 1.4 }) => (
+  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
     {/* Cylinder body (drawn first so it goes behind the top face) */}
     <path d="M-38,-10 v22 a38,14 0 0,0 76,0 v-22 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
     {/* Top face */}
@@ -16,23 +16,22 @@ const RouterIcon = ({ x, y }) => (
   </g>
 );
 
-const SwitchIcon = ({ x, y }) => (
-  <g transform={`translate(${x}, ${y}) scale(1.4)`}>
-    {/* Cylinder body */}
-    <path d="M-38,-10 v22 a38,14 0 0,0 76,0 v-22 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
+const SwitchIcon = ({ x, y, scale = 1.4 }) => (
+  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
     {/* Top face */}
-    <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
-    {/* Parallel arrows for switch */}
-    <g stroke="#E2E8F0" strokeWidth="1.9" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M-10,-15 L10,-15 M6,-18 L10,-15 L6,-12" />
-      <path d="M10,-10 L-10,-10 M-6,-13 L-10,-10 L-6,-7" />
-      <path d="M-10,-5 L10,-5 M6,-8 L10,-5 L6,-2" />
+    <path d="M-30,-12 L30,-12 L45,2 L-45,2 Z" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
+    {/* Front face */}
+    <path d="M-45,2 L45,2 L45,18 L-45,18 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
+    {/* Arrows on the front face */}
+    <g stroke="#E2E8F0" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M-15,6 L15,6 M11,3 L15,6 L11,9" />
+      <path d="M15,14 L-15,14 M-11,11 L-15,14 L-11,17" />
     </g>
   </g>
 );
 
-const PCIcon = ({ x, y }) => (
-  <g transform={`translate(${x}, ${y}) scale(1.4)`}>
+const PCIcon = ({ x, y, scale = 1.4 }) => (
+  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
     {/* Monitor Frame */}
     <rect x="-24" y="-18" width="48" height="30" rx="3" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
     {/* Monitor Screen */}
@@ -51,29 +50,29 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
   if (isInterVlan) {
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-        <svg width="100%" height="100%" viewBox="0 0 800 320" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <svg width="100%" height="100%" viewBox="0 0 800 380" style={{ fontFamily: 'Inter, sans-serif' }}>
           <g transform="translate(0, 0)">
             {/* Connection Lines */}
-            <line x1="400" y1="55" x2="400" y2="165" stroke="#2F80ED" strokeWidth="2.5" /> {/* R1 to SW1 */}
-            <line x1="400" y1="165" x2="250" y2="265" stroke="#2F80ED" strokeWidth="2.5" /> {/* SW1 to PC1 */}
-            <line x1="400" y1="165" x2="550" y2="265" stroke="#2F80ED" strokeWidth="2.5" /> {/* SW1 to PC2 */}
+            <line x1="400" y1="60" x2="400" y2="190" stroke="#2F80ED" strokeWidth="2.5" />
+            <line x1="400" y1="190" x2="250" y2="320" stroke="#2F80ED" strokeWidth="2.5" />
+            <line x1="400" y1="190" x2="550" y2="320" stroke="#2F80ED" strokeWidth="2.5" />
 
             {/* Link Labels */}
-            <text x="415" y="115" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
-            <text x="310" y="215" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
-            <text x="490" y="215" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
+            <text x="415" y="125" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
+            <text x="315" y="250" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
+            <text x="485" y="250" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
 
             {/* Nodes */}
-            <RouterIcon x="400" y="55" />
-            <SwitchIcon x="400" y="165" />
-            <PCIcon x="250" y="265" />
-            <PCIcon x="550" y="265" />
+            <RouterIcon x="400" y="60" scale={1.1} />
+            <SwitchIcon x="400" y="190" scale={1.1} />
+            <PCIcon x="250" y="320" scale={1.1} />
+            <PCIcon x="550" y="320" scale={1.1} />
 
             {/* Node Labels */}
-            <text x="400" y="15" textAnchor="middle" fill="#E2E8F0" fontSize="16" fontWeight="600">R1</text>
-            <text x="480" y="170" textAnchor="start" fill="#E2E8F0" fontSize="16" fontWeight="600">SW1</text>
-            <text x="250" y="315" textAnchor="middle" fill="#E2E8F0" fontSize="16" fontWeight="600">PC1</text>
-            <text x="550" y="315" textAnchor="middle" fill="#E2E8F0" fontSize="16" fontWeight="600">PC2</text>
+            <text x="400" y="20" textAnchor="middle" fill="#E2E8F0" fontSize="14" fontWeight="600">R1</text>
+            <text x="465" y="195" textAnchor="start" fill="#E2E8F0" fontSize="14" fontWeight="600">SW1</text>
+            <text x="250" y="365" textAnchor="middle" fill="#E2E8F0" fontSize="14" fontWeight="600">PC1</text>
+            <text x="550" y="365" textAnchor="middle" fill="#E2E8F0" fontSize="14" fontWeight="600">PC2</text>
           </g>
         </svg>
       </div>
