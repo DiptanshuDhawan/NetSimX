@@ -23,12 +23,12 @@ lab:
 
   nodes:
     - name: R1
-      host: "192.168.1.200"
+      host: "100.120.167.31"
       console_port: 5000
       device_type: "cisco_ios_telnet"
 
     - name: R2
-      host: "192.168.1.200"
+      host: "100.120.167.31"
       console_port: 5001
       device_type: "cisco_ios_telnet"
 
