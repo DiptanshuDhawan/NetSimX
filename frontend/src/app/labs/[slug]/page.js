@@ -197,11 +197,12 @@ export default function LabEnvironment({ params }) {
 
   // Open WebSocket connections for every node once the lab is live
   useEffect(() => {
-    if (!session) return;
+    if (!session || !lab || !lab.nodes) return;
 
     let opened = 0;
+    const currentNodes = lab.nodes.map(n => n.name);
 
-    nodes.forEach(node => {
+    currentNodes.forEach(node => {
       if (wsRefs.current[node]) return; // already open
       bufRefs.current[node] = [];
       const ws = new WebSocket(api.getTerminalWsUrl(session.session_id, node));
@@ -209,10 +210,10 @@ export default function LabEnvironment({ params }) {
       ws.onopen = () => {
         ws.send('\r\n'); // wake up console
         opened++;
-        setBootProgress(Math.floor(90 + (opened / nodes.length) * 10));
+        setBootProgress(Math.floor(90 + (opened / currentNodes.length) * 10));
         
         // Once all websockets are connected, finish booting
-        if (opened === nodes.length) {
+        if (opened === currentNodes.length) {
           setTimeout(() => {
             setIsBooting(false);
             setSession(s => {
@@ -246,7 +247,7 @@ export default function LabEnvironment({ params }) {
       bufRefs.current = {};
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.session_id]);
+  }, [session?.session_id, lab?.id]);
 
 
   const handleStart = async () => {
