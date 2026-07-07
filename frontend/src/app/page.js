@@ -59,19 +59,21 @@ export default function Dashboard() {
     <div className="nx-dashboard-layout">
       {/* 1. Floating Pill Header */}
       <div style={{ padding: '16px 16px 0 16px', flexShrink: 0 }}>
-        <div className="nx-header">
-          <div className="nx-brand">
-            <div className="nx-logo">N</div>
-            <span style={{ fontWeight: 600, letterSpacing: '0.5px' }}>NetLabX</span>
+        <div className="nx-header" style={{ position: 'relative' }}>
+          {/* Left: Navigation Links */}
+          <div style={{ display: 'flex', gap: '24px', fontSize: '0.85rem', color: 'var(--text-secondary)', flex: 1 }}>
+            <span style={{ color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 500 }}>Dashboard</span>
+            <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">My Progress</span>
+            <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">Settings</span>
           </div>
           
-          <div className="nx-toolbar">
-            <div style={{ display: 'flex', gap: '24px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginRight: '16px' }}>
-              <span style={{ color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 500 }}>Dashboard</span>
-              <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">My Progress</span>
-              <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">Settings</span>
-            </div>
-            <div className="nx-btn-separator"></div>
+          {/* Center: Full Logo */}
+          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center' }}>
+            <img src="/logo-full.png" alt="Revelio Labs" style={{ height: 26, cursor: 'pointer', objectFit: 'contain' }} onClick={() => router.push('/')} />
+          </div>
+
+          {/* Right: Avatar */}
+          <div className="nx-toolbar" style={{ flex: 1, justifyContent: 'flex-end' }}>
             <div className="nx-avatar" title="User Profile">JD</div>
           </div>
         </div>
