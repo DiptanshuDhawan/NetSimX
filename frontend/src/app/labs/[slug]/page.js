@@ -809,6 +809,23 @@ export default function LabEnvironment({ params }) {
         </div>
       )}
 
+      {/* Grading in Progress Modal */}
+      {isGrading && (
+        <div className="nx-modal-overlay">
+          <div className="nx-modal-box" style={{ textAlign: 'center', padding: '40px 20px', background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <div style={{ margin: '0 auto 24px', width: 48, height: 48, border: '4px solid rgba(47, 128, 237, 0.15)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'nx-spin 1s linear infinite' }} />
+            <h3 style={{ fontSize: 18, marginBottom: 8, color: 'var(--text-primary)' }}>Grading in Progress...</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 13, lineHeight: 1.6 }}>We are securely connecting to your routers and verifying the configuration. This takes a few seconds.</p>
+            <style>{`
+              @keyframes nx-spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
+        </div>
+      )}
+
       {showCompletionModal && gradeReport && (
         <div className="nx-modal-overlay">
           <div className="nx-modal-box" style={{ textAlign: 'center' }}>
