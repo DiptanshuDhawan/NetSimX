@@ -34,8 +34,11 @@ def grade_session(lab_yaml_path: str, gns3_project_id: str, skip_tasks: list = N
         yaml.dump(lab_def, tmp)
         tmp_path = tmp.name
 
+    # The temp path has a different directory, so we must explicitly pass the original lab_dir
+    original_lab_dir = os.path.dirname(os.path.abspath(lab_yaml_path))
+
     try:
-        report = _grade_lab(tmp_path, skip_tasks=skip_tasks)
+        report = _grade_lab(tmp_path, skip_tasks=skip_tasks, lab_dir=original_lab_dir)
     finally:
         os.unlink(tmp_path)  # Clean up temp file
 

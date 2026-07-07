@@ -114,14 +114,16 @@ def run_node_verification(connection: ConnectHandler, node_name: str, lab_dir: s
         }
 
 
-def grade_lab(yaml_path: str, skip_tasks: list = None) -> dict:
+def grade_lab(yaml_path: str, skip_tasks: list = None, lab_dir: str = None) -> dict:
     """
     Main grading function. 
     Connects to all nodes, checks configs, and returns a single Pass/Fail result.
     """
     lab_def = load_lab_definition(yaml_path)
     lab_info = lab_def["lab"]
-    lab_dir = os.path.dirname(os.path.abspath(yaml_path))
+    
+    if not lab_dir:
+        lab_dir = os.path.dirname(os.path.abspath(yaml_path))
 
     nodes_map = {node["name"]: node for node in lab_info["nodes"]}
     all_results = []
