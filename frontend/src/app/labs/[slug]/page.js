@@ -8,6 +8,37 @@ import TopologyDiagram from '@/components/TopologyDiagram';
 import { Play, Square, CheckCircle, RotateCcw, Copy, Folder, ChevronRight, Server, Search, FileText, MousePointer2, Settings, HelpCircle, Save, Printer, Network } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+const SidebarRouterIcon = () => (
+  <svg width="18" height="18" viewBox="-42 -30 84 60">
+    <path d="M-38,-10 v22 a38,14 0 0,0 76,0 v-22 Z" fill="#222428" stroke="#9ca3af" strokeWidth="4" />
+    <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#9ca3af" strokeWidth="4" />
+    <g stroke="#E2E8F0" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M-4,-10 L-15,-10 M-11,-14 L-15,-10 L-11,-6" />
+      <path d="M4,-10 L15,-10 M11,-14 L15,-10 L11,-6" />
+      <path d="M0,-21 L0,-14 M-4,-18 L0,-14 L4,-18" />
+      <path d="M0,1 L0,-6 M-4,-2 L0,-6 L4,-2" />
+    </g>
+  </svg>
+);
+
+const SidebarSwitchIcon = () => (
+  <svg width="18" height="18" viewBox="-42 -30 84 60">
+    <path d="M-38,-10 v22 a38,14 0 0,0 76,0 v-22 Z" fill="#222428" stroke="#9ca3af" strokeWidth="4" />
+    <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#9ca3af" strokeWidth="4" />
+    <g stroke="#E2E8F0" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M-15,-14 L15,-14 M10,-18 L15,-14 L10,-10" />
+      <path d="M-15,-6 L15,-6 M-10,-10 L-15,-6 L-10,-2" />
+    </g>
+  </svg>
+);
+
+const SidebarPCIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="4" width="20" height="13" rx="2" ry="2" fill="#222428"/>
+    <path d="M8 20h8 M12 17v3" />
+  </svg>
+);
+
 export default function LabEnvironment({ params }) {
   const router = useRouter();
   const { slug } = use(params);
@@ -36,6 +67,7 @@ export default function LabEnvironment({ params }) {
   const [taskProgress, setTaskProgress] = useState([]);
   const [passedTaskIds, setPassedTaskIds] = useState([]);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [openCategories, setOpenCategories] = useState({ Routers: true, Switches: false, PCs: false });
 
   // Sidebar drag resizer state
   const [sidebarTopHeight, setSidebarTopHeight] = useState(25);
@@ -45,8 +77,8 @@ export default function LabEnvironment({ params }) {
   const isSidebarDragging = useRef(false);
   const sidebarRef = useRef(null);
 
-  // Static list of node names for this lab
-  const nodes = ['IOU1', 'IOU2'];
+  // Dynamic list of node names for this lab
+  const nodes = lab?.nodes?.map(n => n.name) || [];
 
   // Persistent WebSocket connections and scroll-back buffers — one per node
   const wsRefs = useRef({});   // { IOU1: WebSocket, IOU2: WebSocket }
@@ -131,6 +163,15 @@ export default function LabEnvironment({ params }) {
           if (p >= 100) {
             clearInterval(interval);
             setIsBooting(false);
+            // Record start time only after booting is done, to avoid timer jump on refresh
+            setSession(s => {
+              if (s) {
+                const newS = { ...s, startedAt: Date.now() };
+                localStorage.setItem('netlabx_session', JSON.stringify(newS));
+                return newS;
+              }
+              return s;
+            });
             return 100;
           }
           return p + 10;
@@ -140,6 +181,17 @@ export default function LabEnvironment({ params }) {
     }
   }, [isBooting]);
 
+  const handleStopLocally = () => {
+    setSession(null);
+    setGradeReport(null);
+    setVisibleHints({});
+    setVisibleAnswers({});
+    setTaskProgress([]);
+    setPassedTaskIds([]);
+    setLabTimer(0);
+    localStorage.removeItem('netlabx_session');
+  };
+
   // Polling status and incremental grade
   useEffect(() => {
     if (!session || isBooting) return;
@@ -147,8 +199,14 @@ export default function LabEnvironment({ params }) {
     const statusInterval = setInterval(() => {
       api.getSessionStatus(session.session_id)
         .then(res => {
-          if (res.links) setLinkStatus(res.links);
-        }).catch(console.error);
+          if (res.status === 'stopped') {
+            handleStopLocally();
+          } else if (res.links) {
+            setLinkStatus(res.links);
+          }
+        }).catch(err => {
+          console.warn("Session polling network error (ignoring):", err);
+        });
     }, 5000);
 
     return () => {
@@ -193,9 +251,9 @@ export default function LabEnvironment({ params }) {
     try {
       setIsBooting(true);
       setBootProgress(0);
+      setLabTimer(0);
       const sess = await api.startSession(slug);
       sess.slug = slug;
-      sess.startedAt = Date.now();
       setSession(sess);
       setActiveTerminal('IOU1');
       localStorage.setItem('netlabx_session', JSON.stringify(sess));
@@ -210,16 +268,10 @@ export default function LabEnvironment({ params }) {
     if (!session) return;
     try {
       await api.stopSession(session.session_id);
-      setSession(null);
-      setGradeReport(null);
-      setVisibleHints({});
-      setVisibleAnswers({});
-      setTaskProgress([]);
-      setPassedTaskIds([]);
-      setLabTimer(0);
-      localStorage.removeItem('netlabx_session');
     } catch (e) {
-      alert("Failed to stop lab: " + e.message);
+      console.warn("Server couldn't stop session:", e.message);
+    } finally {
+      handleStopLocally();
     }
   };
 
@@ -324,10 +376,15 @@ export default function LabEnvironment({ params }) {
 
         {/* Right: controls */}
         <div className="nx-toolbar">
-          {session && (
+          {session ? (
             <div className="nx-status-pill">
-              <div className="nx-status-dot" />
+              <div className="nx-status-dot" style={{ background: isBooting ? 'var(--warning, #f59e0b)' : 'var(--green)' }} />
               {isBooting ? `Booting ${bootProgress}%` : `Running ${formatTime(labTimer)}`}
+            </div>
+          ) : (
+            <div className="nx-status-pill" style={{ borderColor: 'var(--border)', color: 'var(--text-muted)' }}>
+              <div className="nx-status-dot" style={{ background: 'var(--text-muted)' }} />
+              Stopped
             </div>
           )}
 
@@ -432,88 +489,61 @@ export default function LabEnvironment({ params }) {
             <div className="nx-instructions-body" style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
             
             {/* Overview Card */}
-            <div className="nx-overview-card">
-              <div className="nx-overview-header">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                Overview
+            {lab?.objective && (
+              <div className="nx-overview-card">
+                <div className="nx-overview-header">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  Overview
+                </div>
+                <div className="nx-overview-desc" style={{ whiteSpace: 'pre-line' }}>
+                  {lab.objective}
+                </div>
               </div>
-              <div className="nx-overview-desc">
-                The topology contains a point-to-point Ethernet network connecting IOU1 and IOU2.<br/><br/>
-                Network: <span className="nx-inline-code">192.168.1.0/24</span><br/>
-                Area: <span className="nx-inline-code">OSPF Area 0</span>
-              </div>
-            </div>
+            )}
 
             {/* Vertical Timeline */}
             <div className="nx-timeline">
-              
-              <div className={`nx-timeline-step ${passedTaskIds.includes('t1') ? 'is-completed' : (activeTerminal === 'IOU1' ? 'is-current' : 'is-pending')}`}>
-                <div className="nx-timeline-node">
-                  {passedTaskIds.includes('t1') ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                  )}
-                </div>
-                <div className="nx-timeline-content">
-                  <div className="nx-timeline-title">Configure OSPF on IOU1</div>
-                  <div className="nx-timeline-desc">Enter OSPF routing process configuration mode.</div>
-                </div>
-              </div>
-
-              <div className={`nx-timeline-step ${passedTaskIds.includes('t2') ? 'is-completed' : (activeTerminal === 'IOU1' ? 'is-current' : 'is-pending')}`}>
-                <div className="nx-timeline-node">
-                  {passedTaskIds.includes('t2') ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-                  )}
-                </div>
-                <div className="nx-timeline-content">
-                  <div className="nx-timeline-title">Advertise Network on IOU1</div>
-                  <div className="nx-timeline-desc">Advertise <span style={{color:'var(--text-primary)'}}>192.168.1.0/24</span></div>
-                </div>
-              </div>
-
-              <div className={`nx-timeline-step ${passedTaskIds.includes('t3') ? 'is-completed' : (activeTerminal === 'IOU2' ? 'is-current' : 'is-pending')}`}>
-                <div className="nx-timeline-node">
-                  {passedTaskIds.includes('t3') ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                  )}
-                </div>
-                <div className="nx-timeline-content">
-                  <div className="nx-timeline-title">Configure OSPF on IOU2</div>
-                  <div className="nx-timeline-desc">Enter routing process.</div>
-                </div>
-              </div>
-
-              <div className={`nx-timeline-step ${passedTaskIds.includes('t4') ? 'is-completed' : (activeTerminal === 'IOU2' ? 'is-current' : 'is-pending')}`}>
-                <div className="nx-timeline-node">
-                  {passedTaskIds.includes('t4') ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-                  )}
-                </div>
-                <div className="nx-timeline-content">
-                  <div className="nx-timeline-title">Advertise Network on IOU2</div>
-                  <div className="nx-timeline-desc">Advertise <span style={{color:'var(--text-primary)'}}>192.168.1.0/24</span></div>
-                </div>
-              </div>
+              {lab?.tasks?.map((task, index) => {
+                const isPassed = passedTaskIds.includes(task.id);
+                const isCurrent = !isPassed && (index === 0 || passedTaskIds.includes(lab.tasks[index - 1].id));
+                const statusClass = isPassed ? 'is-completed' : (isCurrent ? 'is-current' : 'is-pending');
+                
+                return (
+                  <div key={task.id} className={`nx-timeline-step ${statusClass}`}>
+                    <div className="nx-timeline-node">
+                      {isPassed ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/></svg>
+                      )}
+                    </div>
+                    <div className="nx-timeline-content">
+                      <div className="nx-timeline-title">{task.description}</div>
+                      <div className="nx-timeline-desc" style={{ whiteSpace: 'pre-line', marginTop: '8px' }}>
+                        {task.instructions}
+                      </div>
+                      
+                      {!isPassed && isCurrent && task.hint && (
+                        <div style={{ marginTop: '12px', background: 'rgba(245, 158, 11, 0.1)', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                          <strong>Hint: </strong> {task.hint}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
 
               <div className={`nx-timeline-step ${isGrading || gradeReport ? 'is-current' : 'is-pending'}`}>
                 <div className="nx-timeline-node">
-                  {gradeReport && gradeReport.score === 100 ? (
+                  {gradeReport && gradeReport.passed ? (
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                   ) : (
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   )}
                 </div>
                 <div className="nx-timeline-content">
-                  <div className="nx-timeline-title">Verify OSPF Neighbors</div>
-                  <div className="nx-timeline-desc">Verify adjacency (Grade lab).</div>
+                  <div className="nx-timeline-title">Verify Lab Completion</div>
+                  <div className="nx-timeline-desc">Click Grade to evaluate all tasks.</div>
                 </div>
               </div>
 
@@ -607,12 +637,11 @@ export default function LabEnvironment({ params }) {
                 {isBooting ? `Booting devices… ${bootProgress}%` : 'Environment is offline. Press ▶ to start.'}
               </div>
             ) : (
-              <Terminal
-                ws={wsRefs.current[activeTerminal]}
-                buffer={bufRefs.current[activeTerminal] || []}
-                nodeName={activeTerminal}
-                key={activeTerminal}
-              />
+              nodes.map(node => (
+                <div key={node} style={{ display: activeTerminal === node ? 'block' : 'none', height: '100%' }}>
+                  <Terminal ws={wsRefs.current[node]} buffer={bufRefs.current[node]} nodeName={node} />
+                </div>
+              ))
             )}
           </div>
         </div>
@@ -625,45 +654,110 @@ export default function LabEnvironment({ params }) {
           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.6px' }}>Devices</span>
         </div>
 
-        {/* Topology palette */}
+        {/* Dynamic Topology Accordions */}
         <div>
-          <div className="nx-right-section-label">Topology</div>
-          <div className="nx-right-topo-item">
-            <div className="nx-right-topo-icon">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15.3 15.3 0 0 1 0 18"/></svg>
-            </div>
-            <span>Router</span>
-          </div>
-          <div className="nx-right-topo-item">
-            <div className="nx-right-topo-icon">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6" y2="12.01"/><line x1="10" y1="12" x2="10" y2="12.01"/></svg>
-            </div>
-            <span>Switch</span>
-          </div>
-          <div className="nx-right-topo-item">
-            <div className="nx-right-topo-icon">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.8"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-            </div>
-            <span>Cloud</span>
-          </div>
-        </div>
-
-        <div style={{ flex: 1, borderTop: '1px solid var(--border)', marginTop: 8 }}>
-          <div className="nx-right-section-label" style={{ marginTop: 12 }}>Active Nodes</div>
-          <div style={{ padding: '8px 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {nodes.map(node => (
-              <div
-                key={node}
-                className={`nx-node-row ${activeTerminal === node ? 'active' : ''}`}
-                onClick={() => setActiveTerminal(node)}
-              >
-                <div className="nx-node-icon">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="8" width="20" height="8" rx="2"/><line x1="6" y1="12" x2="6" y2="12.01"/></svg>
+          <div className="nx-right-section-label">Topology Nodes</div>
+          
+          {/* Routers Category */}
+          <div className="nx-device-category">
+            <div className="nx-device-category-header" onClick={() => setOpenCategories(prev => ({ ...prev, Routers: !prev.Routers }))} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="nx-right-topo-icon">
+                  <SidebarRouterIcon />
                 </div>
-                <span className="nx-node-name">{node}</span>
-                <div className={(session && !isBooting) ? 'nx-node-online' : 'nx-node-offline'} />
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Routers</span>
               </div>
-            ))}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: openCategories.Routers ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            {openCategories.Routers && (
+              <div style={{ background: 'var(--bg-lighter)', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+                {lab?.nodes?.filter(n => n.device_type === 'cisco_ios_telnet').length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {lab.nodes.filter(n => n.device_type === 'cisco_ios_telnet').map(node => (
+                      <div
+                        key={node.name}
+                        className={`nx-node-row ${activeTerminal === node.name ? 'active' : ''}`}
+                        onClick={() => setActiveTerminal(node.name)}
+                      >
+                        <div className="nx-node-icon">
+                          <SidebarRouterIcon />
+                        </div>
+                        <span className="nx-node-name">{node.name}</span>
+                        <div className={(session && !isBooting) ? 'nx-node-online' : 'nx-node-offline'} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* Switches Category */}
+          <div className="nx-device-category">
+            <div className="nx-device-category-header" onClick={() => setOpenCategories(prev => ({ ...prev, Switches: !prev.Switches }))} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="nx-right-topo-icon">
+                  <SidebarSwitchIcon />
+                </div>
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Switches</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: openCategories.Switches ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            {openCategories.Switches && (
+              <div style={{ background: 'var(--bg-lighter)', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+                {lab?.nodes?.filter(n => n.device_type === 'cisco_iol_l2').length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {lab.nodes.filter(n => n.device_type === 'cisco_iol_l2').map(node => (
+                      <div
+                        key={node.name}
+                        className={`nx-node-row ${activeTerminal === node.name ? 'active' : ''}`}
+                        onClick={() => setActiveTerminal(node.name)}
+                      >
+                        <div className="nx-node-icon">
+                          <SidebarSwitchIcon />
+                        </div>
+                        <span className="nx-node-name">{node.name}</span>
+                        <div className={(session && !isBooting) ? 'nx-node-online' : 'nx-node-offline'} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* PCs Category */}
+          <div className="nx-device-category">
+            <div className="nx-device-category-header" onClick={() => setOpenCategories(prev => ({ ...prev, PCs: !prev.PCs }))} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="nx-right-topo-icon">
+                  <SidebarPCIcon />
+                </div>
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>PCs</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: openCategories.PCs ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            {openCategories.PCs && (
+              <div style={{ background: 'var(--bg-lighter)', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+                {lab?.nodes?.filter(n => n.device_type === 'linux' || n.device_type === 'vpcs').length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {lab.nodes.filter(n => n.device_type === 'linux' || n.device_type === 'vpcs').map(node => (
+                      <div
+                        key={node.name}
+                        className={`nx-node-row ${activeTerminal === node.name ? 'active' : ''}`}
+                        onClick={() => setActiveTerminal(node.name)}
+                      >
+                        <div className="nx-node-icon">
+                          <SidebarPCIcon />
+                        </div>
+                        <span className="nx-node-name">{node.name}</span>
+                        <div className={(session && !isBooting) ? 'nx-node-online' : 'nx-node-offline'} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </aside>

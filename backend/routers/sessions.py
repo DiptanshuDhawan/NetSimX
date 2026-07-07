@@ -96,7 +96,7 @@ async def get_session_status(session_id: int):
     conn.close()
 
     if session["status"] != "running":
-        return {"nodes": [{"name": "IOU1", "status": "stopped"}, {"name": "IOU2", "status": "stopped"}], "links": []}
+        return {"status": "stopped", "nodes": [{"name": "IOU1", "status": "stopped"}, {"name": "IOU2", "status": "stopped"}], "links": []}
 
     try:
         server = get_gns3_server()

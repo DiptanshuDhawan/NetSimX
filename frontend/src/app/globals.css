@@ -550,7 +550,6 @@ html, body {
   color: var(--text-secondary);
   flex-shrink: 0;
 }
-.nx-node-row.active .nx-node-icon { background: var(--primary-soft); color: var(--primary); }
 
 /* ═══════════════════════════════════════════════
    MODALS

@@ -46,6 +46,7 @@ export const api = {
   // Get session status (nodes and links)
   async getSessionStatus(sessionId) {
     const res = await fetch(`${API_URL}/api/session/status/${sessionId}`);
+    if (res.status === 404) return { status: 'stopped' };
     if (!res.ok) throw new Error('Failed to fetch session status');
     return res.json();
   },
