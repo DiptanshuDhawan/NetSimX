@@ -67,20 +67,20 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
           <g transform="translate(0, 30)">
             {/* VLAN Backgrounds (rendered first so they are behind everything) */}
             {/* PC0 - Blue (VLAN 10) */}
-            <rect x="50" y="220" width="120" height="150" fill="#2F80ED" opacity="0.25" stroke="#2F80ED" strokeWidth="2" rx="8" />
-            <text x="110" y="242" fill="#E2E8F0" fontSize="13" fontWeight="600" textAnchor="middle">VLAN 10</text>
+            <rect x="50" y="220" width="120" height="150" fill="#2F80ED" opacity="0.40" stroke="#2F80ED" strokeWidth="2" rx="8" />
+            <text x="110" y="355" fill="#FFFFFF" fontSize="15" fontWeight="600" textAnchor="middle">VLAN 10</text>
             
             {/* PC1 - Red (VLAN 20) */}
-            <rect x="180" y="220" width="120" height="150" fill="#EB5757" opacity="0.25" stroke="#EB5757" strokeWidth="2" rx="8" />
-            <text x="240" y="242" fill="#E2E8F0" fontSize="13" fontWeight="600" textAnchor="middle">VLAN 20</text>
+            <rect x="180" y="220" width="120" height="150" fill="#EB5757" opacity="0.40" stroke="#EB5757" strokeWidth="2" rx="8" />
+            <text x="240" y="355" fill="#FFFFFF" fontSize="15" fontWeight="600" textAnchor="middle">VLAN 20</text>
             
             {/* PC2 - Purple (VLAN 30) */}
-            <rect x="380" y="220" width="120" height="150" fill="#9B51E0" opacity="0.25" stroke="#9B51E0" strokeWidth="2" rx="8" />
-            <text x="440" y="242" fill="#E2E8F0" fontSize="13" fontWeight="600" textAnchor="middle">VLAN 30</text>
+            <rect x="380" y="220" width="120" height="150" fill="#9B51E0" opacity="0.40" stroke="#9B51E0" strokeWidth="2" rx="8" />
+            <text x="440" y="355" fill="#FFFFFF" fontSize="15" fontWeight="600" textAnchor="middle">VLAN 30</text>
             
             {/* PC3 - Red (VLAN 20) */}
-            <rect x="510" y="220" width="120" height="150" fill="#EB5757" opacity="0.25" stroke="#EB5757" strokeWidth="2" rx="8" />
-            <text x="570" y="242" fill="#E2E8F0" fontSize="13" fontWeight="600" textAnchor="middle">VLAN 20</text>
+            <rect x="510" y="220" width="120" height="150" fill="#EB5757" opacity="0.40" stroke="#EB5757" strokeWidth="2" rx="8" />
+            <text x="570" y="355" fill="#FFFFFF" fontSize="15" fontWeight="600" textAnchor="middle">VLAN 20</text>
 
             {/* Connection Line: R1 to S2 */}
             <line x1="500" y1="40" x2="480" y2="150" stroke="#000000" strokeWidth="2.5" />
