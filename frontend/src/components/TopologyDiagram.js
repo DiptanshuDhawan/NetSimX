@@ -3,19 +3,19 @@ import React from 'react';
 const RouterIcon = ({ x, y, scale = 1.4, label }) => (
   <g transform={`translate(${x}, ${y}) scale(${scale})`}>
     {/* Cylinder body (drawn first so it goes behind the top face) */}
-    <path d="M-38,-10 v32 a38,14 0 0,0 76,0 v-32 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
+    <path d="M-38,-10 v20 a38,14 0 0,0 76,0 v-20 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
     {/* Top face */}
     <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
-    {/* 4 arrows perfectly centered on top face */}
+    {/* 4 arrows perfectly centered on top face (shortened to fit safely inside) */}
     <g stroke="#E2E8F0" strokeWidth="1.9" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M-4,-10 L-15,-10 M-11,-13 L-15,-10 L-11,-7" /> {/* Left arrow pointing OUT */}
-      <path d="M4,-10 L15,-10 M11,-13 L15,-10 L11,-7" /> {/* Right arrow pointing OUT */}
-      <path d="M0,-16 L0,-24 M-3,-20 L0,-24 L3,-20" /> {/* Top arrow pointing IN */}
-      <path d="M0,-4 L0,4 M-3,0 L0,4 L3,0" /> {/* Bottom arrow pointing IN */}
+      <path d="M-4,-10 L-13,-10 M-10,-13 L-13,-10 L-10,-7" /> {/* Left arrow pointing OUT */}
+      <path d="M4,-10 L13,-10 M10,-13 L13,-10 L10,-7" /> {/* Right arrow pointing OUT */}
+      <path d="M0,-16 L0,-21 M-3,-18 L0,-21 L3,-18" /> {/* Top arrow pointing OUT */}
+      <path d="M0,-4 L0,1 M-3,-2 L0,1 L3,-2" /> {/* Bottom arrow pointing OUT */}
     </g>
     {/* Label properly placed on the visible front face */}
     {label && (
-      <text x="0" y="21" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
+      <text x="0" y="17" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
     )}
   </g>
 );
