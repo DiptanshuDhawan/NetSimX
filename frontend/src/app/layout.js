@@ -1,7 +1,7 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'NetLabX - Advanced Network Emulator',
+  title: 'Revelio Labs',
   description: 'Interactive network lab emulation platform.',
 };
 
