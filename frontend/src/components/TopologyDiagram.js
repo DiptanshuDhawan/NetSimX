@@ -87,8 +87,8 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-      <svg width="100%" height="100%" viewBox="0 0 800 320" style={{ fontFamily: 'Inter, sans-serif' }}>
-        <g transform="translate(75, 0)">
+      <svg width="100%" height="100%" viewBox="0 0 680 272" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <g transform="translate(15, -10)">
           {/* Connection Line: R1 to R2 */}
           <line x1="150" y1="140" x2="500" y2="140" stroke="#2F80ED" strokeWidth="2.5" />
 
@@ -105,8 +105,8 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
           <text x="435" y="160" fill="#A1A9B6" fontSize="13" textAnchor="end">.2</text>
 
           {/* Nodes with embedded labels */}
-          <RouterIcon x="150" y="140" label="R1" />
-          <RouterIcon x="500" y="140" label="R2" />
+          <RouterIcon x="150" y="140" label="R1" scale={1.5} />
+          <RouterIcon x="500" y="140" label="R2" scale={1.5} />
         </g>
       </svg>
     </div>
