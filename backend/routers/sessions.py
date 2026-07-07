@@ -133,8 +133,15 @@ async def reset_session(session_id: int):
     session = dict(session_row)
     conn.close()
 
-    if session["status"] != "running":
+    if session["status"] not in ["running", "graded"]:
         raise HTTPException(status_code=400, detail="Lab is not running")
+
+    # If it was graded, switch it back to running when we reset
+    if session["status"] == "graded":
+        conn = get_db()
+        conn.execute("UPDATE lab_sessions SET status = 'running' WHERE id = ?", (session_id,))
+        conn.commit()
+        conn.close()
 
     try:
         server = get_gns3_server()
