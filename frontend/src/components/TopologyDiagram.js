@@ -8,8 +8,8 @@ const RouterIcon = ({ x, y, scale = 1.4, label }) => (
     <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
     {/* 4 arrows perfectly centered on top face (shortened to fit safely inside) */}
     <g stroke="#E2E8F0" strokeWidth="1.9" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M-4,-10 L-13,-10 M-10,-13 L-13,-10 L-10,-7" /> {/* Left arrow pointing OUT */}
-      <path d="M4,-10 L13,-10 M10,-13 L13,-10 L10,-7" /> {/* Right arrow pointing OUT */}
+      <path d="M-13,-10 L-4,-10 M-7,-13 L-4,-10 L-7,-7" /> {/* Left arrow pointing IN */}
+      <path d="M13,-10 L4,-10 M7,-13 L4,-10 L7,-7" /> {/* Right arrow pointing IN */}
       <path d="M0,-16 L0,-21 M-3,-18 L0,-21 L3,-18" /> {/* Top arrow pointing OUT */}
       <path d="M0,-4 L0,1 M-3,-2 L0,1 L3,-2" /> {/* Bottom arrow pointing OUT */}
     </g>
