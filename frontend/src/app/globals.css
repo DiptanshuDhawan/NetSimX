@@ -130,6 +130,56 @@ html, body {
   font-size: 14px;
 }
 
+/* Primary Grade Button (Rectangle) */
+.nx-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0 20px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 4px 12px rgba(47, 128, 237, 0.15);
+}
+.nx-action-btn:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+
+.nx-btn-blue { 
+  background: linear-gradient(180deg, var(--primary) 0%, #216bd2 100%); 
+}
+.nx-btn-blue:hover:not(:disabled) { 
+  background: linear-gradient(180deg, var(--primary-hover) 0%, #1a56ad 100%);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 16px rgba(47, 128, 237, 0.3);
+}
+
+.nx-btn-green { background: #16a34a; }
+.nx-btn-green:hover:not(:disabled) { background: #15803d; }
+
+.nx-btn-red { background: #dc2626; }
+.nx-btn-red:hover:not(:disabled) { background: #b91c1c; }
+
+.nx-btn-gray { background: #4b5563; }
+.nx-btn-gray:hover:not(:disabled) { background: #374151; }
+
+/* Icon Action Buttons (Square with solid colors) */
+.nx-icon-action-btn {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background .15s, opacity .15s;
+}
+.nx-icon-action-btn:disabled { opacity: .5; cursor: not-allowed; }
+
 /* Toolbar right */
 .nx-toolbar {
   display: flex;

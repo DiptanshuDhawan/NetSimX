@@ -94,6 +94,28 @@ def push_startup_config(project_id: str, node_name: str, config_path: str):
 
     # Connect via Telnet and paste config line by line
     with telnetlib.Telnet(GNS3_HOST, port, timeout=30) as tn:
+        # Flush any stale console buffer history
+        time.sleep(1)
+        tn.read_very_eager()
+
+        # Actively poll for a prompt by sending Enter every 2 seconds
+        prompt_found = False
+        for _ in range(25): # Wait up to 50 seconds
+            try:
+                tn.write(b"\r\n")
+                match_idx, match, text = tn.expect([b"\[yes/no\]", b">", b"#", b"initial configuration dialog"], timeout=2)
+                if match_idx >= 0:
+                    prompt_found = True
+                    if match_idx == 0 or match_idx == 3:
+                        tn.write(b"no\r\n")
+                        tn.expect([b">", b"#"], timeout=30)
+                    break
+            except Exception:
+                pass
+
+        if not prompt_found:
+            print(f"Warning: Could not find prompt for {node_name} after 50s. Attempting to push config anyway.")
+
         tn.write(b"\r\n")
         time.sleep(1)
         tn.write(b"enable\r\n")
@@ -106,5 +128,10 @@ def push_startup_config(project_id: str, node_name: str, config_path: str):
             time.sleep(0.1)
 
         tn.write(b"end\r\n")
+        time.sleep(0.5)
         tn.write(b"write memory\r\n")
-        time.sleep(1)
+        # Wait for NVRAM write to finish
+        try:
+            tn.expect([b"\[OK\]", b"#"], timeout=10)
+        except:
+            time.sleep(2)

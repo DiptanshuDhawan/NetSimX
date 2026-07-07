@@ -59,6 +59,7 @@ export default function LabEnvironment({ params }) {
   const [visibleHints, setVisibleHints] = useState({});
   const [visibleAnswers, setVisibleAnswers] = useState({});
   const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [showFailModal, setShowFailModal] = useState(false);
   
   // New UX States
   const [labTimer, setLabTimer] = useState(0);
@@ -189,7 +190,7 @@ export default function LabEnvironment({ params }) {
         }).catch(err => {
           console.warn("Session polling network error (ignoring):", err);
         });
-    }, 5000);
+    }, 60000); // Increased from 5s to 60s to reduce network tab traffic
 
     return () => {
       clearInterval(statusInterval);
@@ -257,10 +258,10 @@ export default function LabEnvironment({ params }) {
       setBootProgress(0);
       setLabTimer(0);
       
-      // Simulate progress while waiting for backend API
+      // Simulate progress while waiting for backend API (backend takes ~16s to push configs)
       const apiInterval = setInterval(() => {
         setBootProgress(p => p < 85 ? p + 5 : p);
-      }, 400);
+      }, 1000); // Changed from 400ms to 1000ms so it takes 17s to reach 85%
       
       const sess = await api.startSession(slug);
       
@@ -299,8 +300,9 @@ export default function LabEnvironment({ params }) {
       if (report.passed) {
         setShowCompletionModal(true);
         localStorage.setItem(`netlabx_grade_${slug}`, '100');
+      } else {
+        setShowFailModal(true);
       }
-      
     } catch (e) {
       alert("Grading failed: " + e.message);
     } finally {
@@ -398,28 +400,38 @@ export default function LabEnvironment({ params }) {
           )}
 
           {/* Action Button Group */}
-          <div style={{ display: 'flex', gap: '4px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            
+            {/* Grade */}
+            <button className="nx-action-btn nx-btn-blue" onClick={handleGrade} disabled={!session || isBooting || isGrading || gradeReport?.passed} title="Grade Lab">
+              {gradeReport?.passed ? (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Graded
+                </>
+              ) : (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Grade
+                </>
+              )}
+            </button>
+
             {/* Play */}
-            <button className={`nx-icon-btn ${!session && !isBooting ? 'start-highlight' : ''}`} onClick={handleStart} disabled={!!session || isBooting} title="Start Lab">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <button className="nx-icon-action-btn nx-btn-green" onClick={handleStart} disabled={!!session || isBooting} title="Start Lab">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </button>
 
             {/* Stop */}
-            <button className={`nx-icon-btn ${session && !isBooting ? 'stop-highlight' : ''}`} onClick={handleStop} disabled={!session || isBooting} title="Stop Lab">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>
+            <button className="nx-icon-action-btn nx-btn-red" onClick={handleStop} disabled={!session || isBooting} title="Stop Lab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>
             </button>
 
             {/* Refresh (Reset) */}
-            <button className="nx-icon-btn" onClick={() => setShowResetModal(true)} disabled={!session || isBooting} title="Reset Lab">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            <button className="nx-icon-action-btn nx-btn-gray" onClick={() => setShowResetModal(true)} disabled={!session || isBooting} title="Reset Lab">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             </button>
           </div>
-
-          {/* Grade */}
-          <button className="nx-grade-btn" onClick={handleGrade} disabled={!session || isBooting || isGrading}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Grade
-          </button>
           
           {/* Avatar */}
           <div className="nx-avatar">N</div>
@@ -808,15 +820,51 @@ export default function LabEnvironment({ params }) {
             <div style={{ display: 'flex', gap: 16, background: '#f9fafb', padding: 16, borderRadius: 12, marginBottom: 24, border: '1px solid var(--border)' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>Score</div>
-                <div style={{ fontSize: 22, fontWeight: 700 }}>{gradeReport.percentage}%</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: '#111827' }}>{gradeReport.percentage}%</div>
               </div>
               <div style={{ width: 1, background: 'var(--border)' }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>Time</div>
-                <div style={{ fontSize: 22, fontWeight: 700 }}>{formatTime(labTimer)}</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: '#111827' }}>{formatTime(labTimer)}</div>
               </div>
             </div>
             <button className="nx-btn nx-btn-primary" style={{ width: '100%', borderRadius: 12, padding: '10px 0' }} onClick={() => { setShowCompletionModal(false); router.push('/'); }}>Return to Dashboard</button>
+          </div>
+        </div>
+      )}
+
+      {/* Grade Failure Modal */}
+      {showFailModal && gradeReport && (
+        <div className="nx-modal-overlay">
+          <div className="nx-modal-box">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{ width: 40, height: 40, background: 'rgba(239,68,68,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+              <h3 style={{ fontSize: 18, color: 'var(--text-primary)' }}>Configuration Incomplete</h3>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 16 }}>The following configurations are missing or incorrect:</p>
+            <div style={{ background: 'var(--bg-lighter)', padding: 12, borderRadius: 8, border: '1px solid var(--border)', maxHeight: 200, overflowY: 'auto', marginBottom: 20 }}>
+              {gradeReport.node_results?.map((res, idx) => (
+                !res.passed && (
+                  <div key={idx} style={{ marginBottom: 12 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-primary)', marginBottom: 6 }}>{res.node}</div>
+                    {res.error ? (
+                      <div style={{ color: '#ef4444', fontSize: 12 }}>{res.error}</div>
+                    ) : (
+                      <ul style={{ margin: 0, paddingLeft: 16, color: '#fca5a5', fontSize: 12, fontFamily: 'monospace' }}>
+                        {res.missing_lines?.map((line, i) => (
+                          <li key={i}>{line}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="nx-btn nx-btn-primary" onClick={() => setShowFailModal(false)}>Keep Trying</button>
+            </div>
           </div>
         </div>
       )}
