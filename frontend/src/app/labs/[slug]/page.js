@@ -813,17 +813,32 @@ export default function LabEnvironment({ params }) {
       {/* Error Modal */}
       {errorMsg && (
         <div className="nx-modal-overlay">
-          <div className="nx-modal-box">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ width: 40, height: 40, background: 'rgba(239,68,68,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-              </div>
-              <h3 style={{ fontSize: 18, color: 'var(--text-primary)' }}>Server Connection Error</h3>
+          <div className="nx-modal-box" style={{ textAlign: 'center', padding: '32px 24px', maxWidth: 400 }}>
+            
+            <div style={{ margin: '0 auto 20px', width: 56, height: 56, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 30px rgba(239,68,68,0.15)' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             </div>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 24 }}>{errorMsg}</p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="nx-btn nx-btn-primary" onClick={() => setErrorMsg(null)}>Close</button>
+
+            <h3 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 12 }}>Unable to Start Lab</h3>
+            
+            <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.6, marginBottom: 16 }}>
+              We couldn't establish a session with the virtual lab environment.<br />
+              Please verify the server is online and try again.
+            </p>
+
+            {/* Technical Detail Box */}
+            <div style={{ background: 'var(--bg-terminal)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 12px', textAlign: 'left', marginBottom: 24 }}>
+              <span style={{ display: 'block', fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Error Details</span>
+              <code style={{ fontSize: 12, color: '#ef4444', fontFamily: 'monospace', wordBreak: 'break-all' }}>{errorMsg}</code>
             </div>
+
+            <button 
+              className="nx-btn nx-btn-primary" 
+              style={{ width: '100%', padding: '10px 0', fontSize: 14, fontWeight: 500, borderRadius: 8 }}
+              onClick={() => setErrorMsg(null)}
+            >
+              Close & Try Again
+            </button>
           </div>
         </div>
       )}
