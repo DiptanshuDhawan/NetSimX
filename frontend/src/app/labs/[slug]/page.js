@@ -64,6 +64,7 @@ export default function LabEnvironment({ params }) {
   const [isBooting, setIsBooting] = useState(false);
   const [bootProgress, setBootProgress] = useState(0);
   const [linkStatus, setLinkStatus] = useState([]);
+  const [termFontSize, setTermFontSize] = useState(16);
   const [taskProgress, setTaskProgress] = useState([]);
   const [passedTaskIds, setPassedTaskIds] = useState([]);
   const [showResetModal, setShowResetModal] = useState(false);
@@ -619,24 +620,45 @@ export default function LabEnvironment({ params }) {
 
         {/* Terminal panel */}
         <div className="nx-term-panel nx-card" style={{ padding: 0 }}>
-          <div className="nx-term-tabs">
-            {nodes.map(node => (
-              <button
-                key={node}
-                className={`nx-term-tab ${activeTerminal === node ? 'active' : ''}`}
-                onClick={() => setActiveTerminal(node)}
-                disabled={!session || isBooting}
+          <div className="nx-term-tabs" style={{ display: 'flex', justifyContent: 'space-between', paddingRight: '12px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {nodes.map(node => (
+                <button
+                  key={node}
+                  className={`nx-term-tab ${activeTerminal === node ? 'active' : ''}`}
+                  onClick={() => setActiveTerminal(node)}
+                  disabled={!session || isBooting}
+                >
+                  <span className="tab-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="4" width="20" height="16" rx="3" ry="3"/>
+                      <polyline points="7 10 10 13 7 16"/>
+                      <line x1="12" y1="16" x2="16" y2="16"/>
+                    </svg>
+                  </span>
+                  {node}
+                </button>
+              ))}
+            </div>
+            
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button 
+                className="nx-btn" 
+                style={{ padding: '4px 8px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-muted)' }}
+                onClick={() => setTermFontSize(f => Math.max(12, f - 2))}
+                title="Decrease Font Size"
               >
-                <span className="tab-icon">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="4" width="20" height="16" rx="3" ry="3"/>
-                    <polyline points="7 10 10 13 7 16"/>
-                    <line x1="12" y1="16" x2="16" y2="16"/>
-                  </svg>
-                </span>
-                {node}
+                A-
               </button>
-            ))}
+              <button 
+                className="nx-btn" 
+                style={{ padding: '4px 8px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-muted)' }}
+                onClick={() => setTermFontSize(f => Math.min(24, f + 2))}
+                title="Increase Font Size"
+              >
+                A+
+              </button>
+            </div>
           </div>
           <div className="nx-term-body">
             {!session || isBooting ? (
@@ -646,7 +668,7 @@ export default function LabEnvironment({ params }) {
             ) : (
               nodes.map(node => (
                 <div key={node} style={{ display: activeTerminal === node ? 'block' : 'none', height: '100%' }}>
-                  <Terminal ws={wsRefs.current[node]} buffer={bufRefs.current[node]} nodeName={node} />
+                  <Terminal ws={wsRefs.current[node]} buffer={bufRefs.current[node]} nodeName={node} fontSize={termFontSize} />
                 </div>
               ))
             )}

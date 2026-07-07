@@ -9,8 +9,11 @@ import 'xterm/css/xterm.css';
 //   ws     - the already-open WebSocket managed by the parent
 //   buffer - Uint8Array[] of all data received so far on this node
 //   nodeName - string label (for key)
-export default function Terminal({ ws, buffer, nodeName }) {
+//   fontSize - number for the terminal font size
+export default function Terminal({ ws, buffer, nodeName, fontSize = 16 }) {
   const containerRef = useRef(null);
+  const termRef = useRef(null);
+  const fitAddonRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -23,13 +26,15 @@ export default function Terminal({ ws, buffer, nodeName }) {
         selectionBackground: 'rgba(255,255,255,0.2)',
       },
       fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
-      fontSize: 16,
+      fontSize: fontSize,
       lineHeight: 1.4,
       cursorBlink: true,
       cursorStyle: 'block',
     });
+    termRef.current = term;
 
     const fitAddon = new FitAddon();
+    fitAddonRef.current = fitAddon;
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
     fitAddon.fit();
@@ -39,24 +44,7 @@ export default function Terminal({ ws, buffer, nodeName }) {
       buffer.forEach(chunk => term.write(chunk));
     }
 
-    // Hook into the shared WebSocket's future messages
-    const onMessage = (e) => {
-      const chunk = typeof e.data === 'string'
-        ? e.data
-        : new Uint8Array(e.data);
-      term.write(chunk);
-    };
-
-    if (ws) {
-      ws.addEventListener('message', onMessage);
-    }
-
-    // Send keystrokes through the shared WebSocket
-    term.onData((data) => {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(data);
-      }
-    });
+    // WebSocket listener and data sender are now handled in a separate useEffect
 
     // Use ResizeObserver to reliably call fit() whenever the container's dimensions change
     // This perfectly handles tab switching, window resizing, and initial render delays
@@ -71,12 +59,45 @@ export default function Terminal({ ws, buffer, nodeName }) {
 
     return () => {
       resizeObserver.disconnect();
-      if (ws) ws.removeEventListener('message', onMessage);
       term.dispose();
     };
   // Re-run only when the node changes (key prop guarantees this anyway)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Handle WebSocket connection dynamically
+  useEffect(() => {
+    if (!ws || !termRef.current) return;
+
+    const term = termRef.current;
+
+    const onMessage = (e) => {
+      const chunk = typeof e.data === 'string'
+        ? e.data
+        : new Uint8Array(e.data);
+      term.write(chunk);
+    };
+
+    ws.addEventListener('message', onMessage);
+
+    const onData = term.onData((data) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(data);
+      }
+    });
+
+    return () => {
+      ws.removeEventListener('message', onMessage);
+      onData.dispose();
+    };
+  }, [ws]);
+
+  useEffect(() => {
+    if (termRef.current) {
+      termRef.current.options.fontSize = fontSize;
+      if (fitAddonRef.current) fitAddonRef.current.fit();
+    }
+  }, [fontSize]);
 
   return (
     <div style={{ height: '100%', width: '100%', background: 'var(--bg-terminal)', overflow: 'hidden' }}>

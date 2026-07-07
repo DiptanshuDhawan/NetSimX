@@ -1351,4 +1351,9 @@ html, body {
 .nx-category-card[data-topic-color="teal"].active .nx-category-card-icon, .nx-category-card[data-topic-color="teal"].active .nx-category-card-count { color: #14b8a6; }
 
 .nx-category-card[data-topic-color="gray"].active { border-color: #9ca3af; background: rgba(156,163,175,0.1); }
-.nx-category-card[data-topic-color="gray"].active .nx-category-card-icon, .nx-category-card[data-topic-color="gray"].active .nx-category-card-count { color: #9ca3af; }
+.nx-category-card[data-topic-color="gray"].active .nx-category-card-icon, .nx-category-card[data-topic-color="gray"].active .nx-category-card-count { color: #9ca3af; }
+@keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.nx-lab-list-item { animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+.nx-category-card { animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+.nx-category-card:nth-child(1) { animation-delay: 0.05s; } .nx-category-card:nth-child(2) { animation-delay: 0.1s; } .nx-category-card:nth-child(3) { animation-delay: 0.15s; } .nx-category-card:nth-child(4) { animation-delay: 0.2s; }
+.nx-lab-list-item:nth-child(1) { animation-delay: 0.1s; } .nx-lab-list-item:nth-child(2) { animation-delay: 0.2s; } .nx-lab-list-item:nth-child(3) { animation-delay: 0.3s; }
