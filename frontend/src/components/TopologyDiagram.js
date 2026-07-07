@@ -85,11 +85,11 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
             <text x="448" y="245" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/2</text>
 
             {/* VLAN subnets perfectly balanced at line midpoints */}
-            <text x="315" y="255" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
-            <text x="315" y="270" fill="#A1A9B6" fontSize="12" textAnchor="end">192.168.10.0/24</text>
+            <text x="295" y="255" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
+            <text x="295" y="270" fill="#A1A9B6" fontSize="12" textAnchor="end">192.168.10.0/24</text>
             
-            <text x="485" y="255" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
-            <text x="485" y="270" fill="#A1A9B6" fontSize="12" textAnchor="start">192.168.20.0/24</text>
+            <text x="505" y="255" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
+            <text x="505" y="270" fill="#A1A9B6" fontSize="12" textAnchor="start">192.168.20.0/24</text>
           </g>
         </svg>
       </div>
