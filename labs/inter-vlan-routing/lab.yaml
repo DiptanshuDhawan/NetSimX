@@ -36,7 +36,7 @@ lab:
     - name: SW1
       host: "100.120.167.31"
       console_port: 5001
-      device_type: "cisco_ios_telnet"
+      device_type: "cisco_iol_l2"
 
     - name: PC1
       host: "100.120.167.31"

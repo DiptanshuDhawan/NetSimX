@@ -25,8 +25,13 @@ def connect_to_node(node: dict) -> ConnectHandler:
     """
     Create a Netmiko connection to a GNS3 router.
     """
+    # Map lab device types to Netmiko device types
+    netmiko_device_type = node["device_type"]
+    if netmiko_device_type in ["cisco_iol_l2", "cisco_iol"]:
+        netmiko_device_type = "cisco_ios_telnet"
+
     device = {
-        "device_type": node["device_type"],
+        "device_type": netmiko_device_type,
         "host": node["host"],
         "port": node["console_port"],
         "username": "",
