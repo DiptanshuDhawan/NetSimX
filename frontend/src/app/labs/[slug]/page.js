@@ -367,7 +367,7 @@ export default function LabEnvironment({ params }) {
   });
 
   return (
-    <div className="nx-layout">
+    <div key={slug} className="nx-layout nx-fade-in">
 
       {/* ── TOP NAV ── */}
       <header className="nx-header">
