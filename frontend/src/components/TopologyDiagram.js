@@ -37,9 +37,6 @@ export default function TopologyDiagram() {
           {/* Connection Line: R1 to R2 */}
           <line x1="150" y1="140" x2="500" y2="140" stroke="#2F80ED" strokeWidth="2.5" />
 
-          {/* Connection Line: R2 to Cloud */}
-          <line x1="500" y1="140" x2="700" y2="140" stroke="#2F80ED" strokeWidth="2.5" />
-
           {/* Subnet & Area labels between R1 and R2 */}
           <text x="325" y="115" textAnchor="middle" fill="#E2E8F0" fontSize="15" fontWeight="600">192.168.1.0/24</text>
           <text x="325" y="170" textAnchor="middle" fill="#FFFFFF" fontSize="14" fontWeight="500">OSPF Area 0</text>
@@ -52,13 +49,9 @@ export default function TopologyDiagram() {
           <text x="435" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/1</text>
           <text x="435" y="160" fill="#A1A9B6" fontSize="13" textAnchor="end">.2</text>
 
-          {/* R2 Interface (Right side to Cloud) */}
-          <text x="560" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500">e1/0</text>
-
           {/* Nodes (drawn after lines so they sit on top) */}
           <RouterIcon x="150" y="140" />
           <RouterIcon x="500" y="140" />
-          <CloudIcon x="700" y="130" />
 
           {/* Router labels */}
           <text x="150" y="215" textAnchor="middle" fill="#E2E8F0" fontSize="16" fontWeight="600">R1</text>
