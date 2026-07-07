@@ -71,8 +71,10 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
 
             {/* Link Labels */}
             <text x="415" y="125" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
-            <text x="315" y="250" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
-            <text x="485" y="250" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
+            <text x="315" y="240" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
+            <text x="315" y="255" fill="#A1A9B6" fontSize="12" textAnchor="end">192.168.10.0/24</text>
+            <text x="485" y="240" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
+            <text x="485" y="255" fill="#A1A9B6" fontSize="12" textAnchor="start">192.168.20.0/24</text>
 
             {/* Nodes with embedded labels */}
             <RouterIcon x="400" y="60" scale={1.3} label="R1" />
