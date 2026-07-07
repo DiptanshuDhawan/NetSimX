@@ -30,6 +30,7 @@ export default function Terminal({ ws, buffer, nodeName, fontSize = 16 }) {
       lineHeight: 1.4,
       cursorBlink: true,
       cursorStyle: 'block',
+      convertEol: true, // Crucial for correct line-ending behavior with raw Telnet
     });
     termRef.current = term;
 
@@ -37,7 +38,11 @@ export default function Terminal({ ws, buffer, nodeName, fontSize = 16 }) {
     fitAddonRef.current = fitAddon;
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
-    fitAddon.fit();
+    
+    // Only fit if visible
+    if (containerRef.current.clientWidth > 0) {
+      fitAddon.fit();
+    }
 
     // Replay scrollback buffer so history is visible after a tab switch
     if (buffer && buffer.length > 0) {
@@ -49,7 +54,9 @@ export default function Terminal({ ws, buffer, nodeName, fontSize = 16 }) {
     // Use ResizeObserver to reliably call fit() whenever the container's dimensions change
     // This perfectly handles tab switching, window resizing, and initial render delays
     const resizeObserver = new ResizeObserver(() => {
-      fitAddon.fit();
+      if (containerRef.current && containerRef.current.clientWidth > 0) {
+        fitAddon.fit();
+      }
     });
     
     // Start observing the container
