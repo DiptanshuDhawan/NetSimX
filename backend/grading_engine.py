@@ -1,10 +1,11 @@
 """
 NetLabX Core Grading Engine
-Connects to routers via Telnet, runs verification commands, and grades labs.
+Connects to routers via Telnet, fetches startup-config, and compares with solution config.
 """
 
 import yaml
 import sys
+import os
 
 # Fix Windows console emoji printing
 sys.stdout.reconfigure(encoding='utf-8')
@@ -22,171 +23,163 @@ def load_lab_definition(yaml_path: str) -> dict:
 def connect_to_node(node: dict) -> ConnectHandler:
     """
     Create a Netmiko connection to a GNS3 router via Telnet.
-    GNS3 exposes console ports as raw Telnet (no username/password needed).
     """
     device = {
-        "device_type": node["device_type"],  # "cisco_ios_telnet"
+        "device_type": node["device_type"],
         "host": node["host"],
         "port": node["console_port"],
         "username": "",
         "password": "",
-        "secret": "",       # enable password (empty for GNS3 by default)
+        "secret": "",
         "global_delay_factor": 2,
         "timeout": 30,
     }
     return ConnectHandler(**device)
 
 
-def run_verification(connection: ConnectHandler, task: dict) -> dict:
+def sanitize_config(config_text: str) -> set:
     """
-    Run a single verification task against a connected router.
-    Returns a dict with 'passed' bool, 'output', and 'expected'.
+    Cleans up a Cisco IOS config and returns a set of significant lines.
+    Using a set means order doesn't matter, and we can check for subsets.
     """
-    command = task["verification"]["command"]
-    expected = task["verification"]["expect_contains"]
+    lines = []
+    for line in config_text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("!"):
+            continue
+        if line.startswith("Building configuration"):
+            continue
+        if line.startswith("Current configuration"):
+            continue
+        if line.startswith("ntp clock-period"):
+            continue
+        if "NVRAM" in line or "bytes" in line:
+            continue
+        if line.startswith("Last configuration change"):
+            continue
+        if line.startswith("version"):
+            continue
+        lines.append(line)
+    return set(lines)
+
+
+def run_node_verification(connection: ConnectHandler, node_name: str, lab_dir: str) -> dict:
+    """
+    Fetch the startup config and compare it with the solution config for the node.
+    """
+    solution_path = os.path.join(lab_dir, f"solution_{node_name}.cfg")
+    
+    if not os.path.exists(solution_path):
+        return {
+            "node": node_name,
+            "passed": True,  # If no solution config is provided, assume no grading required for this node
+            "error": f"No solution file found at {solution_path}. Skipping."
+        }
+        
+    with open(solution_path, "r") as f:
+        solution_text = f.read()
 
     try:
-        # Save the config as requested. If in config mode, use 'do write' and prepend 'do' to the command.
         if connection.check_config_mode():
             connection.send_command("do write", read_timeout=30)
-            if not command.startswith("do "):
-                command = f"do {command}"
         else:
             if not connection.check_enable_mode():
                 connection.enable()
             connection.send_command("write memory", read_timeout=30)
 
-        output = connection.send_command(command, read_timeout=30)
-        passed = expected.lower() in output.lower()
+        actual_text = connection.send_command("show startup-config", read_timeout=30)
+        
+        expected_set = sanitize_config(solution_text)
+        actual_set = sanitize_config(actual_text)
+        
+        # We check if the expected lines are a subset of the actual lines.
+        # This allows students to have extra config lines without failing.
+        missing_lines = expected_set - actual_set
+        passed = len(missing_lines) == 0
 
         return {
-            "task_id": task["id"],
-            "description": task["description"],
-            "points_possible": task["points"],
-            "points_earned": task["points"] if passed else 0,
+            "node": node_name,
             "passed": passed,
-            "command_run": command,
-            "expected": expected,
-            "output_snippet": output[:300],  # first 300 chars for display
-            "hint": task.get("hint", "No hint available."),
+            "missing_lines": list(missing_lines)
         }
     except Exception as e:
         return {
-            "task_id": task["id"],
-            "description": task["description"],
-            "points_possible": task["points"],
-            "points_earned": 0,
+            "node": node_name,
             "passed": False,
-            "command_run": command,
-            "expected": expected,
-            "output_snippet": f"ERROR: {str(e)}",
-            "hint": task.get("hint", "No hint available."),
+            "error": str(e)
         }
 
 
 def grade_lab(yaml_path: str, skip_tasks: list = None) -> dict:
     """
-    Main grading function. Loads a lab YAML, connects to all nodes,
-    runs all verification tasks, and returns a full results dict.
+    Main grading function. 
+    Connects to all nodes, checks configs, and returns a single Pass/Fail result.
     """
     lab_def = load_lab_definition(yaml_path)
     lab_info = lab_def["lab"]
+    lab_dir = os.path.dirname(os.path.abspath(yaml_path))
 
     print(f"\n{'='*60}")
     print(f"  GRADING LAB: {lab_info['title']}")
     print(f"{'='*60}\n")
 
-    # Build a node lookup map: { "R1": node_config_dict }
     nodes_map = {node["name"]: node for node in lab_info["nodes"]}
-
-    # Store results for all tasks
     all_results = []
-    connections = {}  # cache open connections per node name
-
-    for task in lab_info["tasks"]:
-        if skip_tasks and task["id"] in skip_tasks:
-            continue
-            
-        node_name = task["verification"]["node"]
-        node_config = nodes_map[node_name]
-
-        print(f"  Task {task['id']}: {task['description'][:60]}...")
-
-        # Reuse connection if already open, otherwise create a new one
-        if node_name not in connections:
+    
+    # We will grade every node defined in the lab
+    for node_name, node_config in nodes_map.items():
+        print(f"  Checking {node_name} config...")
+        try:
             print(f"    Connecting to {node_name} (port {node_config['console_port']})...")
-            try:
-                conn = connect_to_node(node_config)
-                connections[node_name] = conn
-                print(f"    ✅ Connected to {node_name}")
-            except (NetMikoTimeoutException, ConnectionRefusedError) as e:
-                print(f"    ❌ FAILED to connect to {node_name}: {e}")
-                all_results.append({
-                    "task_id": task["id"],
-                    "description": task["description"],
-                    "points_possible": task["points"],
-                    "points_earned": 0,
-                    "passed": False,
-                    "command_run": task["verification"]["command"],
-                    "expected": task["verification"]["expect_contains"],
-                    "output_snippet": f"Connection failed: {e}",
-                    "hint": task.get("hint", ""),
-                })
-                continue
+            conn = connect_to_node(node_config)
+            print(f"    ✅ Connected to {node_name}")
+            
+            result = run_node_verification(conn, node_name, lab_dir)
+            all_results.append(result)
+            
+            if result["passed"]:
+                print(f"    ✅ Config matched solution!")
+            else:
+                print(f"    ❌ Config mismatch.")
+                if "missing_lines" in result and result["missing_lines"]:
+                    print(f"       Missing {len(result['missing_lines'])} expected lines (e.g. '{result['missing_lines'][0]}')")
+                elif "error" in result:
+                    print(f"       Error: {result['error']}")
+                    
+            conn.disconnect()
+            
+        except (NetMikoTimeoutException, ConnectionRefusedError) as e:
+            print(f"    ❌ FAILED to connect to {node_name}: {e}")
+            all_results.append({
+                "node": node_name,
+                "passed": False,
+                "error": f"Connection failed: {e}"
+            })
 
-        result = run_verification(connections[node_name], task)
-        all_results.append(result)
-
-        status_icon = "✅ PASS" if result["passed"] else "❌ FAIL"
-        print(f"    {status_icon} ({result['points_earned']}/{result['points_possible']} pts)")
-
-    # Close all connections cleanly
-    for node_name, conn in connections.items():
-        conn.disconnect()
-        print(f"\n  Disconnected from {node_name}")
-
-    # Calculate final score
-    total_earned = sum(r["points_earned"] for r in all_results)
-    total_possible = sum(r["points_possible"] for r in all_results)
-    percentage = round((total_earned / total_possible) * 100, 1) if total_possible > 0 else 0
+    # Calculate final score: all nodes must pass
+    passed = all(r["passed"] for r in all_results) if all_results else False
 
     final_report = {
         "lab_id": lab_info["id"],
         "lab_title": lab_info["title"],
-        "total_earned": total_earned,
-        "total_possible": total_possible,
-        "percentage": percentage,
-        "passed": percentage >= 70,
-        "tasks": all_results,
+        "total_earned": 100 if passed else 0,
+        "total_possible": 100,
+        "percentage": 100 if passed else 0,
+        "passed": passed,
+        "node_results": all_results,
     }
 
-    # Print summary
     print(f"\n{'='*60}")
-    print(f"  FINAL SCORE: {total_earned}/{total_possible} ({percentage}%)")
     print(f"  STATUS: {'🎉 PASSED' if final_report['passed'] else '📚 NEEDS MORE WORK'}")
     print(f"{'='*60}\n")
 
     return final_report
 
 
-# ── CLI Runner ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    """
-    Usage: python grading_engine.py <path_to_lab.yaml>
-    Example: python grading_engine.py ../labs/ospf-basic/lab.yaml
-    """
     if len(sys.argv) < 2:
         print("Usage: python grading_engine.py <path_to_lab.yaml>")
         sys.exit(1)
 
     yaml_path = sys.argv[1]
     report = grade_lab(yaml_path)
-
-    # Print detailed task breakdown
-    print("\n── TASK BREAKDOWN ──────────────────────────────────────────")
-    for task in report["tasks"]:
-        icon = "✅" if task["passed"] else "❌"
-        print(f"\n  {icon} Task {task['task_id']}: {task['description']}")
-        print(f"     Points: {task['points_earned']}/{task['points_possible']}")
-        if not task["passed"]:
-            print(f"     Hint: {task['hint']}")

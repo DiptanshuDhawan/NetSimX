@@ -5,9 +5,7 @@ lab:
   difficulty: "Beginner"
   estimated_time_minutes: 30
   objective: |
-    **Scenario:** Acme Corp needs dynamic routing between HQ (IOU1) and Branch (IOU2). 
-    
-    Configure OSPF Area 0 on the existing Point-to-Point link to establish routing and ensure end-to-end connectivity.
+    Configure a basic OSPF Area 0 adjacency on the point-to-point link between R1 and R2 to establish dynamic routing.
 
   prerequisites:
     - "Basic router navigation"
@@ -24,110 +22,55 @@ lab:
       description: "Verify OSPF learned routes"
 
   nodes:
-    - name: IOU1
+    - name: R1
       host: "192.168.1.200"
       console_port: 5000
       device_type: "cisco_ios_telnet"
 
-    - name: IOU2
+    - name: R2
       host: "192.168.1.200"
       console_port: 5001
       device_type: "cisco_ios_telnet"
 
   tasks:
     - id: 1
-      description: "HQ Interface Provisioning"
-      points: 20
-      verification:
-        node: "IOU1"
-        command: "show ip interface brief"
-        expect_contains: "Ethernet0/0.*192.168.1.1.*YES.*up.*up"
-      hint: "Did you configure `ip address 192.168.1.1 255.255.255.0` on interface Ethernet0/0 and type `no shutdown`?"
+      description: "R1 Interface Provisioning"
       instructions: |
-        Provision the point-to-point link on **IOU1** (`192.168.1.1/24`).
+        Provision the point-to-point link on **R1** (`192.168.1.1/24`).
 
-        1. Access the **IOU1** terminal.
+        1. Access the **R1** terminal.
         2. Assign IP `192.168.1.1/24` to `Ethernet0/0`.
         3. Enable the interface (`no shutdown`).
-      answer_commands:
-        - "enable"
-        - "configure terminal"
-        - "interface Ethernet0/0"
-        - "ip address 192.168.1.1 255.255.255.0"
-        - "no shutdown"
-        - "end"
+      hint: "Did you configure `ip address 192.168.1.1 255.255.255.0` on interface Ethernet0/0 and type `no shutdown`?"
 
     - id: 2
-      description: "Branch Interface Provisioning"
-      points: 20
-      verification:
-        node: "IOU2"
-        command: "show ip interface brief"
-        expect_contains: "Ethernet0/1.*192.168.1.2.*YES.*up.*up"
-      hint: "Did you configure `ip address 192.168.1.2 255.255.255.0` on interface Ethernet0/1 and type `no shutdown`?"
+      description: "R2 Interface Provisioning"
       instructions: |
-        Provision the point-to-point link on **IOU2** (`192.168.1.2/24`).
+        Provision the point-to-point link on **R2** (`192.168.1.2/24`).
 
-        *Note: IOU2 connects via **Ethernet0/1**!*
+        *Note: R2 connects via **Ethernet0/1**!*
 
-        1. Access the **IOU2** terminal.
+        1. Access the **R2** terminal.
         2. Assign IP `192.168.1.2/24` to `Ethernet0/1`.
         3. Enable the interface.
-      answer_commands:
-        - "enable"
-        - "configure terminal"
-        - "interface Ethernet0/1"
-        - "ip address 192.168.1.2 255.255.255.0"
-        - "no shutdown"
-        - "end"
+      hint: "Did you configure `ip address 192.168.1.2 255.255.255.0` on interface Ethernet0/1 and type `no shutdown`?"
 
     - id: 3
-      description: "OSPF Process Initialization"
-      points: 20
-      verification:
-        node: "IOU1"
-        command: "show run | section router ospf"
-        expect_contains: "router ospf 1"
-      hint: "Enter global configuration mode and use the command `router ospf 1`."
+      description: "OSPF Initialization & Advertisement"
       instructions: |
         Dynamic routing requires a locally significant Process ID.
         
-        1. On **IOU1**, enter global configuration mode.
+        1. On **R1**, enter global configuration mode.
         2. Start OSPF with Process ID **1** (`router ospf 1`).
-      answer_commands:
-        - "configure terminal"
-        - "router ospf 1"
+        3. Advertise `192.168.1.0` with wildcard `0.0.0.255` into Area 0.
+        4. Repeat the OSPF configuration on **R2**.
+      hint: "Use `router ospf 1` and `network 192.168.1.0 0.0.0.255 area 0`."
 
     - id: 4
-      description: "Network Advertisement"
-      points: 20
-      verification:
-        node: "IOU1"
-        command: "show run | section router ospf"
-        expect_contains: "network 192.168.1.0 0.0.0.255 area 0"
-      hint: "Use the command `network 192.168.1.0 0.0.0.255 area 0` inside the OSPF configuration."
-      instructions: |
-        Explicitly advertise the network into OSPF Area 0 using a wildcard mask.
-
-        1. On **IOU1** (in OSPF mode), advertise `192.168.1.0` with wildcard `0.0.0.255` into Area 0.
-        2. Repeat Tasks 3 & 4 on **IOU2**.
-      answer_commands:
-        - "network 192.168.1.0 0.0.0.255 area 0"
-        - "end"
-
-    - id: 5
       description: "Adjacency Verification"
-      points: 20
-      verification:
-        node: "IOU1"
-        command: "show ip ospf neighbor"
-        expect_contains: "FULL/  -"
-      hint: "If OSPF is configured correctly, `show ip ospf neighbor` should display a neighbor with the state FULL."
       instructions: |
         When OSPF synchronizes successfully, the neighbor state transitions to **FULL**.
 
-        1. On **IOU1**, verify adjacency: `show ip ospf neighbor`
+        1. Verify adjacency: `show ip ospf neighbor`
         2. Verify data plane connectivity: `ping 192.168.1.2`
-      answer_commands:
-        - "show ip ospf neighbor"
-        - "ping 192.168.1.2"
+      hint: "If OSPF is configured correctly, `show ip ospf neighbor` should display a neighbor with the state FULL."

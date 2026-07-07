@@ -23,11 +23,12 @@ const SidebarRouterIcon = () => (
 
 const SidebarSwitchIcon = () => (
   <svg width="18" height="18" viewBox="-42 -30 84 60">
-    <path d="M-38,-10 v22 a38,14 0 0,0 76,0 v-22 Z" fill="#222428" stroke="#9ca3af" strokeWidth="4" />
-    <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#9ca3af" strokeWidth="4" />
-    <g stroke="#E2E8F0" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M-15,-14 L15,-14 M10,-18 L15,-14 L10,-10" />
-      <path d="M-15,-6 L15,-6 M-10,-10 L-15,-6 L-10,-2" />
+    <path d="M -38 0 L 18 0 L 18 20 L -38 20 Z" fill="#222428" stroke="#9ca3af" strokeWidth="4" strokeLinejoin="round"/>
+    <path d="M -38 0 L -18 -22 L 38 -22 L 18 0 Z" fill="#2A2D32" stroke="#9ca3af" strokeWidth="4" strokeLinejoin="round"/>
+    <path d="M 18 0 L 38 -22 L 38 -2 L 18 20 Z" fill="#1A1C1E" stroke="#9ca3af" strokeWidth="4" strokeLinejoin="round"/>
+    <g stroke="#E2E8F0" strokeWidth="3.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M -12 -15 L 12 -15 M 6 -19 L 12 -15 L 6 -11" />
+      <path d="M -12 -7 L 12 -7 M -6 -11 L -12 -7 L -6 -3" />
     </g>
   </svg>
 );
@@ -47,7 +48,7 @@ export default function LabEnvironment({ params }) {
   const [allLabs, setAllLabs] = useState([]);
   const [session, setSession] = useState(null);
   
-  const [activeTerminal, setActiveTerminal] = useState('IOU1');
+  const [activeTerminal, setActiveTerminal] = useState('R1');
   const [activeCenterTab, setActiveCenterTab] = useState('instructions'); // 'instructions' or 'topology'
   
   const [isGrading, setIsGrading] = useState(false);
@@ -68,7 +69,7 @@ export default function LabEnvironment({ params }) {
   const [taskProgress, setTaskProgress] = useState([]);
   const [passedTaskIds, setPassedTaskIds] = useState([]);
   const [showResetModal, setShowResetModal] = useState(false);
-  const [openCategories, setOpenCategories] = useState({ Routers: true, Switches: false, PCs: false });
+  const [openCategories, setOpenCategories] = useState({ Routers: true, Switches: false, EndHosts: false });
 
   // Sidebar drag resizer state
   const [sidebarTopHeight, setSidebarTopHeight] = useState(25);
@@ -294,11 +295,6 @@ export default function LabEnvironment({ params }) {
     try {
       const report = await api.gradeSession(session.session_id);
       setGradeReport(report);
-      // Update local task progress with the final grade report
-      if (report.tasks) {
-        setTaskProgress(report.tasks);
-        setPassedTaskIds(report.tasks.filter(t => t.passed).map(t => t.task_id));
-      }
       
       if (report.passed) {
         setShowCompletionModal(true);
@@ -501,28 +497,17 @@ export default function LabEnvironment({ params }) {
           {isLabInstructionsOpen && (
             <div className="nx-instructions-body" style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
             
-            {/* Overview Card */}
-            {lab?.objective && (
-              <div className="nx-overview-card">
-                <div className="nx-overview-header">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                  Overview
-                </div>
-                <div className="nx-overview-desc" style={{ whiteSpace: 'pre-line' }}>
-                  {lab.objective}
-                </div>
-              </div>
-            )}
+            {/* Overview Card Removed */}
 
             {/* Vertical Timeline */}
             <div className="nx-timeline">
               {lab?.tasks?.map((task, index) => {
-                const isPassed = passedTaskIds.includes(task.id);
-                const isCurrent = !isPassed && (index === 0 || passedTaskIds.includes(lab.tasks[index - 1].id));
+                const isPassed = gradeReport?.passed;
+                const isCurrent = visibleAnswers[task.id] || (index === 0 && Object.keys(visibleAnswers).length === 0);
                 const statusClass = isPassed ? 'is-completed' : (isCurrent ? 'is-current' : 'is-pending');
                 
                 return (
-                  <div key={task.id} className={`nx-timeline-step ${statusClass}`}>
+                  <div key={task.id} className={`nx-timeline-step ${statusClass}`} onClick={() => setVisibleAnswers({ [task.id]: true })} style={{ cursor: 'pointer' }}>
                     <div className="nx-timeline-node">
                       {isPassed ? (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -532,13 +517,9 @@ export default function LabEnvironment({ params }) {
                     </div>
                     <div className="nx-timeline-content">
                       <div className="nx-timeline-title">{task.description}</div>
-                      <div className="nx-timeline-desc" style={{ whiteSpace: 'pre-line', marginTop: '8px' }}>
-                        {task.instructions}
-                      </div>
-                      
-                      {!isPassed && isCurrent && task.hint && (
-                        <div style={{ marginTop: '12px', background: 'rgba(245, 158, 11, 0.1)', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-                          <strong>Hint: </strong> {task.hint}
+                      {isCurrent && (
+                        <div className="nx-timeline-desc" style={{ whiteSpace: 'pre-line', marginTop: '8px' }}>
+                          {task.instructions}
                         </div>
                       )}
                     </div>
@@ -550,16 +531,22 @@ export default function LabEnvironment({ params }) {
                 <div className="nx-timeline-node">
                   {gradeReport && gradeReport.passed ? (
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  ) : gradeReport && !gradeReport.passed ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                   ) : (
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   )}
                 </div>
                 <div className="nx-timeline-content">
-                  <div className="nx-timeline-title">Verify Lab Completion</div>
-                  <div className="nx-timeline-desc">Click Grade to evaluate all tasks.</div>
+                  <div className="nx-timeline-title">Verify Configuration</div>
+                  <div className="nx-timeline-desc">Click Grade to check your configuration against the solution.</div>
+                  {gradeReport && !gradeReport.passed && (
+                     <div style={{ marginTop: '12px', background: 'rgba(239, 68, 68, 0.1)', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                       <strong>Config Mismatch: </strong> Your configuration does not match the solution. Please review your settings.
+                     </div>
+                  )}
                 </div>
               </div>
-
             </div>
 
             {/* Collapsible Command Summary */}
@@ -760,18 +747,18 @@ export default function LabEnvironment({ params }) {
             )}
           </div>
 
-          {/* PCs Category */}
+          {/* End Hosts Category */}
           <div className="nx-device-category">
-            <div className="nx-device-category-header" onClick={() => setOpenCategories(prev => ({ ...prev, PCs: !prev.PCs }))} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
+            <div className="nx-device-category-header" onClick={() => setOpenCategories(prev => ({ ...prev, EndHosts: !prev.EndHosts }))} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div className="nx-right-topo-icon">
                   <SidebarPCIcon />
                 </div>
-                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>PCs</span>
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>End Hosts</span>
               </div>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: openCategories.PCs ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: openCategories.EndHosts ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
             </div>
-            {openCategories.PCs && (
+            {openCategories.EndHosts && (
               <div style={{ background: 'var(--bg-lighter)', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
                 {lab?.nodes?.filter(n => n.device_type === 'linux' || n.device_type === 'vpcs').length > 0 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

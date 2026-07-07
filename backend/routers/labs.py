@@ -54,10 +54,14 @@ async def get_lab(slug: str):
             lab["nodes"] = lab_def.get("lab", {}).get("nodes", [])
             lab["prerequisites"] = lab_def.get("lab", {}).get("prerequisites", [])
             lab["command_reference"] = lab_def.get("lab", {}).get("command_reference", [])
+            lab["instructions"] = lab_def.get("lab", {}).get("instructions", "")
+            lab["objective"] = lab_def.get("lab", {}).get("objective", "")
     else:
         lab["tasks"] = []
         lab["nodes"] = []
         lab["prerequisites"] = []
         lab["command_reference"] = []
+        lab["instructions"] = ""
+        lab["objective"] = ""
 
     return lab

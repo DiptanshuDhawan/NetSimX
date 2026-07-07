@@ -685,16 +685,6 @@ html, body {
   padding-left: 18px; /* space for the line */
   margin-bottom: 32px;
 }
-.nx-timeline::before {
-  content: '';
-  position: absolute;
-  top: 18px;
-  bottom: 18px;
-  left: 17px;
-  width: 2px;
-  background: var(--primary-soft);
-  z-index: 0;
-}
 
 .nx-timeline-step {
   display: flex;
@@ -705,6 +695,17 @@ html, body {
 }
 .nx-timeline-step:last-child {
   margin-bottom: 0;
+}
+.nx-timeline-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 36px;
+  bottom: -24px;
+  left: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--primary-soft);
+  z-index: 0;
 }
 
 .nx-timeline-node {
