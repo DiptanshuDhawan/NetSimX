@@ -64,28 +64,40 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         <svg width="100%" height="100%" viewBox="0 0 800 380" style={{ fontFamily: 'Inter, sans-serif' }}>
-          <g transform="translate(0, 40)">
+          <g transform="translate(0, 0)">
             {/* Connection Line: S1 to R1 */}
-            <line x1="150" y1="140" x2="400" y2="140" stroke="#2F80ED" strokeWidth="2.5" />
+            <line x1="250" y1="100" x2="450" y2="100" stroke="#2F80ED" strokeWidth="2.5" />
             {/* Connection Line: R1 to R2 */}
-            <line x1="400" y1="140" x2="650" y2="140" stroke="#2F80ED" strokeWidth="2.5" />
+            <line x1="450" y1="100" x2="650" y2="100" stroke="#2F80ED" strokeWidth="2.5" />
+            
+            {/* Connection Lines: S1 to PCs */}
+            <line x1="250" y1="100" x2="150" y2="250" stroke="#2F80ED" strokeWidth="2.5" />
+            <line x1="250" y1="100" x2="350" y2="250" stroke="#2F80ED" strokeWidth="2.5" />
 
             {/* S1 to R1 labels */}
-            <text x="275" y="115" textAnchor="middle" fill="#E2E8F0" fontSize="15" fontWeight="600">802.1Q Trunk</text>
-            <text x="275" y="170" textAnchor="middle" fill="#FFFFFF" fontSize="14" fontWeight="500">Router-on-a-stick</text>
-            <text x="215" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
-            <text x="335" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/0</text>
+            <text x="350" y="80" textAnchor="middle" fill="#E2E8F0" fontSize="13" fontWeight="600">802.1Q Trunk</text>
+            <text x="290" y="90" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
+            <text x="410" y="90" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/0</text>
 
             {/* R1 to R2 labels */}
-            <text x="525" y="115" textAnchor="middle" fill="#E2E8F0" fontSize="15" fontWeight="600">10.0.0.0/30</text>
-            <text x="525" y="170" textAnchor="middle" fill="#FFFFFF" fontSize="14" fontWeight="500">OSPF Area 0</text>
-            <text x="465" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/1</text>
-            <text x="585" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/1</text>
+            <text x="550" y="80" textAnchor="middle" fill="#E2E8F0" fontSize="13" fontWeight="600">10.0.0.0/30 (OSPF)</text>
+            <text x="490" y="90" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/1</text>
+            <text x="610" y="90" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/1</text>
+            
+            {/* S1 to PC1 labels */}
+            <text x="210" y="160" fill="#E2E8F0" fontSize="12" fontWeight="500" textAnchor="end">e0/1 (VLAN 10)</text>
+            <text x="210" y="175" fill="#A1A9B6" fontSize="11" textAnchor="end">192.168.10.0/24</text>
+
+            {/* S1 to PC2 labels */}
+            <text x="290" y="160" fill="#E2E8F0" fontSize="12" fontWeight="500" textAnchor="start">e0/2 (VLAN 20)</text>
+            <text x="290" y="175" fill="#A1A9B6" fontSize="11" textAnchor="start">192.168.20.0/24</text>
 
             {/* Nodes */}
-            <SwitchIcon x="150" y="140" label="S1" scale={1.5} active={activeNode === 'S1'} />
-            <RouterIcon x="400" y="140" label="R1" scale={1.5} active={activeNode === 'R1'} />
-            <RouterIcon x="650" y="140" label="R2" scale={1.5} active={activeNode === 'R2'} />
+            <SwitchIcon x="250" y="100" label="S1" scale={1.3} active={activeNode === 'S1'} />
+            <RouterIcon x="450" y="100" label="R1" scale={1.3} active={activeNode === 'R1'} />
+            <RouterIcon x="650" y="100" label="R2" scale={1.3} active={activeNode === 'R2'} />
+            <PCIcon x="150" y="250" label="PC1" scale={1.2} active={activeNode === 'PC1'} />
+            <PCIcon x="350" y="250" label="PC2" scale={1.2} active={activeNode === 'PC2'} />
           </g>
         </svg>
       </div>
