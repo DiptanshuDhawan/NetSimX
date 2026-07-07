@@ -21,7 +21,7 @@ const RouterIcon = ({ x, y, scale = 1.4, label }) => (
 );
 
 const SwitchIcon = ({ x, y, scale = 1.4, label }) => (
-  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+  <g transform={`translate(${x}, y) scale(${scale})`}>
     {/* Top face */}
     <path d="M-30,-12 L30,-12 L45,2 L-45,2 Z" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
     {/* Front face (made taller) */}
@@ -31,9 +31,9 @@ const SwitchIcon = ({ x, y, scale = 1.4, label }) => (
       <path d="M-12,-3 L12,-3 M8,-6 L12,-3 L8,0" />
       <path d="M12,-7 L-12,-7 M-8,-10 L-12,-7 L-8,-4" />
     </g>
-    {/* Label on the front face */}
+    {/* Label perfectly centered on the front face */}
     {label && (
-      <text x="0" y="20" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
+      <text x="0" y="19" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
     )}
   </g>
 );
@@ -48,9 +48,9 @@ const PCIcon = ({ x, y, scale = 1.4, label }) => (
     <path d="M-6,12 L-10,20 L10,20 L6,12 Z" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
     {/* Base */}
     <rect x="-16" y="20" width="32" height="3" rx="1.5" fill="#525660" />
-    {/* Label inside the monitor screen */}
+    {/* Label perfectly centered inside the monitor screen */}
     {label && (
-      <text x="0" y="2" textAnchor="middle" fill="#E2E8F0" fontSize="10" fontWeight="600">{label}</text>
+      <text x="0" y="0" textAnchor="middle" fill="#E2E8F0" fontSize="10" fontWeight="600">{label}</text>
     )}
   </g>
 );
@@ -64,7 +64,7 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         <svg width="100%" height="100%" viewBox="0 0 800 380" style={{ fontFamily: 'Inter, sans-serif' }}>
           <g transform="translate(0, 0)">
-            {/* Connection Lines */}
+            {/* Connection Lines (Straight, symmetric angles) */}
             <line x1="400" y1="60" x2="400" y2="190" stroke="#2F80ED" strokeWidth="2.5" />
             <line x1="400" y1="190" x2="250" y2="320" stroke="#2F80ED" strokeWidth="2.5" />
             <line x1="400" y1="190" x2="550" y2="320" stroke="#2F80ED" strokeWidth="2.5" />
@@ -76,19 +76,20 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
             <PCIcon x="550" y="320" scale={1.3} label="PC2" />
 
             {/* Link Labels (rendered after nodes so they never get hidden) */}
-            {/* R1 to SW1 interfaces */}
-            <text x="410" y="132" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
+            {/* R1 to SW1 interfaces exactly at device boundaries */}
+            <text x="410" y="105" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
             <text x="410" y="162" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
 
-            {/* SW1 to PCs interfaces */}
-            <text x="360" y="240" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">e0/1</text>
-            <text x="440" y="240" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/2</text>
+            {/* SW1 to PCs interfaces placed perfectly along the lines outside switch */}
+            <text x="352" y="245" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">e0/1</text>
+            <text x="448" y="245" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/2</text>
 
-            {/* VLAN subnets */}
-            <text x="315" y="240" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
-            <text x="315" y="255" fill="#A1A9B6" fontSize="12" textAnchor="end">192.168.10.0/24</text>
-            <text x="485" y="240" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
-            <text x="485" y="255" fill="#A1A9B6" fontSize="12" textAnchor="start">192.168.20.0/24</text>
+            {/* VLAN subnets perfectly balanced at line midpoints */}
+            <text x="315" y="255" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
+            <text x="315" y="270" fill="#A1A9B6" fontSize="12" textAnchor="end">192.168.10.0/24</text>
+            
+            <text x="485" y="255" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
+            <text x="485" y="270" fill="#A1A9B6" fontSize="12" textAnchor="start">192.168.20.0/24</text>
           </g>
         </svg>
       </div>
