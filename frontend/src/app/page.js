@@ -60,13 +60,8 @@ export default function Dashboard() {
       {/* 1. Floating Pill Header */}
       <div style={{ padding: '16px 16px 0 16px', flexShrink: 0 }}>
         <div className="nx-header" style={{ position: 'relative' }}>
-          {/* Left: Navigation Links */}
-          <div style={{ display: 'flex', gap: '8px', flex: 1, alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'var(--blue-alpha, rgba(47,128,237,0.1))', color: 'var(--blue)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-              <span>Home Dashboard</span>
-            </div>
-          </div>
+          {/* Left: Empty space to balance right avatar */}
+          <div style={{ flex: 1 }}></div>
           
           {/* Center: Reconstructed Text Logo */}
           <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer' }} onClick={() => router.push('/')}>
