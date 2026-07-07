@@ -69,7 +69,7 @@ export default function Dashboard() {
           
           {/* Center: Full Logo */}
           <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center' }}>
-            <img src="/logo-full.png" alt="Revelio Labs" style={{ height: 26, cursor: 'pointer', objectFit: 'contain' }} onClick={() => router.push('/')} />
+            <img src="/logo-full.png" alt="Revelio Labs" style={{ height: 42, cursor: 'pointer', objectFit: 'contain', mixBlendMode: 'lighten' }} onClick={() => router.push('/')} />
           </div>
 
           {/* Right: Avatar */}
