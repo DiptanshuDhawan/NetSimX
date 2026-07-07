@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import { BookOpen, Clock, Activity, ChevronRight, Server, Search, CheckCircle, Lock, LayoutList, Star, Award, Play, TrendingUp, Network, MoreHorizontal } from 'lucide-react';
+import { BookOpen, Clock, Activity, ChevronRight, Server, Search, CheckCircle, Lock, LayoutList, Star, Award, Play, TrendingUp, Network, MoreHorizontal, LayoutDashboard, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
@@ -61,10 +61,19 @@ export default function Dashboard() {
       <div style={{ padding: '16px 16px 0 16px', flexShrink: 0 }}>
         <div className="nx-header" style={{ position: 'relative' }}>
           {/* Left: Navigation Links */}
-          <div style={{ display: 'flex', gap: '24px', fontSize: '0.85rem', color: 'var(--text-secondary)', flex: 1 }}>
-            <span style={{ color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 500 }}>Dashboard</span>
-            <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">My Progress</span>
-            <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">Settings</span>
+          <div style={{ display: 'flex', gap: '8px', flex: 1, alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', background: 'var(--blue-alpha, rgba(47,128,237,0.1))', color: 'var(--blue)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
+              <LayoutDashboard size={15} />
+              <span>Dashboard</span>
+            </div>
+            <div className="nx-breadcrumb-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', color: 'var(--text-secondary)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}>
+              <TrendingUp size={15} />
+              <span>My Progress</span>
+            </div>
+            <div className="nx-breadcrumb-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', color: 'var(--text-secondary)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}>
+              <Settings size={15} />
+              <span>Settings</span>
+            </div>
           </div>
           
           {/* Center: Reconstructed Text Logo */}
