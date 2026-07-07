@@ -155,31 +155,7 @@ export default function LabEnvironment({ params }) {
     return () => clearInterval(interval);
   }, [session, isBooting]);
 
-  // Boot animation
-  useEffect(() => {
-    if (isBooting) {
-      const interval = setInterval(() => {
-        setBootProgress(p => {
-          if (p >= 100) {
-            clearInterval(interval);
-            setIsBooting(false);
-            // Record start time only after booting is done, to avoid timer jump on refresh
-            setSession(s => {
-              if (s) {
-                const newS = { ...s, startedAt: Date.now() };
-                localStorage.setItem('netlabx_session', JSON.stringify(newS));
-                return newS;
-              }
-              return s;
-            });
-            return 100;
-          }
-          return p + 10;
-        });
-      }, 300);
-      return () => clearInterval(interval);
-    }
-  }, [isBooting]);
+  // Removed old fake boot animation effect
 
   const handleStopLocally = () => {
     setSession(null);
@@ -216,14 +192,35 @@ export default function LabEnvironment({ params }) {
 
   // Open WebSocket connections for every node once the lab is live
   useEffect(() => {
-    if (!session || isBooting) return;
+    if (!session) return;
+
+    let opened = 0;
 
     nodes.forEach(node => {
       if (wsRefs.current[node]) return; // already open
       bufRefs.current[node] = [];
       const ws = new WebSocket(api.getTerminalWsUrl(session.session_id, node));
       ws.binaryType = 'arraybuffer';
-      ws.onopen = () => ws.send('\r\n'); // wake up console
+      ws.onopen = () => {
+        ws.send('\r\n'); // wake up console
+        opened++;
+        setBootProgress(Math.floor(90 + (opened / nodes.length) * 10));
+        
+        // Once all websockets are connected, finish booting
+        if (opened === nodes.length) {
+          setTimeout(() => {
+            setIsBooting(false);
+            setSession(s => {
+              if (s && !s.startedAt) {
+                const newS = { ...s, startedAt: Date.now() };
+                localStorage.setItem('netlabx_session', JSON.stringify(newS));
+                return newS;
+              }
+              return s;
+            });
+          }, 300);
+        }
+      };
       ws.onmessage = (e) => {
         const chunk = typeof e.data === 'string'
           ? new TextEncoder().encode(e.data)
@@ -244,7 +241,7 @@ export default function LabEnvironment({ params }) {
       bufRefs.current = {};
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.session_id, isBooting]);
+  }, [session?.session_id]);
 
 
   const handleStart = async () => {
@@ -252,7 +249,17 @@ export default function LabEnvironment({ params }) {
       setIsBooting(true);
       setBootProgress(0);
       setLabTimer(0);
+      
+      // Simulate progress while waiting for backend API
+      const apiInterval = setInterval(() => {
+        setBootProgress(p => p < 85 ? p + 5 : p);
+      }, 400);
+      
       const sess = await api.startSession(slug);
+      
+      clearInterval(apiInterval);
+      setBootProgress(90);
+      
       sess.slug = slug;
       setSession(sess);
       setActiveTerminal('IOU1');
@@ -391,12 +398,12 @@ export default function LabEnvironment({ params }) {
           {/* Action Button Group */}
           <div style={{ display: 'flex', gap: '4px' }}>
             {/* Play */}
-            <button className="nx-icon-btn" onClick={handleStart} disabled={!!session || isBooting} title="Start Lab">
+            <button className={`nx-icon-btn ${!session && !isBooting ? 'start-highlight' : ''}`} onClick={handleStart} disabled={!!session || isBooting} title="Start Lab">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </button>
 
             {/* Stop */}
-            <button className="nx-icon-btn" onClick={handleStop} disabled={!session || isBooting} title="Stop Lab">
+            <button className={`nx-icon-btn ${session && !isBooting ? 'stop-highlight' : ''}`} onClick={handleStop} disabled={!session || isBooting} title="Stop Lab">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>
             </button>
 

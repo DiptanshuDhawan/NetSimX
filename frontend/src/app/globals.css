@@ -174,7 +174,28 @@ html, body {
   background: rgba(255,255,255,0.05);
   border-color: rgba(255,255,255,0.1);
 }
-.nx-icon-btn:disabled { opacity: .4; cursor: default; }
+.nx-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nx-icon-btn.start-highlight:not(:disabled) {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--green);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+.nx-icon-btn.start-highlight:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.nx-icon-btn.stop-highlight:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+.nx-icon-btn.stop-highlight:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+}
 
 /* Grade pill button */
 .nx-grade-btn {

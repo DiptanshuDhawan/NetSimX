@@ -58,12 +58,19 @@ export default function Terminal({ ws, buffer, nodeName }) {
       }
     });
 
-    const handleResize = () => fitAddon.fit();
-    window.addEventListener('resize', handleResize);
-    setTimeout(handleResize, 100);
+    // Use ResizeObserver to reliably call fit() whenever the container's dimensions change
+    // This perfectly handles tab switching, window resizing, and initial render delays
+    const resizeObserver = new ResizeObserver(() => {
+      fitAddon.fit();
+    });
+    
+    // Start observing the container
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       if (ws) ws.removeEventListener('message', onMessage);
       term.dispose();
     };
