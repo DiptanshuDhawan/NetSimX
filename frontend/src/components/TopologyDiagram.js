@@ -1,11 +1,11 @@
 import React from 'react';
 
-const RouterIcon = ({ x, y }) => (
+const RouterIcon = ({ x, y, color = "#525660" }) => (
   <g transform={`translate(${x}, ${y}) scale(1.4)`}>
     {/* Cylinder body (drawn first so it goes behind the top face) */}
-    <path d="M-38,-10 v22 a38,14 0 0,0 76,0 v-22 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
+    <path d="M-38,-10 v22 a38,14 0 0,0 76,0 v-22 Z" fill="#222428" stroke={color} strokeWidth="1.9" />
     {/* Top face */}
-    <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
+    <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke={color} strokeWidth="1.9" />
     {/* 4 arrows: top/bottom point inward, left/right point outward */}
     <g stroke="#E2E8F0" strokeWidth="1.9" fill="none" strokeLinecap="round" strokeLinejoin="round">
       <path d="M-4,-10 L-15,-10 M-11,-14 L-15,-10 L-11,-6" /> {/* Left arrow pointing OUT */}
@@ -29,7 +29,55 @@ const CloudIcon = ({ x, y }) => (
   </g>
 );
 
-export default function TopologyDiagram() {
+export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeClick = () => {} }) {
+  const nodeNames = nodes.map(n => n.name);
+  const isInterVlan = nodeNames.includes('SW1');
+
+  // Helper to determine node color based on status/active
+  const getNodeColor = (name) => {
+    if (activeNode === name) return '#2F80ED'; // Active terminal
+    const node = nodes.find(n => n.name === name);
+    if (!node || node.status === 'offline') return '#525660';
+    if (node.status === 'booting') return '#F2C94C';
+    return '#27AE60'; // running
+  };
+
+  if (isInterVlan) {
+    return (
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <svg width="100%" height="100%" viewBox="0 0 800 320" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <g transform="translate(100, 0)">
+            {/* Connection Lines */}
+            <line x1="300" y1="80" x2="300" y2="180" stroke="#2F80ED" strokeWidth="2.5" /> {/* R1 to SW1 */}
+            <line x1="300" y1="180" x2="150" y2="280" stroke="#2F80ED" strokeWidth="2.5" /> {/* SW1 to PC1 */}
+            <line x1="300" y1="180" x2="450" y2="280" stroke="#2F80ED" strokeWidth="2.5" /> {/* SW1 to PC2 */}
+
+            {/* Labels */}
+            <text x="310" y="130" fill="#E2E8F0" fontSize="13">e0/0</text>
+            <text x="210" y="220" fill="#E2E8F0" fontSize="13">VLAN 10</text>
+            <text x="390" y="220" fill="#E2E8F0" fontSize="13">VLAN 20</text>
+
+            {/* Nodes */}
+            <RouterIcon x="300" y="80" color={getNodeColor('R1')} />
+            <text x="300" y="45" textAnchor="middle" fill="#E2E8F0" fontSize="16" fontWeight="600">R1</text>
+
+            {/* Switch Icon (just a rectangle for simplicity) */}
+            <rect x="260" y="160" width="80" height="40" rx="5" fill="#222428" stroke={getNodeColor('SW1')} strokeWidth="2" />
+            <text x="300" y="185" textAnchor="middle" fill="#E2E8F0" fontSize="16" fontWeight="600">SW1</text>
+
+            {/* PC1 */}
+            <rect x="130" y="270" width="40" height="25" rx="3" fill="#222428" stroke={getNodeColor('PC1')} strokeWidth="2" />
+            <text x="150" y="315" textAnchor="middle" fill="#E2E8F0" fontSize="14" fontWeight="600">PC1</text>
+
+            {/* PC2 */}
+            <rect x="430" y="270" width="40" height="25" rx="3" fill="#222428" stroke={getNodeColor('PC2')} strokeWidth="2" />
+            <text x="450" y="315" textAnchor="middle" fill="#E2E8F0" fontSize="14" fontWeight="600">PC2</text>
+          </g>
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
       <svg width="100%" height="100%" viewBox="0 0 800 320" style={{ fontFamily: 'Inter, sans-serif' }}>
