@@ -83,9 +83,12 @@ def run_node_verification(connection: ConnectHandler, node_name: str, lab_dir: s
         solution_text = f.read()
 
     try:
-        # Ensure we are not stuck in config mode from the user's live session
-        if connection.check_config_mode():
-            connection.exit_config_mode()
+        # Netmiko's exit_config_mode() can crash if it connects while already in config mode 
+        # (it sets base_prompt to the config prompt and then fails to match it after exiting).
+        # We use a raw write_channel to guarantee we drop to exec mode reliably.
+        connection.write_channel("\r\nend\r\n")
+        time.sleep(1)
+        connection.set_base_prompt()
             
         # Default is user exec mode, so enter enable mode
         if not connection.check_enable_mode():
