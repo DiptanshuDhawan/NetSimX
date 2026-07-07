@@ -373,23 +373,13 @@ export default function LabEnvironment({ params }) {
       <header className="nx-header">
         {/* Left: logo + breadcrumbs */}
         <div className="nx-brand">
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer', marginRight: '16px' }} onClick={() => router.push('/')}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer' }} onClick={() => router.push('/')}>
             <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '0.2em', color: '#FFFFFF', lineHeight: 1, paddingLeft: '0.2em' }}>REVELIO</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
               <div style={{ height: '2px', flex: 1, backgroundColor: '#0284c7', borderRadius: '2px' }}></div>
               <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.4em', color: '#0284c7', lineHeight: 1, paddingLeft: '0.4em' }}>LABS</span>
               <div style={{ height: '2px', flex: 1, backgroundColor: '#0284c7', borderRadius: '2px' }}></div>
             </div>
-          </div>
-          <div className="nx-breadcrumbs">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#E5E7EB' }} onClick={() => router.push('/')}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-              <span>Labs</span>
-            </div>
-            <span className="sep">{'>'}</span>
-            <span className="crumb-topic">{lab.topic}</span>
-            <span className="sep">{'>'}</span>
-            <span className="crumb-title">{lab.title}</span>
           </div>
         </div>
 
