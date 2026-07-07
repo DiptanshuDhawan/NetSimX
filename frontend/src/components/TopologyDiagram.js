@@ -100,12 +100,12 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
             <text x="390" y="140" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/1</text>
             
             {/* S1 Access Ports */}
-            <text x="135" y="220" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/1</text>
-            <text x="240" y="220" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/2</text>
+            <text x="155" y="205" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/1</text>
+            <text x="220" y="205" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/2</text>
             
             {/* S2 Access Ports */}
-            <text x="430" y="220" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/2</text>
-            <text x="540" y="220" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/3</text>
+            <text x="450" y="205" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/2</text>
+            <text x="525" y="205" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/3</text>
 
             {/* Nodes */}
             <RouterIcon x="500" y="40" label="R1" scale={1.3} active={activeNode === 'R1'} />
