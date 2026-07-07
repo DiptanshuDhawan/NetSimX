@@ -83,6 +83,10 @@ def run_node_verification(connection: ConnectHandler, node_name: str, lab_dir: s
         solution_text = f.read()
 
     try:
+        # Ensure we are not stuck in config mode from the user's live session
+        if connection.check_config_mode():
+            connection.exit_config_mode()
+            
         # Default is user exec mode, so enter enable mode
         if not connection.check_enable_mode():
             connection.enable()
