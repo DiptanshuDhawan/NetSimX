@@ -67,9 +67,17 @@ export default function Dashboard() {
             <span style={{ cursor: 'pointer' }} className="nx-breadcrumb-link">Settings</span>
           </div>
           
-          {/* Center: Full Logo */}
-          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center' }}>
-            <img src="/logo-full.png" alt="Revelio Labs" style={{ height: 42, cursor: 'pointer', objectFit: 'contain', mixBlendMode: 'lighten' }} onClick={() => router.push('/')} />
+          {/* Center: Reconstructed Logo */}
+          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => router.push('/')}>
+            <img src="/logo-icon.png" alt="Revelio Labs Icon" style={{ height: 34, objectFit: 'contain', borderRadius: '6px' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginTop: '2px' }}>
+              <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.15em', color: '#FFFFFF', lineHeight: 1 }}>REVELIO</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                <div style={{ height: '2px', flex: 1, backgroundColor: '#0284c7', borderRadius: '2px' }}></div>
+                <span style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.4em', color: '#0284c7', lineHeight: 1, paddingLeft: '4px' }}>LABS</span>
+                <div style={{ height: '2px', flex: 1, backgroundColor: '#0284c7', borderRadius: '2px' }}></div>
+              </div>
+            </div>
           </div>
 
           {/* Right: Avatar */}
