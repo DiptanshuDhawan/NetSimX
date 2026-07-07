@@ -829,24 +829,55 @@ export default function LabEnvironment({ params }) {
 
       {/* Error Modal */}
       {errorMsg && (
-        <div className="nx-modal-overlay">
-          <div className="nx-modal-box" style={{ padding: '24px', maxWidth: 360 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>Unable to Start Lab</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 13, lineHeight: 1.5, marginBottom: 16 }}>
-              We couldn't establish a session with the virtual lab environment. Please verify the server is online.
-            </p>
-            <div style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', borderRadius: 6, padding: '8px 12px', fontSize: 11, color: 'var(--text-muted)', fontFamily: 'monospace', marginBottom: 24 }}>
-              {errorMsg}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button 
-                className="nx-btn nx-btn-primary" 
-                style={{ padding: '8px 16px', fontSize: 13 }}
-                onClick={() => setErrorMsg(null)}
-              >
-                Close
+        <div className="nx-modal-overlay" style={{ alignItems: 'flex-start', paddingTop: '10vh' }}>
+          <div className="nx-modal-box" style={{ padding: '20px', width: 440, display: 'flex', flexDirection: 'column', gap: '20px', background: '#222428', border: '1px solid #33363D', borderRadius: 12, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+            
+            {/* Top Row: Icon + Text + Close */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+              {/* Icon */}
+              <div style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 2 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              
+              {/* Text */}
+              <div style={{ flexGrow: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 500, color: '#F8FAFC', marginBottom: 4, lineHeight: 1.4 }}>
+                  Unable to start lab session
+                </div>
+                <div style={{ fontSize: 13, color: '#9CA3AF', lineHeight: 1.5 }}>
+                  We couldn't connect to the virtual environment. Please ensure the backend server is running.
+                  <div style={{ marginTop: 8, fontSize: 11, fontFamily: 'monospace', color: '#ef4444', opacity: 0.9 }}>
+                    {errorMsg}
+                  </div>
+                </div>
+              </div>
+
+              {/* Close X */}
+              <button onClick={() => setErrorMsg(null)} style={{ flexShrink: 0, background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', padding: 4 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
+
+            {/* Bottom Row: Buttons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 24, paddingLeft: 42 }}>
+              <button 
+                onClick={() => { setErrorMsg(null); handleStart(); }}
+                style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: 'none', padding: '8px 20px', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseOver={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.25)'}
+                onMouseOut={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.15)'}
+              >
+                Try again
+              </button>
+              <button 
+                onClick={() => setErrorMsg(null)} 
+                style={{ background: 'transparent', color: '#E2E8F0', border: 'none', fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'color 0.2s' }}
+                onMouseOver={(e) => e.target.style.color = '#fff'}
+                onMouseOut={(e) => e.target.style.color = '#E2E8F0'}
+              >
+                Dismiss
+              </button>
+            </div>
+
           </div>
         </div>
       )}
