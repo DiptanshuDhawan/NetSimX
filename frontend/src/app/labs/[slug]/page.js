@@ -60,6 +60,7 @@ export default function LabEnvironment({ params }) {
   const [visibleAnswers, setVisibleAnswers] = useState({});
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [showFailModal, setShowFailModal] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
   
   // New UX States
   const [labTimer, setLabTimer] = useState(0);
@@ -274,7 +275,7 @@ export default function LabEnvironment({ params }) {
       localStorage.setItem('netlabx_session', JSON.stringify(sess));
       localStorage.setItem(`netlabx_tasks_${sess.session_id}`, JSON.stringify([]));
     } catch (e) {
-      alert("Failed to start lab: " + e.message);
+      setErrorMsg("Failed to start lab: " + e.message);
       setIsBooting(false);
     }
   };
@@ -804,6 +805,24 @@ export default function LabEnvironment({ params }) {
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
               <button className="nx-btn" onClick={() => setShowResetModal(false)}>Cancel</button>
               <button className="nx-btn nx-btn-primary" onClick={handleReset}>Yes, Reset</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Modal */}
+      {errorMsg && (
+        <div className="nx-modal-overlay">
+          <div className="nx-modal-box">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{ width: 40, height: 40, background: 'rgba(239,68,68,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+              <h3 style={{ fontSize: 18, color: 'var(--text-primary)' }}>Server Connection Error</h3>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 24 }}>{errorMsg}</p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="nx-btn nx-btn-primary" onClick={() => setErrorMsg(null)}>Close</button>
             </div>
           </div>
         </div>
