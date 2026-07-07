@@ -138,12 +138,16 @@ export default function LabEnvironment({ params }) {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed.slug === slug) {
+        setIsBooting(true); // Show boot screen while reconnecting websockets
+        setBootProgress(90);
         setSession(parsed);
         setActiveTerminal('IOU1');
         const tasks = JSON.parse(localStorage.getItem(`netlabx_tasks_${parsed.session_id}`) || '[]');
         setTaskProgress(tasks);
         setPassedTaskIds(tasks.map(t => t.task_id));
-        setLabTimer(Math.floor((Date.now() - parsed.startedAt) / 1000));
+        if (parsed.startedAt) {
+          setLabTimer(Math.floor((Date.now() - parsed.startedAt) / 1000));
+        }
       }
     }
   }, [slug]);
