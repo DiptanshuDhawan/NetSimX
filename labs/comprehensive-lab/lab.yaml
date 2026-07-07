@@ -1,6 +1,6 @@
 lab:
   id: "comprehensive-lab"
-  title: "Comprehensive CCNA Skills Lab"
+  title: "ROAS 2"
   topic: "Routing & Switching"
   difficulty: "Advanced"
   estimated_time_minutes: 60
@@ -31,12 +31,12 @@ lab:
     - name: S1
       host: "100.120.167.31"
       console_port: 5001
-      device_type: "cisco_ios_telnet"
+      device_type: "cisco_iol_l2"
 
     - name: S2
       host: "100.120.167.31"
       console_port: 5002
-      device_type: "cisco_ios_telnet"
+      device_type: "cisco_iol_l2"
 
   tasks:
     - id: 1

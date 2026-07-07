@@ -1,6 +1,6 @@
 lab:
   id: "inter-vlan-routing"
-  title: "Inter-VLAN Routing"
+  title: "ROAS 1"
   topic: "Switching & Routing"
   difficulty: "Intermediate"
   estimated_time_minutes: 40
