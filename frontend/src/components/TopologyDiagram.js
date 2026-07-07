@@ -67,14 +67,14 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
           <g transform="translate(0, 30)">
             {/* VLAN Backgrounds (rendered first so they are behind everything) */}
             {/* PC0 - Blue (VLAN 10) */}
-            <rect x="50" y="220" width="120" height="150" fill="#0000FF" opacity="0.8" stroke="#000" strokeWidth="1" />
+            <rect x="50" y="220" width="120" height="150" fill="#2F80ED" opacity="0.15" stroke="#2F80ED" strokeWidth="1.5" rx="8" />
             {/* PC1 - Red (VLAN 20) */}
-            <rect x="180" y="220" width="120" height="150" fill="#FF0000" opacity="0.8" stroke="#000" strokeWidth="1" />
+            <rect x="180" y="220" width="120" height="150" fill="#EB5757" opacity="0.15" stroke="#EB5757" strokeWidth="1.5" rx="8" />
             
             {/* PC2 - Purple (VLAN 30) */}
-            <rect x="380" y="220" width="120" height="150" fill="#8A2BE2" opacity="0.9" stroke="#000" strokeWidth="1" />
+            <rect x="380" y="220" width="120" height="150" fill="#9B51E0" opacity="0.15" stroke="#9B51E0" strokeWidth="1.5" rx="8" />
             {/* PC3 - Red (VLAN 20) */}
-            <rect x="510" y="220" width="120" height="150" fill="#FF0000" opacity="0.8" stroke="#000" strokeWidth="1" />
+            <rect x="510" y="220" width="120" height="150" fill="#EB5757" opacity="0.15" stroke="#EB5757" strokeWidth="1.5" rx="8" />
 
             {/* Connection Line: R1 to S2 */}
             <line x1="500" y1="40" x2="480" y2="150" stroke="#000000" strokeWidth="2.5" />

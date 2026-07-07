@@ -47,27 +47,39 @@ def sanitize_config(config_text: str) -> set:
     """
     Cleans up a Cisco IOS config and returns a set of significant lines.
     Using a set means order doesn't matter, and we check for subsets.
+    Preserves 1-level of hierarchical context (e.g., interface -> ip address).
     """
     lines = []
+    current_context = ""
     for line in config_text.splitlines():
-        line = line.strip()
-        if not line or line.startswith("!"):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("!"):
             continue
-        if line.startswith("Building configuration"):
+        if stripped.startswith("Building configuration"):
             continue
-        if line.startswith("Current configuration"):
+        if stripped.startswith("Current configuration"):
             continue
-        if line.startswith("ntp clock-period"):
+        if stripped.startswith("ntp clock-period"):
             continue
-        if "NVRAM" in line or "bytes" in line:
+        if "NVRAM" in stripped or "bytes" in stripped:
             continue
-        if line.startswith("Last configuration change"):
+        if stripped.startswith("Last configuration change"):
             continue
-        if line.startswith("version"):
+        if stripped.startswith("version"):
             continue
-        if line == "end":
+        if stripped == "end":
             continue
-        lines.append(line)
+            
+        # Check for indentation (sub-commands)
+        if line.startswith(" ") or line.startswith("\t"):
+            if current_context:
+                lines.append(f"{current_context} -> {stripped}")
+            else:
+                lines.append(stripped)
+        else:
+            current_context = stripped
+            lines.append(current_context)
+            
     return set(lines)
 
 

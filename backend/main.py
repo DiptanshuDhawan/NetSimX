@@ -1,10 +1,11 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from routers import labs, sessions, grading, terminal
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routers import labs, sessions, grading, terminal
 
 app = FastAPI(
     title="NetLabX API",
