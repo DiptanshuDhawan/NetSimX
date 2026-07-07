@@ -1,12 +1,11 @@
 import React from 'react';
 
 const RouterIcon = ({ x, y, scale = 1.4, label, active }) => (
-  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
-    {active && <circle cx="0" cy="-5" r="45" fill="none" stroke="rgba(47,128,237,0.8)" strokeWidth="2.5" strokeDasharray="6,4" style={{ filter: 'drop-shadow(0 0 10px rgba(47,128,237,0.6))' }} />}
+  <g transform={`translate(${x}, ${y}) scale(${scale})`} style={{ filter: active ? 'drop-shadow(0 0 12px rgba(47,128,237,0.7))' : 'none', transition: 'all 0.3s ease' }}>
     {/* Cylinder body (drawn first so it goes behind the top face) */}
-    <path d="M-38,-10 v20 a38,14 0 0,0 76,0 v-20 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
+    <path d="M-38,-10 v20 a38,14 0 0,0 76,0 v-20 Z" fill="#222428" stroke={active ? "#2F80ED" : "#525660"} strokeWidth={active ? "2.5" : "1.9"} />
     {/* Top face */}
-    <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
+    <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke={active ? "#2F80ED" : "#525660"} strokeWidth={active ? "2.5" : "1.9"} />
     {/* 4 arrows forming a perfectly symmetrical cross centered at (0, -10) */}
     <g stroke="#E2E8F0" strokeWidth="1.9" fill="none" strokeLinecap="round" strokeLinejoin="round">
       <path d="M-11,-10 L-3,-10 M-6,-13 L-3,-10 L-6,-7" /> {/* Left arrow IN */}
@@ -22,12 +21,11 @@ const RouterIcon = ({ x, y, scale = 1.4, label, active }) => (
 );
 
 const SwitchIcon = ({ x, y, scale = 1.4, label, active }) => (
-  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
-    {active && <circle cx="0" cy="8" r="55" fill="none" stroke="rgba(47,128,237,0.8)" strokeWidth="2.5" strokeDasharray="6,4" style={{ filter: 'drop-shadow(0 0 10px rgba(47,128,237,0.6))' }} />}
+  <g transform={`translate(${x}, ${y}) scale(${scale})`} style={{ filter: active ? 'drop-shadow(0 0 12px rgba(47,128,237,0.7))' : 'none', transition: 'all 0.3s ease' }}>
     {/* Top face */}
-    <path d="M-30,-12 L30,-12 L45,2 L-45,2 Z" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
+    <path d="M-30,-12 L30,-12 L45,2 L-45,2 Z" fill="#2A2D32" stroke={active ? "#2F80ED" : "#525660"} strokeWidth={active ? "2.5" : "1.9"} strokeLinejoin="round" />
     {/* Front face (made taller) */}
-    <path d="M-45,2 L45,2 L45,28 L-45,28 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
+    <path d="M-45,2 L45,2 L45,28 L-45,28 Z" fill="#222428" stroke={active ? "#2F80ED" : "#525660"} strokeWidth={active ? "2.5" : "1.9"} strokeLinejoin="round" />
     {/* Arrows on the top face */}
     <g stroke="#E2E8F0" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round">
       <path d="M-12,-3 L12,-3 M8,-6 L12,-3 L8,0" />
@@ -41,10 +39,9 @@ const SwitchIcon = ({ x, y, scale = 1.4, label, active }) => (
 );
 
 const PCIcon = ({ x, y, scale = 1.4, label, active }) => (
-  <g transform={`translate(${x}, ${y}) scale(${scale})`}>
-    {active && <circle cx="0" cy="5" r="35" fill="none" stroke="rgba(47,128,237,0.8)" strokeWidth="2.5" strokeDasharray="6,4" style={{ filter: 'drop-shadow(0 0 10px rgba(47,128,237,0.6))' }} />}
+  <g transform={`translate(${x}, ${y}) scale(${scale})`} style={{ filter: active ? 'drop-shadow(0 0 12px rgba(47,128,237,0.7))' : 'none', transition: 'all 0.3s ease' }}>
     {/* Monitor Frame */}
-    <rect x="-24" y="-18" width="48" height="30" rx="3" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
+    <rect x="-24" y="-18" width="48" height="30" rx="3" fill="#2A2D32" stroke={active ? "#2F80ED" : "#525660"} strokeWidth={active ? "2.5" : "1.9"} />
     {/* Monitor Screen */}
     <rect x="-20" y="-14" width="40" height="22" rx="1" fill="#222428" stroke="none" />
     {/* Stand */}
