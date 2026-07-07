@@ -1,0 +1,92 @@
+lab:
+  id: "comprehensive-lab"
+  title: "Comprehensive CCNA Skills Lab"
+  topic: "Routing & Switching"
+  difficulty: "Advanced"
+  estimated_time_minutes: 60
+  objective: |
+    Combine multiple core CCNA concepts to build a fully functional enterprise branch network. Configure device security, VLANs, Router-on-a-stick, DHCP, and OSPF routing.
+
+  prerequisites:
+    - "VLANs & Trunks (802.1Q)"
+    - "DHCP Services"
+    - "OSPF Single-Area"
+
+  command_reference:
+    - command: "enable secret <password>"
+      description: "Set encrypted enable password"
+    - command: "switchport mode trunk"
+      description: "Force interface into trunking mode"
+    - command: "encapsulation dot1Q <vlan>"
+      description: "Set 802.1Q tag on a subinterface"
+    - command: "ip dhcp pool <name>"
+      description: "Create a DHCP pool"
+
+  nodes:
+    - name: R1
+      host: "100.120.167.31"
+      console_port: 5000
+      device_type: "cisco_ios_telnet"
+
+    - name: R2
+      host: "100.120.167.31"
+      console_port: 5001
+      device_type: "cisco_ios_telnet"
+
+    - name: S1
+      host: "100.120.167.31"
+      console_port: 5002
+      device_type: "cisco_ios_telnet"
+
+  tasks:
+    - id: 1
+      description: "Basic Device Security (R1)"
+      instructions: |
+        Secure the edge router **R1**.
+        
+        1. Set the hostname to `R1`.
+        2. Set the enable secret to `cisco`.
+        3. Configure the console line (`line con 0`) with password `cisco` and enable `login`.
+        4. Configure the VTY lines (`line vty 0 4`) with password `cisco` and enable `login`.
+      hint: "Use `enable secret cisco` in global config, then enter `line con 0` and `line vty 0 4` to set passwords."
+
+    - id: 2
+      description: "VLANs & Trunking (S1)"
+      instructions: |
+        Configure **S1** to support two departments. S1 connects to R1 on `Ethernet0/0`.
+        
+        1. Create VLAN 10 and VLAN 20.
+        2. Configure `Ethernet0/0` as an 802.1Q trunk.
+        3. Assign `Ethernet0/1` as an access port in VLAN 10.
+        4. Assign `Ethernet0/2` as an access port in VLAN 20.
+      hint: "Create VLANs globally. For e0/0 use `switchport trunk encapsulation dot1q` and `switchport mode trunk`."
+
+    - id: 3
+      description: "Router-on-a-stick (R1)"
+      instructions: |
+        Configure **R1** to route between VLANs 10 and 20. R1 connects to S1 via `Ethernet0/0`.
+        
+        1. Enable the physical interface `Ethernet0/0` (`no shutdown`).
+        2. Create subinterface `Ethernet0/0.10` for VLAN 10. Assign IP `192.168.10.1/24`.
+        3. Create subinterface `Ethernet0/0.20` for VLAN 20. Assign IP `192.168.20.1/24`.
+      hint: "Remember to use `encapsulation dot1Q <vlan-id>` before assigning the IP address on a subinterface."
+
+    - id: 4
+      description: "DHCP Services (R1)"
+      instructions: |
+        Configure **R1** to act as a DHCP server for the two VLANs.
+        
+        1. Create a DHCP pool named `VLAN10`. Set the network to `192.168.10.0/24` and the default router to `192.168.10.1`.
+        2. Create a DHCP pool named `VLAN20`. Set the network to `192.168.20.0/24` and the default router to `192.168.20.1`.
+      hint: "In global config, use `ip dhcp pool VLAN10`, then `network 192.168.10.0 255.255.255.0` and `default-router 192.168.10.1`."
+
+    - id: 5
+      description: "OSPF Routing (R1 & R2)"
+      instructions: |
+        Connect the branch network to the core via OSPF. R1 and R2 are connected via `Ethernet0/1`.
+        
+        1. On **R1**, assign IP `10.0.0.1/30` (`255.255.255.252`) to `Ethernet0/1` and enable it.
+        2. On **R2**, assign IP `10.0.0.2/30` to `Ethernet0/1` and enable it.
+        3. On **R1**, start OSPF process 1. Advertise networks `192.168.10.0/24`, `192.168.20.0/24`, and `10.0.0.0/30` into Area 0.
+        4. On **R2**, start OSPF process 1. Advertise network `10.0.0.0/30` into Area 0.
+      hint: "The wildcard mask for a /30 subnet is `0.0.0.3` (e.g. `network 10.0.0.0 0.0.0.3 area 0`)."

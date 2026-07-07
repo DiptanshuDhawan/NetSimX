@@ -58,6 +58,39 @@ const PCIcon = ({ x, y, scale = 1.4, label, active }) => (
 export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeClick = () => {} }) {
   const nodeNames = nodes.map(n => n.name);
   const isInterVlan = nodeNames.includes('SW1');
+  const isComprehensive = nodeNames.includes('S1');
+
+  if (isComprehensive) {
+    return (
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <svg width="100%" height="100%" viewBox="0 0 800 380" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <g transform="translate(0, 40)">
+            {/* Connection Line: S1 to R1 */}
+            <line x1="150" y1="140" x2="400" y2="140" stroke="#2F80ED" strokeWidth="2.5" />
+            {/* Connection Line: R1 to R2 */}
+            <line x1="400" y1="140" x2="650" y2="140" stroke="#2F80ED" strokeWidth="2.5" />
+
+            {/* S1 to R1 labels */}
+            <text x="275" y="115" textAnchor="middle" fill="#E2E8F0" fontSize="15" fontWeight="600">802.1Q Trunk</text>
+            <text x="275" y="170" textAnchor="middle" fill="#FFFFFF" fontSize="14" fontWeight="500">Router-on-a-stick</text>
+            <text x="215" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
+            <text x="335" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/0</text>
+
+            {/* R1 to R2 labels */}
+            <text x="525" y="115" textAnchor="middle" fill="#E2E8F0" fontSize="15" fontWeight="600">10.0.0.0/30</text>
+            <text x="525" y="170" textAnchor="middle" fill="#FFFFFF" fontSize="14" fontWeight="500">OSPF Area 0</text>
+            <text x="465" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/1</text>
+            <text x="585" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/1</text>
+
+            {/* Nodes */}
+            <SwitchIcon x="150" y="140" label="S1" scale={1.5} active={activeNode === 'S1'} />
+            <RouterIcon x="400" y="140" label="R1" scale={1.5} active={activeNode === 'R1'} />
+            <RouterIcon x="650" y="140" label="R2" scale={1.5} active={activeNode === 'R2'} />
+          </g>
+        </svg>
+      </div>
+    );
+  }
 
   if (isInterVlan) {
     return (
