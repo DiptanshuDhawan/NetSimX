@@ -390,7 +390,7 @@ export default function LabEnvironment({ params }) {
         {/* Right: controls */}
         <div className="nx-toolbar">
           {session ? (
-            <div className="nx-status-pill">
+            <div className="nx-status-pill" style={{ color: isBooting ? 'var(--warning, #f59e0b)' : 'var(--green)' }}>
               <div className="nx-status-dot" style={{ background: isBooting ? 'var(--warning, #f59e0b)' : 'var(--green)' }} />
               {isBooting ? 'Booting...' : `Running ${formatTime(labTimer)}`}
             </div>
