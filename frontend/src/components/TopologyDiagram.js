@@ -1,6 +1,6 @@
 import React from 'react';
 
-const RouterIcon = ({ x, y, scale = 1.4 }) => (
+const RouterIcon = ({ x, y, scale = 1.4, label }) => (
   <g transform={`translate(${x}, ${y}) scale(${scale})`}>
     {/* Cylinder body (drawn first so it goes behind the top face) */}
     <path d="M-38,-10 v22 a38,14 0 0,0 76,0 v-22 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
@@ -13,24 +13,32 @@ const RouterIcon = ({ x, y, scale = 1.4 }) => (
       <path d="M0,-21 L0,-14 M-4,-18 L0,-14 L4,-18" /> {/* Top arrow pointing IN */}
       <path d="M0,1 L0,-6 M-4,-2 L0,-6 L4,-2" /> {/* Bottom arrow pointing IN */}
     </g>
+    {/* Label on the front face */}
+    {label && (
+      <text x="0" y="10" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
+    )}
   </g>
 );
 
-const SwitchIcon = ({ x, y, scale = 1.4 }) => (
+const SwitchIcon = ({ x, y, scale = 1.4, label }) => (
   <g transform={`translate(${x}, ${y}) scale(${scale})`}>
     {/* Top face */}
     <path d="M-30,-12 L30,-12 L45,2 L-45,2 Z" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
     {/* Front face */}
     <path d="M-45,2 L45,2 L45,18 L-45,18 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
-    {/* Arrows on the front face */}
+    {/* Arrows on the top face */}
     <g stroke="#E2E8F0" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M-15,6 L15,6 M11,3 L15,6 L11,9" />
-      <path d="M15,14 L-15,14 M-11,11 L-15,14 L-11,17" />
+      <path d="M-12,-3 L12,-3 M8,-6 L12,-3 L8,0" />
+      <path d="M12,-7 L-12,-7 M-8,-10 L-12,-7 L-8,-4" />
     </g>
+    {/* Label on the front face */}
+    {label && (
+      <text x="0" y="14" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
+    )}
   </g>
 );
 
-const PCIcon = ({ x, y, scale = 1.4 }) => (
+const PCIcon = ({ x, y, scale = 1.4, label }) => (
   <g transform={`translate(${x}, ${y}) scale(${scale})`}>
     {/* Monitor Frame */}
     <rect x="-24" y="-18" width="48" height="30" rx="3" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
@@ -40,6 +48,10 @@ const PCIcon = ({ x, y, scale = 1.4 }) => (
     <path d="M-6,12 L-10,20 L10,20 L6,12 Z" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
     {/* Base */}
     <rect x="-16" y="20" width="32" height="3" rx="1.5" fill="#525660" />
+    {/* Label inside the monitor screen */}
+    {label && (
+      <text x="0" y="1" textAnchor="middle" fill="#E2E8F0" fontSize="10" fontWeight="600">{label}</text>
+    )}
   </g>
 );
 
@@ -62,17 +74,11 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
             <text x="315" y="250" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
             <text x="485" y="250" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
 
-            {/* Nodes */}
-            <RouterIcon x="400" y="60" scale={1.1} />
-            <SwitchIcon x="400" y="190" scale={1.1} />
-            <PCIcon x="250" y="320" scale={1.1} />
-            <PCIcon x="550" y="320" scale={1.1} />
-
-            {/* Node Labels */}
-            <text x="400" y="20" textAnchor="middle" fill="#E2E8F0" fontSize="14" fontWeight="600">R1</text>
-            <text x="465" y="195" textAnchor="start" fill="#E2E8F0" fontSize="14" fontWeight="600">SW1</text>
-            <text x="250" y="365" textAnchor="middle" fill="#E2E8F0" fontSize="14" fontWeight="600">PC1</text>
-            <text x="550" y="365" textAnchor="middle" fill="#E2E8F0" fontSize="14" fontWeight="600">PC2</text>
+            {/* Nodes with embedded labels */}
+            <RouterIcon x="400" y="60" scale={1.1} label="R1" />
+            <SwitchIcon x="400" y="190" scale={1.1} label="SW1" />
+            <PCIcon x="250" y="320" scale={1.1} label="PC1" />
+            <PCIcon x="550" y="320" scale={1.1} label="PC2" />
           </g>
         </svg>
       </div>
@@ -98,13 +104,9 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
           <text x="435" y="130" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/1</text>
           <text x="435" y="160" fill="#A1A9B6" fontSize="13" textAnchor="end">.2</text>
 
-          {/* Nodes (drawn after lines so they sit on top) */}
-          <RouterIcon x="150" y="140" />
-          <RouterIcon x="500" y="140" />
-
-          {/* Router labels */}
-          <text x="150" y="215" textAnchor="middle" fill="#E2E8F0" fontSize="16" fontWeight="600">R1</text>
-          <text x="500" y="215" textAnchor="middle" fill="#E2E8F0" fontSize="16" fontWeight="600">R2</text>
+          {/* Nodes with embedded labels */}
+          <RouterIcon x="150" y="140" label="R1" />
+          <RouterIcon x="500" y="140" label="R2" />
         </g>
       </svg>
     </div>
