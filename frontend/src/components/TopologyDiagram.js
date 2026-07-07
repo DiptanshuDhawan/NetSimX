@@ -1,7 +1,8 @@
 import React from 'react';
 
-const RouterIcon = ({ x, y, scale = 1.4, label }) => (
+const RouterIcon = ({ x, y, scale = 1.4, label, active }) => (
   <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+    {active && <circle cx="0" cy="-5" r="45" fill="none" stroke="rgba(47,128,237,0.8)" strokeWidth="2.5" strokeDasharray="6,4" style={{ filter: 'drop-shadow(0 0 10px rgba(47,128,237,0.6))' }} />}
     {/* Cylinder body (drawn first so it goes behind the top face) */}
     <path d="M-38,-10 v20 a38,14 0 0,0 76,0 v-20 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
     {/* Top face */}
@@ -20,8 +21,9 @@ const RouterIcon = ({ x, y, scale = 1.4, label }) => (
   </g>
 );
 
-const SwitchIcon = ({ x, y, scale = 1.4, label }) => (
+const SwitchIcon = ({ x, y, scale = 1.4, label, active }) => (
   <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+    {active && <circle cx="0" cy="8" r="55" fill="none" stroke="rgba(47,128,237,0.8)" strokeWidth="2.5" strokeDasharray="6,4" style={{ filter: 'drop-shadow(0 0 10px rgba(47,128,237,0.6))' }} />}
     {/* Top face */}
     <path d="M-30,-12 L30,-12 L45,2 L-45,2 Z" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
     {/* Front face (made taller) */}
@@ -38,8 +40,9 @@ const SwitchIcon = ({ x, y, scale = 1.4, label }) => (
   </g>
 );
 
-const PCIcon = ({ x, y, scale = 1.4, label }) => (
+const PCIcon = ({ x, y, scale = 1.4, label, active }) => (
   <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+    {active && <circle cx="0" cy="5" r="35" fill="none" stroke="rgba(47,128,237,0.8)" strokeWidth="2.5" strokeDasharray="6,4" style={{ filter: 'drop-shadow(0 0 10px rgba(47,128,237,0.6))' }} />}
     {/* Monitor Frame */}
     <rect x="-24" y="-18" width="48" height="30" rx="3" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
     {/* Monitor Screen */}
@@ -70,10 +73,10 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
             <line x1="400" y1="190" x2="550" y2="320" stroke="#2F80ED" strokeWidth="2.5" />
 
             {/* Nodes with embedded labels */}
-            <RouterIcon x="400" y="60" scale={1.3} label="R1" />
-            <SwitchIcon x="400" y="190" scale={1.3} label="SW1" />
-            <PCIcon x="250" y="320" scale={1.3} label="PC1" />
-            <PCIcon x="550" y="320" scale={1.3} label="PC2" />
+            <RouterIcon x="400" y="60" scale={1.3} label="R1" active={activeNode === 'R1'} />
+            <SwitchIcon x="400" y="190" scale={1.3} label="SW1" active={activeNode === 'SW1'} />
+            <PCIcon x="250" y="320" scale={1.3} label="PC1" active={activeNode === 'PC1'} />
+            <PCIcon x="550" y="320" scale={1.3} label="PC2" active={activeNode === 'PC2'} />
 
             {/* Link Labels (rendered after nodes so they never get hidden) */}
             {/* R1 to SW1 interfaces exactly at device boundaries */}
@@ -116,8 +119,8 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
           <text x="435" y="160" fill="#A1A9B6" fontSize="13" textAnchor="end">.2</text>
 
           {/* Nodes with embedded labels */}
-          <RouterIcon x="150" y="140" label="R1" scale={1.5} />
-          <RouterIcon x="500" y="140" label="R2" scale={1.5} />
+          <RouterIcon x="150" y="140" label="R1" scale={1.5} active={activeNode === 'R1'} />
+          <RouterIcon x="500" y="140" label="R2" scale={1.5} active={activeNode === 'R2'} />
         </g>
       </svg>
     </div>

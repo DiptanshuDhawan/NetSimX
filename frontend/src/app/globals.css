@@ -1407,3 +1407,6 @@ html, body {
 .nx-category-card { animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
 .nx-category-card:nth-child(1) { animation-delay: 0.05s; } .nx-category-card:nth-child(2) { animation-delay: 0.1s; } .nx-category-card:nth-child(3) { animation-delay: 0.15s; } .nx-category-card:nth-child(4) { animation-delay: 0.2s; }
 .nx-lab-list-item:nth-child(1) { animation-delay: 0.1s; } .nx-lab-list-item:nth-child(2) { animation-delay: 0.2s; } .nx-lab-list-item:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.nx-spin { animation: spin 1.5s linear infinite; transform-origin: center; }

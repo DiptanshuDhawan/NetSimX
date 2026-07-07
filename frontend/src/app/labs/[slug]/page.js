@@ -667,8 +667,31 @@ export default function LabEnvironment({ params }) {
           </div>
           <div className="nx-term-body">
             {!session || isBooting ? (
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', fontSize: 12 }}>
-                {isBooting ? `Booting devices… ${bootProgress}%` : 'Environment is offline. Press ▶ to start.'}
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-base)' }}>
+                {isBooting ? (
+                  <>
+                    <div style={{ position: 'relative', width: 64, height: 64, marginBottom: 24 }}>
+                      <svg className="nx-spin" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="60" strokeDashoffset="20">
+                        <circle cx="12" cy="12" r="10" />
+                      </svg>
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontSize: 13, fontWeight: 'bold' }}>{bootProgress}%</div>
+                    </div>
+                    <div style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 500, marginBottom: 8 }}>Booting Environment</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Initializing virtual network nodes...</div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4b5563" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="3" ry="3"/>
+                        <polyline points="7 10 10 13 7 16"/>
+                        <line x1="12" y1="16" x2="16" y2="16"/>
+                      </svg>
+                    </div>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: 15, fontWeight: 500, marginBottom: 6 }}>Environment Offline</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Press the play button to start the lab session</div>
+                  </>
+                )}
               </div>
             ) : (
               nodes.map(node => (
