@@ -70,7 +70,13 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
             <line x1="400" y1="190" x2="550" y2="320" stroke="#2F80ED" strokeWidth="2.5" />
 
             {/* Link Labels */}
-            <text x="415" y="125" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
+            {/* R1 to SW1 interfaces */}
+            <text x="415" y="105" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
+            <text x="415" y="165" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
+
+            {/* SW1 to PCs interfaces */}
+            <text x="375" y="225" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/1</text>
+            <text x="425" y="225" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">e0/2</text>
             <text x="315" y="240" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
             <text x="315" y="255" fill="#A1A9B6" fontSize="12" textAnchor="end">192.168.10.0/24</text>
             <text x="485" y="240" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
