@@ -846,9 +846,6 @@ export default function LabEnvironment({ params }) {
                 </div>
                 <div style={{ fontSize: 13, color: '#9CA3AF', lineHeight: 1.5 }}>
                   We couldn't connect to the virtual environment. Please ensure the backend server is running.
-                  <div style={{ marginTop: 8, fontSize: 11, fontFamily: 'monospace', color: '#9CA3AF', opacity: 0.9 }}>
-                    {errorMsg}
-                  </div>
                 </div>
               </div>
 
@@ -862,9 +859,9 @@ export default function LabEnvironment({ params }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 24, paddingLeft: 42 }}>
               <button 
                 onClick={() => { setErrorMsg(null); handleStart(); }}
-                style={{ background: '#33363D', color: '#E2E8F0', border: 'none', padding: '8px 20px', borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'background 0.2s' }}
-                onMouseOver={(e) => e.target.style.background = '#4B5563'}
-                onMouseOut={(e) => e.target.style.background = '#33363D'}
+                style={{ background: 'rgba(47, 128, 237, 0.15)', color: '#2F80ED', border: 'none', padding: '8px 20px', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseOver={(e) => e.target.style.background = 'rgba(47, 128, 237, 0.25)'}
+                onMouseOut={(e) => e.target.style.background = 'rgba(47, 128, 237, 0.15)'}
               >
                 Try again
               </button>
