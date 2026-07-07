@@ -65,20 +65,20 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
         <svg width="100%" height="100%" viewBox="0 0 800 380" style={{ fontFamily: 'Inter, sans-serif' }}>
           <g transform="translate(0, 0)">
             {/* Connection Lines */}
-            <line x1="400" y1="80" x2="400" y2="190" stroke="#2F80ED" strokeWidth="2.5" />
-            <line x1="400" y1="190" x2="260" y2="300" stroke="#2F80ED" strokeWidth="2.5" />
-            <line x1="400" y1="190" x2="540" y2="300" stroke="#2F80ED" strokeWidth="2.5" />
+            <line x1="400" y1="60" x2="400" y2="190" stroke="#2F80ED" strokeWidth="2.5" />
+            <line x1="400" y1="190" x2="250" y2="320" stroke="#2F80ED" strokeWidth="2.5" />
+            <line x1="400" y1="190" x2="550" y2="320" stroke="#2F80ED" strokeWidth="2.5" />
 
             {/* Link Labels */}
-            <text x="415" y="135" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
-            <text x="315" y="240" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
-            <text x="485" y="240" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
+            <text x="415" y="125" fill="#E2E8F0" fontSize="13" fontWeight="500">e0/0</text>
+            <text x="315" y="250" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
+            <text x="485" y="250" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
 
             {/* Nodes with embedded labels */}
-            <RouterIcon x="400" y="80" scale={1.3} label="R1" />
+            <RouterIcon x="400" y="60" scale={1.3} label="R1" />
             <SwitchIcon x="400" y="190" scale={1.3} label="SW1" />
-            <PCIcon x="260" y="300" scale={1.3} label="PC1" />
-            <PCIcon x="540" y="300" scale={1.3} label="PC2" />
+            <PCIcon x="250" y="320" scale={1.3} label="PC1" />
+            <PCIcon x="550" y="320" scale={1.3} label="PC2" />
           </g>
         </svg>
       </div>
