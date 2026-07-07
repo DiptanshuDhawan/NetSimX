@@ -6,16 +6,16 @@ const RouterIcon = ({ x, y, scale = 1.4, label }) => (
     <path d="M-38,-10 v20 a38,14 0 0,0 76,0 v-20 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
     {/* Top face */}
     <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
-    {/* 4 arrows perfectly centered on top face (shortened to fit safely inside) */}
+    {/* 4 arrows forming a perfectly symmetrical cross centered at (0, -10) */}
     <g stroke="#E2E8F0" strokeWidth="1.9" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M-13,-10 L-4,-10 M-7,-13 L-4,-10 L-7,-7" /> {/* Left arrow pointing IN */}
-      <path d="M13,-10 L4,-10 M7,-13 L4,-10 L7,-7" /> {/* Right arrow pointing IN */}
-      <path d="M0,-16 L0,-21 M-3,-18 L0,-21 L3,-18" /> {/* Top arrow pointing OUT */}
-      <path d="M0,-4 L0,1 M-3,-2 L0,1 L3,-2" /> {/* Bottom arrow pointing OUT */}
+      <path d="M-11,-10 L-3,-10 M-6,-13 L-3,-10 L-6,-7" /> {/* Left arrow IN */}
+      <path d="M11,-10 L3,-10 M6,-13 L3,-10 L6,-7" /> {/* Right arrow IN */}
+      <path d="M0,-13 L0,-21 M-3,-18 L0,-21 L3,-18" /> {/* Top arrow OUT */}
+      <path d="M0,-7 L0,1 M-3,-2 L0,1 L3,-2" /> {/* Bottom arrow OUT */}
     </g>
-    {/* Label properly placed on the visible front face */}
+    {/* Label perfectly placed in the vertical center of the visible front face */}
     {label && (
-      <text x="0" y="17" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
+      <text x="0" y="18" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
     )}
   </g>
 );
