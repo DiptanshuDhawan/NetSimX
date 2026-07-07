@@ -92,20 +92,20 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
 
             {/* Interface Labels */}
             {/* R1 - S2 Link */}
-            <text x="505" y="75" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/0</text>
-            <text x="495" y="130" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/0</text>
+            <text x="505" y="90" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/0</text>
+            <text x="490" y="120" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/0</text>
             
             {/* S1 - S2 Trunk */}
-            <text x="235" y="142" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/0</text>
-            <text x="445" y="142" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/1</text>
+            <text x="250" y="140" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/0</text>
+            <text x="430" y="140" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/1</text>
             
             {/* S1 Access Ports */}
-            <text x="145" y="185" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/1</text>
-            <text x="215" y="195" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/2</text>
+            <text x="150" y="200" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/1</text>
+            <text x="220" y="200" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/2</text>
             
             {/* S2 Access Ports */}
-            <text x="450" y="195" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/2</text>
-            <text x="515" y="185" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/3</text>
+            <text x="440" y="200" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/2</text>
+            <text x="510" y="200" fill="#E2E8F0" fontSize="12" fontWeight="500">e0/3</text>
 
             {/* Nodes */}
             <RouterIcon x="500" y="40" label="R1" scale={1.3} active={activeNode === 'R1'} />
