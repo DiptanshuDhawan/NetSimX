@@ -2,20 +2,20 @@ import React from 'react';
 
 const RouterIcon = ({ x, y, scale = 1.4, label }) => (
   <g transform={`translate(${x}, ${y}) scale(${scale})`}>
-    {/* Cylinder body (drawn first so it goes behind the top face) */}
-    <path d="M-38,-10 v22 a38,14 0 0,0 76,0 v-22 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
+    {/* Cylinder body (made taller to fit text on the front face) */}
+    <path d="M-38,-10 v28 a38,14 0 0,0 76,0 v-28 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" />
     {/* Top face */}
     <ellipse cx="0" cy="-10" rx="38" ry="14" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" />
-    {/* 4 arrows: top/bottom point inward, left/right point outward */}
+    {/* 4 arrows perfectly centered on top face */}
     <g stroke="#E2E8F0" strokeWidth="1.9" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M-4,-10 L-15,-10 M-11,-14 L-15,-10 L-11,-6" /> {/* Left arrow pointing OUT */}
-      <path d="M4,-10 L15,-10 M11,-14 L15,-10 L11,-6" /> {/* Right arrow pointing OUT */}
-      <path d="M0,-21 L0,-14 M-4,-18 L0,-14 L4,-18" /> {/* Top arrow pointing IN */}
-      <path d="M0,1 L0,-6 M-4,-2 L0,-6 L4,-2" /> {/* Bottom arrow pointing IN */}
+      <path d="M-4,-10 L-15,-10 M-11,-13 L-15,-10 L-11,-7" /> {/* Left arrow pointing OUT */}
+      <path d="M4,-10 L15,-10 M11,-13 L15,-10 L11,-7" /> {/* Right arrow pointing OUT */}
+      <path d="M0,-16 L0,-24 M-3,-20 L0,-24 L3,-20" /> {/* Top arrow pointing IN */}
+      <path d="M0,-4 L0,4 M-3,0 L0,4 L3,0" /> {/* Bottom arrow pointing IN */}
     </g>
-    {/* Label on the front face */}
+    {/* Label properly placed on the visible front face */}
     {label && (
-      <text x="0" y="10" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
+      <text x="0" y="15" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
     )}
   </g>
 );
@@ -24,8 +24,8 @@ const SwitchIcon = ({ x, y, scale = 1.4, label }) => (
   <g transform={`translate(${x}, ${y}) scale(${scale})`}>
     {/* Top face */}
     <path d="M-30,-12 L30,-12 L45,2 L-45,2 Z" fill="#2A2D32" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
-    {/* Front face */}
-    <path d="M-45,2 L45,2 L45,18 L-45,18 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
+    {/* Front face (made taller) */}
+    <path d="M-45,2 L45,2 L45,22 L-45,22 Z" fill="#222428" stroke="#525660" strokeWidth="1.9" strokeLinejoin="round" />
     {/* Arrows on the top face */}
     <g stroke="#E2E8F0" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round">
       <path d="M-12,-3 L12,-3 M8,-6 L12,-3 L8,0" />
@@ -33,7 +33,7 @@ const SwitchIcon = ({ x, y, scale = 1.4, label }) => (
     </g>
     {/* Label on the front face */}
     {label && (
-      <text x="0" y="14" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
+      <text x="0" y="17" textAnchor="middle" fill="#E2E8F0" fontSize="11" fontWeight="600">{label}</text>
     )}
   </g>
 );
@@ -50,7 +50,7 @@ const PCIcon = ({ x, y, scale = 1.4, label }) => (
     <rect x="-16" y="20" width="32" height="3" rx="1.5" fill="#525660" />
     {/* Label inside the monitor screen */}
     {label && (
-      <text x="0" y="1" textAnchor="middle" fill="#E2E8F0" fontSize="10" fontWeight="600">{label}</text>
+      <text x="0" y="2" textAnchor="middle" fill="#E2E8F0" fontSize="10" fontWeight="600">{label}</text>
     )}
   </g>
 );
@@ -75,10 +75,10 @@ export default function TopologyDiagram({ nodes = [], activeNode = null, onNodeC
             <text x="485" y="250" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
 
             {/* Nodes with embedded labels */}
-            <RouterIcon x="400" y="60" scale={1.1} label="R1" />
-            <SwitchIcon x="400" y="190" scale={1.1} label="SW1" />
-            <PCIcon x="250" y="320" scale={1.1} label="PC1" />
-            <PCIcon x="550" y="320" scale={1.1} label="PC2" />
+            <RouterIcon x="400" y="60" scale={1.2} label="R1" />
+            <SwitchIcon x="400" y="190" scale={1.2} label="SW1" />
+            <PCIcon x="250" y="320" scale={1.2} label="PC1" />
+            <PCIcon x="550" y="320" scale={1.2} label="PC2" />
           </g>
         </svg>
       </div>
