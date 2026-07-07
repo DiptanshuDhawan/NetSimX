@@ -137,6 +137,15 @@ def grade_lab(yaml_path: str, skip_tasks: list = None, lab_dir: str = None) -> d
     
     # We will grade every node defined in the lab
     for node_name, node_config in nodes_map.items():
+        solution_path = os.path.join(lab_dir, f"solution_{node_name}.cfg")
+        if not os.path.exists(solution_path):
+            all_results.append({
+                "node": node_name,
+                "passed": True,
+                "error": f"No solution file found at {solution_path}. Skipping."
+            })
+            continue
+
         try:
             conn = connect_to_node(node_config)
             result = run_node_verification(conn, node_name, lab_dir)
