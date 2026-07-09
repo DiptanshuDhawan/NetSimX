@@ -45,33 +45,9 @@ Everything runs in Docker. Clone the repo, drop in your own Cisco images, and yo
 
 NetLabX runs as three coordinated Docker containers, all orchestrated locally on your machine — nothing leaves your network.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Your Browser                            │
-│              (Topology view · Terminal · Grading UI)            │
-└───────────────────────────┬───────────────────────────────────┘
-                            │ HTTP / WebSocket
-┌───────────────────────────▼───────────────────────────────────┐
-│  frontend  —  React / Next.js  (Node.js Alpine container)       │
-│  · Dark glassmorphism UI                                         │
-│  · SVG topology rendering                                        │
-│  · xterm.js terminal, connected via WebSocket                    │
-└───────────────────────────┬───────────────────────────────────┘
-                            │ REST / WebSocket
-┌───────────────────────────▼───────────────────────────────────┐
-│  backend  —  FastAPI  (Python 3.11 container)                    │
-│  · Orchestrates GNS3 projects via gns3fy                          │
-│  · Grading Engine: Netmiko → SSH/Telnet → parse config           │
-│  · Lab definitions + solutions loaded from YAML                  │
-│  · SQLite for progress & score tracking                          │
-└───────────────────────────┬───────────────────────────────────┘
-                            │ GNS3 API
-┌───────────────────────────▼───────────────────────────────────┐
-│  gns3-server  —  official headless gns3/gns3-server image        │
-│  · Boots and wires up emulated Cisco IOS/IOL nodes                │
-│  · Exposes console ports consumed by the terminal                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+<div align="center">
+  <img src="docs/architecture.png" alt="NetLabX Architecture Diagram" width="800">
+</div>
 
 | Layer | Technology | Responsibility |
 |---|---|---|
