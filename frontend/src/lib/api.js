@@ -21,7 +21,10 @@ export const api = {
     const res = await fetch(`${API_URL}/api/session/start/${labSlug}`, {
       method: 'POST',
     });
-    if (!res.ok) throw new Error('Failed to start session');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Failed to start session');
+    }
     return res.json();
   },
 

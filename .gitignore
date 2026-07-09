@@ -21,3 +21,7 @@ Thumbs.db
 # Ignore Cisco images
 images/*.bin
 images/*.image
+
+# Databases
+*.db
+*.sqlite

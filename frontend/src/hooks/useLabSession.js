@@ -55,6 +55,7 @@ export function useLabSession(slug) {
         setIsBooting(true);
         setBootProgress(90);
         setSession(parsed);
+        // We will set activeTerminal dynamically after lab loads
         const tasks = JSON.parse(localStorage.getItem(`netlabx_tasks_${parsed.session_id}`) || '[]');
         setTaskProgress(tasks);
         setPassedTaskIds(tasks.map(t => t.task_id));
@@ -105,31 +106,54 @@ export function useLabSession(slug) {
   useEffect(() => {
     if (!session || !lab || !lab.nodes) return;
     let opened = 0;
+    let failed = 0;
     const currentNodes = lab.nodes.map(n => n.name);
+
+    if (currentNodes.length === 0) {
+      setIsBooting(false);
+      return;
+    }
+
+    const checkCompletion = () => {
+      if (opened + failed === currentNodes.length) {
+        setTimeout(() => {
+          setIsBooting(false);
+          setSession(s => {
+            if (s && !s.startedAt) {
+              const newS = { ...s, startedAt: Date.now() };
+              localStorage.setItem('netlabx_session', JSON.stringify(newS));
+              return newS;
+            }
+            return s;
+          });
+        }, 300);
+      }
+    };
 
     currentNodes.forEach(node => {
       if (wsRefs.current[node]) return;
       bufRefs.current[node] = [];
       const ws = new WebSocket(api.getTerminalWsUrl(session.session_id, node));
       ws.binaryType = 'arraybuffer';
+      
       ws.onopen = () => {
         ws.send('\r\n');
         opened++;
         setBootProgress(Math.floor(90 + (opened / currentNodes.length) * 10));
-        if (opened === currentNodes.length) {
-          setTimeout(() => {
-            setIsBooting(false);
-            setSession(s => {
-              if (s && !s.startedAt) {
-                const newS = { ...s, startedAt: Date.now() };
-                localStorage.setItem('netlabx_session', JSON.stringify(newS));
-                return newS;
-              }
-              return s;
-            });
-          }, 300);
+        checkCompletion();
+      };
+
+      ws.onerror = (e) => {
+        console.error(`WebSocket error on ${node}`, e);
+      };
+
+      ws.onclose = () => {
+        if (opened + failed < currentNodes.length) {
+          failed++;
+          checkCompletion();
         }
       };
+
       ws.onmessage = (e) => {
         const chunk = typeof e.data === 'string'
           ? new TextEncoder().encode(e.data)
