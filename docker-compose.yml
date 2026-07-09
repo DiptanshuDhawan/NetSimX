@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: netlabx-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    container_name: netlabx-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - GNS3_HOST=http://gns3-server:3080
+      - FRONTEND_URL=http://localhost:3000
+    volumes:
+      # Persist the database and labs between container restarts
+      - netlabx-db:/app/db
+      - ./labs:/app/labs
+    depends_on:
+      - gns3-server
+    restart: unless-stopped
+
+  gns3-server:
+    image: gns3/gns3-server:latest
+    container_name: gns3-server
+    privileged: true
+    ports:
+      - "3080:3080"
+      - "5000-5100:5000-5100" # Console ports for IOU/IOL devices
+    volumes:
+      # Mount images folder directly so users can drop Cisco images here
+      - ./images:/data/images
+      - gns3-data:/data
+    restart: unless-stopped
+
+volumes:
+  netlabx-db:
+  gns3-data:
