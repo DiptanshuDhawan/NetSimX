@@ -13,6 +13,9 @@ app = FastAPI(
     version="1.0.0",
 )
 
+import threading
+from auto_template import auto_configure_templates
+
 # Allow the Next.js frontend to call this API
 app.add_middleware(
     CORSMiddleware,
@@ -21,6 +24,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+def startup_event():
+    # Run auto template configuration in the background so it doesn't block server startup
+    threading.Thread(target=auto_configure_templates, daemon=True).start()
 
 # Register all routers
 app.include_router(labs.router)

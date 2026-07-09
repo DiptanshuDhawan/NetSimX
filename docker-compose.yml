@@ -26,6 +26,7 @@ services:
       # Persist the database and labs between container restarts
       - netlabx-db:/app/db
       - ./labs:/app/labs
+      - ./images:/app/images
     depends_on:
       - gns3-server
     restart: unless-stopped
