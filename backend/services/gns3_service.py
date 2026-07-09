@@ -76,6 +76,33 @@ def get_node_console_port(project_id: str, node_name: str) -> int:
     raise ValueError(f"Node '{node_name}' not found in project '{project_id}'")
 
 
+def get_lab_status(project_id: str) -> dict:
+    """Get the status of all nodes and links in a project."""
+    server = get_gns3_server()
+    lab = gns3fy.Project(project_id=project_id, connector=server)
+    lab.get()
+    
+    nodes_status = []
+    for node in lab.nodes:
+        nodes_status.append({"name": node.name, "status": node.status})
+        
+    link_state = "up" if all(n["status"] == "started" for n in nodes_status) else "down"
+    
+    return {
+        "nodes": nodes_status,
+        "links": [{"from": "IOU1", "to": "IOU2", "state": link_state}]
+    }
+
+
+def reset_lab_project(project_id: str):
+    """Stop and start all nodes in a project to reset them."""
+    server = get_gns3_server()
+    lab = gns3fy.Project(project_id=project_id, connector=server)
+    lab.get()
+    lab.stop_nodes()
+    lab.start_nodes()
+
+
 def push_startup_config(project_id: str, node_name: str, config_path: str):
     """
     Push an initial (possibly broken) configuration to a router
@@ -114,7 +141,8 @@ def push_startup_config(project_id: str, node_name: str, config_path: str):
                 pass
 
         if not prompt_found:
-            print(f"Warning: Could not find prompt for {node_name} after 50s. Attempting to push config anyway.")
+            import logging
+            logging.getLogger("netlabx.gns3").warning(f"Could not find prompt for {node_name} after 50s. Attempting to push config anyway.")
 
         tn.write(b"\r\n")
         time.sleep(1)

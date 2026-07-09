@@ -7,154 +7,139 @@ import yaml
 import sys
 import os
 import time
+import logging
 
-# Fix Windows console emoji printing
 sys.stdout.reconfigure(encoding='utf-8')
 
 from netmiko import ConnectHandler
 from netmiko.exceptions import NetMikoTimeoutException, AuthenticationException
 
+logger = logging.getLogger("netlabx.grading")
 
 def load_lab_definition(yaml_path: str) -> dict:
-    """Load and parse a lab YAML definition file."""
     with open(yaml_path, "r") as f:
         return yaml.safe_load(f)
 
 
-def connect_to_node(node: dict) -> ConnectHandler:
-    """
-    Create a Netmiko connection to a GNS3 router.
-    """
-    # Map lab device types to Netmiko device types
-    netmiko_device_type = node["device_type"]
-    if netmiko_device_type in ["cisco_iol_l2", "cisco_iol"]:
-        netmiko_device_type = "cisco_ios_telnet"
+class BaseGrader:
+    def __init__(self, node_name: str, node_config: dict, solution_path: str):
+        self.node_name = node_name
+        self.node_config = node_config
+        self.solution_path = solution_path
 
-    device = {
-        "device_type": netmiko_device_type,
-        "host": node["host"],
-        "port": node["console_port"],
-        "username": "",
-        "password": "",
-        "secret": "",
-        "global_delay_factor": 2,
-        "timeout": 30,
-    }
-    return ConnectHandler(**device)
+    def sanitize_config(self, config_text: str) -> set:
+        lines = []
+        current_context = ""
+        for line in config_text.splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("!") or stripped.startswith("Building configuration") \
+                    or stripped.startswith("Current configuration") or stripped.startswith("ntp clock-period") \
+                    or "NVRAM" in stripped or "bytes" in stripped or stripped.startswith("Last configuration change") \
+                    or stripped.startswith("version") or stripped == "end":
+                continue
 
-
-def sanitize_config(config_text: str) -> set:
-    """
-    Cleans up a Cisco IOS config and returns a set of significant lines.
-    Using a set means order doesn't matter, and we check for subsets.
-    Preserves 1-level of hierarchical context (e.g., interface -> ip address).
-    """
-    lines = []
-    current_context = ""
-    for line in config_text.splitlines():
-        stripped = line.strip()
-        if not stripped or stripped.startswith("!"):
-            continue
-        if stripped.startswith("Building configuration"):
-            continue
-        if stripped.startswith("Current configuration"):
-            continue
-        if stripped.startswith("ntp clock-period"):
-            continue
-        if "NVRAM" in stripped or "bytes" in stripped:
-            continue
-        if stripped.startswith("Last configuration change"):
-            continue
-        if stripped.startswith("version"):
-            continue
-        if stripped == "end":
-            continue
-            
-        # Check for indentation (sub-commands)
-        if line.startswith(" ") or line.startswith("\t"):
-            if current_context:
-                lines.append(f"{current_context} -> {stripped}")
+            if line.startswith(" ") or line.startswith("\t"):
+                if current_context:
+                    lines.append(f"{current_context} -> {stripped}")
+                else:
+                    lines.append(stripped)
             else:
-                lines.append(stripped)
-        else:
-            current_context = stripped
-            lines.append(current_context)
-            
-    return set(lines)
+                current_context = stripped
+                lines.append(current_context)
+        return set(lines)
 
+    def _connect(self) -> ConnectHandler:
+        netmiko_device_type = self.node_config["device_type"]
+        if netmiko_device_type in ["cisco_iol_l2", "cisco_iol"]:
+            netmiko_device_type = "cisco_ios_telnet"
 
-def run_node_verification(connection: ConnectHandler, node_name: str, lab_dir: str) -> dict:
-    """
-    Enter enable mode, save config, fetch show run, and compare.
-    """
-    solution_path = os.path.join(lab_dir, f"solution_{node_name}.cfg")
-    
-    if not os.path.exists(solution_path):
-        return {
-            "node": node_name,
-            "passed": True,  # If no solution config is provided, skip grading
-            "error": f"No solution file found at {solution_path}. Skipping."
+        device = {
+            "device_type": netmiko_device_type,
+            "host": self.node_config["host"],
+            "port": self.node_config["console_port"],
+            "username": "",
+            "password": "",
+            "secret": "",
+            "global_delay_factor": 2,
+            "timeout": 30,
         }
-        
-    with open(solution_path, "r") as f:
-        solution_text = f.read()
+        return ConnectHandler(**device)
 
-    try:
-        # Netmiko's exit_config_mode() can crash if it connects while already in config mode 
-        # (it sets base_prompt to the config prompt and then fails to match it after exiting).
-        # We use a raw write_channel to guarantee we drop to exec mode reliably.
+    def fetch_actual_config(self, connection: ConnectHandler) -> str:
+        """Fetch running config from the device. Base implementation."""
         connection.write_channel("\r\nend\r\n")
         time.sleep(1)
         connection.set_base_prompt()
             
-        # Default is user exec mode, so enter enable mode
         if not connection.check_enable_mode():
             connection.enable()
             
-        # Disable pagination so show run output is never truncated by --More--
         connection.send_command("terminal length 0", read_timeout=10)
+        return connection.send_command("show run", read_timeout=60)
 
-        # Issue show run to see the configuration
-        actual_text = connection.send_command("show run", read_timeout=60)
+    def grade(self) -> dict:
+        if not os.path.exists(self.solution_path):
+            logger.info(f"Skipping {self.node_name}: no solution file.")
+            return {"node": self.node_name, "passed": True, "error": f"No solution file found. Skipping."}
+
+        with open(self.solution_path, "r") as f:
+            solution_text = f.read()
+
+        connection = None
+        try:
+            connection = self._connect()
+            actual_text = self.fetch_actual_config(connection)
+            
+            expected_set = self.sanitize_config(solution_text)
+            actual_set = self.sanitize_config(actual_text)
+            
+            missing_lines = expected_set - actual_set
+            passed = len(missing_lines) == 0
+
+            return {
+                "node": self.node_name,
+                "passed": passed,
+                "missing_lines": list(missing_lines)
+            }
+        except (NetMikoTimeoutException, ConnectionRefusedError) as e:
+            logger.error(f"Connection failed for {self.node_name}: {e}")
+            return {"node": self.node_name, "passed": False, "error": f"Could not connect to {self.node_name}."}
+        except Exception as e:
+            logger.exception(f"Grading failed for {self.node_name}")
+            return {"node": self.node_name, "passed": False, "error": str(e)}
+        finally:
+            if connection:
+                connection.disconnect()
+
+
+class IOSGrader(BaseGrader):
+    def fetch_actual_config(self, connection: ConnectHandler) -> str:
+        """Override to also fetch VLAN database for Cisco IOS devices."""
+        actual_text = super().fetch_actual_config(connection)
         
-        # Workaround for IOS hiding VLANs in vlan.dat instead of show run
         try:
             vlan_text = connection.send_command("show vlan brief", read_timeout=10)
             for line in vlan_text.splitlines():
                 parts = line.strip().split()
                 if parts and parts[0].isdigit():
                     vid = int(parts[0])
-                    if vid not in [1, 1002, 1003, 1004, 1005]:  # Ignore defaults
+                    if vid not in [1, 1002, 1003, 1004, 1005]:
                         actual_text += f"\nvlan {vid}\n"
-        except Exception:
-            pass
-        
-        # Compare them
-        expected_set = sanitize_config(solution_text)
-        actual_set = sanitize_config(actual_text)
-        
-        # Check if the expected lines are a subset of the actual lines.
-        missing_lines = expected_set - actual_set
-        passed = len(missing_lines) == 0
+        except Exception as e:
+            logger.warning(f"Failed to fetch VLANs for {self.node_name}: {e}")
+            
+        return actual_text
 
-        return {
-            "node": node_name,
-            "passed": passed,
-            "missing_lines": list(missing_lines)
-        }
-    except Exception as e:
-        return {
-            "node": node_name,
-            "passed": False,
-            "error": str(e)
-        }
+
+def get_grader_for_device(node_name: str, node_config: dict, solution_path: str) -> BaseGrader:
+    """Factory to return the correct grader class based on device type."""
+    device_type = node_config.get("device_type", "")
+    if "cisco_iol" in device_type or "cisco_ios" in device_type:
+        return IOSGrader(node_name, node_config, solution_path)
+    return BaseGrader(node_name, node_config, solution_path)
 
 
 def grade_lab(yaml_path: str, skip_tasks: list = None, lab_dir: str = None) -> dict:
-    """
-    Main grading function. 
-    Connects to all nodes, checks configs, and returns a single Pass/Fail result.
-    """
     lab_def = load_lab_definition(yaml_path)
     lab_info = lab_def["lab"]
     
@@ -164,39 +149,15 @@ def grade_lab(yaml_path: str, skip_tasks: list = None, lab_dir: str = None) -> d
     nodes_map = {node["name"]: node for node in lab_info["nodes"]}
     all_results = []
     
-    # We will grade every node defined in the lab
     for node_name, node_config in nodes_map.items():
         solution_path = os.path.join(lab_dir, f"solution_{node_name}.cfg")
-        if not os.path.exists(solution_path):
-            all_results.append({
-                "node": node_name,
-                "passed": True,
-                "error": f"No solution file found at {solution_path}. Skipping."
-            })
-            continue
+        grader = get_grader_for_device(node_name, node_config, solution_path)
+        result = grader.grade()
+        all_results.append(result)
 
-        try:
-            conn = connect_to_node(node_config)
-            result = run_node_verification(conn, node_name, lab_dir)
-            all_results.append(result)
-            conn.disconnect()
-        except (NetMikoTimeoutException, ConnectionRefusedError) as e:
-            all_results.append({
-                "node": node_name,
-                "passed": False,
-                "error": f"Could not connect to {node_name} — make sure the lab is running and routers have finished booting. ({type(e).__name__})"
-            })
-        except Exception as e:
-            all_results.append({
-                "node": node_name,
-                "passed": False,
-                "error": f"Connection failed: {e}"
-            })
-
-    # Calculate final score: all nodes must pass
     passed = all(r["passed"] for r in all_results) if all_results else False
 
-    final_report = {
+    return {
         "lab_id": lab_info["id"],
         "lab_title": lab_info["title"],
         "total_earned": 100 if passed else 0,
@@ -205,5 +166,3 @@ def grade_lab(yaml_path: str, skip_tasks: list = None, lab_dir: str = None) -> d
         "passed": passed,
         "node_results": all_results,
     }
-
-    return final_report

@@ -39,7 +39,8 @@ async def start_lab(lab_slug: str):
             if os.path.exists(config_path):
                 push_startup_config(gns3_info["project_id"], node["name"], config_path)
     except Exception as e:
-        print(f"Warning: Could not push startup configs: {e}")
+        import logging
+        logging.getLogger("netlabx.sessions").warning(f"Could not push startup configs: {e}")
 
     # Save session to DB
     cursor = conn.cursor()
@@ -99,24 +100,8 @@ async def get_session_status(session_id: int):
         return {"status": "stopped", "nodes": [], "links": []}
 
     try:
-        server = get_gns3_server()
-        lab = gns3fy.Project(project_id=session["gns3_project_id"], connector=server)
-        lab.get()
-        
-        nodes_status = []
-        for node in lab.nodes:
-            nodes_status.append({"name": node.name, "status": node.status})
-            
-        # For link status, we will just simulate it as 'up' if both nodes are started for now
-        # Polling Netmiko every 5s is too slow for Python Telnet.
-        # A true implementation would use a persistent background thread.
-        # We will check if both are started. If so, up.
-        link_state = "up" if all(n["status"] == "started" for n in nodes_status) else "down"
-        
-        return {
-            "nodes": nodes_status,
-            "links": [{"from": "IOU1", "to": "IOU2", "state": link_state}]
-        }
+        from services.gns3_service import get_lab_status
+        return get_lab_status(session["gns3_project_id"])
     except Exception as e:
         return {"nodes": [], "links": [], "error": str(e)}
 
@@ -144,11 +129,8 @@ async def reset_session(session_id: int):
         conn.close()
 
     try:
-        server = get_gns3_server()
-        lab = gns3fy.Project(project_id=session["gns3_project_id"], connector=server)
-        lab.get()
-        lab.stop_nodes()
-        lab.start_nodes()
+        from services.gns3_service import reset_lab_project
+        reset_lab_project(session["gns3_project_id"])
 
         # Re-push configs
         lab_slug = session["lab_slug"]
