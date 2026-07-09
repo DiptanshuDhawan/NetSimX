@@ -40,8 +40,10 @@ export default function Terminal({ ws, buffer, nodeName, fontSize = 16 }) {
     term.open(containerRef.current);
     
     // Only fit if visible
-    if (containerRef.current.clientWidth > 0) {
-      fitAddon.fit();
+    if (containerRef.current && containerRef.current.clientWidth > 0 && containerRef.current.clientHeight > 0) {
+      try {
+        fitAddon.fit();
+      } catch (e) {}
     }
 
     // Replay scrollback buffer so history is visible after a tab switch
@@ -54,8 +56,10 @@ export default function Terminal({ ws, buffer, nodeName, fontSize = 16 }) {
     // Use ResizeObserver to reliably call fit() whenever the container's dimensions change
     // This perfectly handles tab switching, window resizing, and initial render delays
     const resizeObserver = new ResizeObserver(() => {
-      if (containerRef.current && containerRef.current.clientWidth > 0) {
-        fitAddon.fit();
+      if (containerRef.current && containerRef.current.clientWidth > 0 && containerRef.current.clientHeight > 0) {
+        try {
+          fitAddon.fit();
+        } catch (e) {}
       }
     });
     
@@ -102,7 +106,11 @@ export default function Terminal({ ws, buffer, nodeName, fontSize = 16 }) {
   useEffect(() => {
     if (termRef.current) {
       termRef.current.options.fontSize = fontSize;
-      if (fitAddonRef.current) fitAddonRef.current.fit();
+      if (fitAddonRef.current && containerRef.current && containerRef.current.clientWidth > 0 && containerRef.current.clientHeight > 0) {
+        try {
+          fitAddonRef.current.fit();
+        } catch (e) {}
+      }
     }
   }, [fontSize]);
 
