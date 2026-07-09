@@ -22,6 +22,7 @@ services:
     environment:
       - GNS3_HOST=http://gns3-server:3080
       - FRONTEND_URL=http://localhost:3000
+      - LABS_DIR=./labs
     volumes:
       # Persist the database and labs between container restarts
       - netlabx-db:/app/db
