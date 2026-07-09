@@ -22,14 +22,16 @@ async def start_lab(lab_slug: str):
     lab = dict(lab_row)
 
     # Start GNS3 project
+    lab_yaml_path = os.path.join(LABS_DIR, lab_slug, "lab.yaml")
     try:
-        gns3_info = start_lab_project(lab["gns3_project_path"])
+        gns3_info = start_lab_project(lab_slug, lab_yaml_path)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         conn.close()
         raise HTTPException(status_code=500, detail=f"Failed to start GNS3 project: {e}")
 
     # Push startup configs
-    lab_yaml_path = os.path.join(LABS_DIR, lab_slug, "lab.yaml")
     try:
         with open(lab_yaml_path, "r") as f:
             lab_def = yaml.safe_load(f)
@@ -103,6 +105,15 @@ async def get_session_status(session_id: int):
         from services.gns3_service import get_lab_status
         return get_lab_status(session["gns3_project_id"])
     except Exception as e:
+        import requests
+        if isinstance(e, requests.exceptions.HTTPError) and "404" in str(e):
+            # Project was deleted from GNS3, update DB and return stopped
+            conn = get_db()
+            conn.execute("UPDATE lab_sessions SET status = 'stopped' WHERE id = ?", (session_id,))
+            conn.commit()
+            conn.close()
+            return {"status": "stopped", "nodes": [], "links": []}
+            
         return {"nodes": [], "links": [], "error": str(e)}
 
 

@@ -33,16 +33,17 @@ services:
     restart: unless-stopped
 
   gns3-server:
-    image: gns3/gns3-server:latest
+    build: ./gns3-server
     container_name: gns3-server
+    command: gns3server --host 0.0.0.0 --port 3080 -A
     privileged: true
     ports:
       - "3080:3080"
       - "5000-5100:5000-5100" # Console ports for IOU/IOL devices
     volumes:
       # Mount images folder directly so users can drop Cisco images here
-      - ./images:/data/images
-      - gns3-data:/data
+      - ./images:/root/GNS3/images/IOU
+      - gns3-data:/root/GNS3
     restart: unless-stopped
 
 volumes:

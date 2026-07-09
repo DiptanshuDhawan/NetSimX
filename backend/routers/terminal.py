@@ -17,6 +17,7 @@ async def terminal_websocket(
     conn.close()
     
     if not session_row:
+        print(f"WS error: Session {session_id} not found in DB")
         await websocket.close(code=1008, reason="Session not found")
         return
 
@@ -26,6 +27,7 @@ async def terminal_websocket(
     try:
         console_port = get_node_console_port(project_id, node_name)
     except ValueError as e:
+        print(f"WS error: Node {node_name} console port not found: {e}")
         await websocket.close(code=1008, reason=str(e))
         return
 

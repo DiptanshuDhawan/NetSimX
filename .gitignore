@@ -25,3 +25,6 @@ images/*.image
 # Databases
 *.db
 *.sqlite
+
+images/IOU/
+*.md5sum

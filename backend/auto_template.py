@@ -5,7 +5,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-GNS3_HOST = os.getenv("GNS3_HOST", "http://127.0.0.1:3080")
+GNS3_HOST = os.getenv("GNS3_HOST", "127.0.0.1")
+GNS3_PORT = os.getenv("GNS3_PORT", "3080")
+GNS3_URL = f"http://{GNS3_HOST}:{GNS3_PORT}"
 IMAGES_DIR = "/app/images"
 
 def auto_configure_templates():
@@ -13,7 +15,7 @@ def auto_configure_templates():
     max_retries = 10
     for i in range(max_retries):
         try:
-            res = requests.get(f"{GNS3_HOST}/v2/version", timeout=5)
+            res = requests.get(f"{GNS3_URL}/v2/version", timeout=5)
             if res.status_code == 200:
                 logger.info("GNS3 server is ready.")
                 break
@@ -44,7 +46,7 @@ def auto_configure_templates():
     # Fetch existing templates
     existing_templates = []
     try:
-        res = requests.get(f"{GNS3_HOST}/v2/templates")
+        res = requests.get(f"{GNS3_URL}/v2/templates")
         if res.status_code == 200:
             existing_templates = [t.get("name") for t in res.json()]
     except Exception as e:
@@ -59,14 +61,10 @@ def auto_configure_templates():
             "compute_id": "local",
             "template_type": "iou",
             "path": router_image,
-            "category": "routers",
-            "ethernet_adapters": 4,
-            "serial_adapters": 0,
-            "ram": 512,
-            "nvram": 256
+            "category": "router"
         }
         try:
-            requests.post(f"{GNS3_HOST}/v2/templates", json=payload)
+            requests.post(f"{GNS3_URL}/v2/templates", json=payload)
         except Exception as e:
             logger.error(f"Failed to create router template: {e}")
 
@@ -78,13 +76,9 @@ def auto_configure_templates():
             "compute_id": "local",
             "template_type": "iou",
             "path": switch_image,
-            "category": "switches",
-            "ethernet_adapters": 4,
-            "serial_adapters": 0,
-            "ram": 512,
-            "nvram": 256
+            "category": "switch"
         }
         try:
-            requests.post(f"{GNS3_HOST}/v2/templates", json=payload)
+            requests.post(f"{GNS3_URL}/v2/templates", json=payload)
         except Exception as e:
             logger.error(f"Failed to create switch template: {e}")

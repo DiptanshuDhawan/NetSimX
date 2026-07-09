@@ -25,19 +25,55 @@ def get_gns3_server() -> gns3fy.Gns3Connector:
     )
 
 
-def start_lab_project(gns3_project_path: str) -> dict:
+import yaml
+
+def start_lab_project(lab_slug: str, lab_yaml_path: str = None) -> dict:
     """
-    Open and start a GNS3 project. Returns project info including the project_id.
-    The project_id is used to manage this session.
+    Open and start a GNS3 project. If the project does not exist,
+    create it dynamically from lab_yaml_path.
+    Returns project info including the project_id.
     """
     server = get_gns3_server()
 
-    # Load the project from file/server
-    lab = gns3fy.Project(
-        project_id=gns3_project_path,
-        connector=server,
-    )
-    lab.get()
+    # Search for project by name (lab_slug)
+    projects = server.get_projects()
+    lab = None
+    for p in projects:
+        if p["name"] == lab_slug:
+            lab = gns3fy.Project(project_id=p["project_id"], connector=server)
+            lab.get()
+            break
+
+    if not lab:
+        import logging
+        logging.getLogger("netlabx.gns3").info(f"Project '{lab_slug}' not found on GNS3 server. Auto-provisioning...")
+        if not lab_yaml_path or not os.path.exists(lab_yaml_path):
+            raise ValueError(f"Cannot auto-provision: lab_yaml_path '{lab_yaml_path}' not found.")
+        
+        # 1. Create Project
+        lab = gns3fy.Project(name=lab_slug, connector=server)
+        lab.create()
+        
+        # 2. Parse YAML
+        with open(lab_yaml_path, "r") as f:
+            lab_def = yaml.safe_load(f).get("lab", {})
+            
+        # 3. Create Nodes
+        for node in lab_def.get("nodes", []):
+            device_type = node.get("device_type", "cisco_ios_telnet")
+            lab.create_node(
+                name=node["name"],
+                template=device_type,
+                x=node.get("x", 0),
+                y=node.get("y", 0)
+            )
+            
+        # 4. Create Links
+        for link in lab_def.get("links", []):
+            # link format: ['R1', 'e0/0', 'R2', 'e0/1']
+            if len(link) == 4:
+                node_a, port_a, node_b, port_b = link
+                lab.create_link(node_a, port_a, node_b, port_b)
 
     # Open the project if it's not already open
     if lab.status != "opened":
@@ -67,7 +103,14 @@ def get_node_console_port(project_id: str, node_name: str) -> int:
     """Get the current console Telnet port for a named node in a project."""
     server = get_gns3_server()
     lab = gns3fy.Project(project_id=project_id, connector=server)
-    lab.get()
+    import requests
+
+    try:
+        lab.get()
+    except requests.exceptions.HTTPError as e:
+        if "404" in str(e):
+            raise ValueError(f"Project '{project_id}' not found in GNS3 (it may have been deleted).")
+        raise e
 
     for node in lab.nodes:
         if node.name == node_name:
