@@ -54,20 +54,20 @@ lab:
       instructions: |
         Configure **S1** for the Blue (VLAN 10) and Red (VLAN 20) departments.
         
-        1. Create VLAN 10 and VLAN 20 on **S1**.
+        1. Create VLAN 10, VLAN 20, and VLAN 30 on **S1**.
         2. Assign `Ethernet0/1` to VLAN 10 (PC0).
         3. Assign `Ethernet0/2` to VLAN 20 (PC1).
-      hint: "Use `switchport mode access` and `switchport access vlan <id>`."
+      hint: "Use `vlan <id>` to create them, then `switchport mode access` and `switchport access vlan <id>` on the interfaces."
 
     - id: 3
       description: "VLANs & Access Ports (S2)"
       instructions: |
         Configure **S2** for the Purple (VLAN 30) and Red (VLAN 20) departments.
         
-        1. Create VLAN 20 and VLAN 30 on **S2**.
+        1. Create VLAN 10, VLAN 20, and VLAN 30 on **S2**.
         2. Assign `Ethernet0/2` to VLAN 30 (PC2).
         3. Assign `Ethernet0/3` to VLAN 20 (PC3).
-      hint: "Ensure VLAN 20 exists on both switches so they can communicate across the trunk."
+      hint: "Ensure all VLANs exist on both switches so traffic can flow across the trunk."
 
     - id: 4
       description: "Router-on-a-stick (R1)"
