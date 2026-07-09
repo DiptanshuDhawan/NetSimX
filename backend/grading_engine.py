@@ -117,6 +117,18 @@ def run_node_verification(connection: ConnectHandler, node_name: str, lab_dir: s
         # Issue show run to see the configuration
         actual_text = connection.send_command("show run", read_timeout=60)
         
+        # Workaround for IOS hiding VLANs in vlan.dat instead of show run
+        try:
+            vlan_text = connection.send_command("show vlan brief", read_timeout=10)
+            for line in vlan_text.splitlines():
+                parts = line.strip().split()
+                if parts and parts[0].isdigit():
+                    vid = int(parts[0])
+                    if vid not in [1, 1002, 1003, 1004, 1005]:  # Ignore defaults
+                        actual_text += f"\nvlan {vid}\n"
+        except Exception:
+            pass
+        
         # Compare them
         expected_set = sanitize_config(solution_text)
         actual_set = sanitize_config(actual_text)
