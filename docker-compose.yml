@@ -20,7 +20,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - GNS3_HOST=http://gns3-server:3080
+      - GNS3_HOST=gns3-server
       - FRONTEND_URL=http://localhost:3000
       - LABS_DIR=./labs
     volumes:
