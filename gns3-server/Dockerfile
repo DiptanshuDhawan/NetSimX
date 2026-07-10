@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y \
 # Install IOU dependencies (needs 32-bit libssl)
 RUN dpkg --add-architecture i386 && apt-get update && apt-get install -y \
     libssl-dev:i386 \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/lib/i386-linux-gnu/libcrypto.so /usr/lib/i386-linux-gnu/libcrypto.so.4
 
 # Install GNS3 server exact version via pip
 RUN pip3 install gns3-server==2.2.52
