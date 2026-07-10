@@ -43,8 +43,6 @@ services:
     volumes:
       # Mount images folder directly so users can drop Cisco images here
       - ./images:/root/GNS3/images/IOU
-      # Mount projects folder so pre-made GNS3 labs are instantly available
-      - ./projects:/root/GNS3/projects
       - gns3-data:/root/GNS3
     restart: unless-stopped
 
