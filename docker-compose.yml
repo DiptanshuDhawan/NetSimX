@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   frontend:
@@ -35,7 +34,8 @@ services:
   gns3-server:
     build: ./gns3-server
     container_name: gns3-server
-    command: gns3server --host 0.0.0.0 --port 3080 -A
+    hostname: gns3-server
+    command: sh -c "python3 /tmp/keygen.py && gns3server --host 0.0.0.0 --port 3080 -A"
     privileged: true
     ports:
       - "3080:3080"

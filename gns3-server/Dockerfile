@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     libc6-i386 \
     libssl-dev \
+    && add-apt-repository -y ppa:gns3/ppa \
+    && apt-get update \
+    && apt-get install -y ubridge dynamips vpcs \
     && rm -rf /var/lib/apt/lists/*
 
 # Install IOU dependencies (needs 32-bit libssl)
@@ -27,7 +30,6 @@ RUN mkdir -p /root/GNS3/images/IOU
 
 # Generate IOURC license
 COPY keygen.py /tmp/keygen.py
-RUN python3 /tmp/keygen.py > /root/.iourc
 
 EXPOSE 3080
 EXPOSE 5000-5100

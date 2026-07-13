@@ -39,9 +39,15 @@ def auto_configure_templates():
         
     logger.info(f"Found images: {images}")
 
-    # Use the first image for router, and if available, another for switch. Or just use first for both if only one.
-    router_image = images[0]
-    switch_image = images[-1] # will be the same if only 1 image
+    if "router.bin" not in images:
+        logger.warning("router.bin not found in images directory. Skipping auto-template.")
+        return
+    if "switch.bin" not in images:
+        logger.warning("switch.bin not found in images directory. Skipping auto-template.")
+        return
+
+    router_image = "router.bin"
+    switch_image = "switch.bin"
 
     # Fetch existing templates
     existing_templates = []

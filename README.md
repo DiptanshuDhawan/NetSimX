@@ -30,6 +30,15 @@ Everything runs in Docker. Clone the repo, drop in your own Cisco images, and yo
 
 ---
 
+## 🚀 Quick Start
+1. Clone the repository.
+2. Place your Cisco IOU `.bin` images into the `images/` directory. 
+   **CRITICAL:** You must rename your layer 3 image to `router.bin` and your layer 2 image to `switch.bin`.
+3. Run `docker-compose up -d --build`.
+4. Open your browser to `http://localhost:3000`.
+
+---
+
 ## Features
 
 - 🎯 **Automated Grading Engine** — Configure devices in-browser, hit **Grade**, and a Python backend (via Netmiko) SSHes into the routers, pulls `show run` and `show vlan brief` (to catch VLANs hidden in `vlan.dat`), sanitizes the output, and diffs it against the lab's solution file. Scores and feedback appear in seconds.

@@ -1,0 +1,109 @@
+lab:
+  id: ssh-hardening
+  title: Initial Device Configuration & SSH Hardening
+  topic: Network Fundamentals
+  difficulty: Beginner
+  estimated_time_minutes: 30
+  objective: 'Configure basic device hardening including hostnames, enable secrets, encrypted passwords, banners, and restrict virtual terminal lines to SSH only.'
+  prerequisites:
+  - Basic router navigation
+  - IP addressing
+  command_reference:
+  - command: hostname <name>
+    description: Set the device hostname
+  - command: enable secret <password>
+    description: Set the encrypted privileged exec password
+  - command: service password-encryption
+    description: Encrypt all plaintext passwords in the configuration
+  - command: banner motd # <message> #
+    description: Set the message of the day banner
+  - command: line console 0
+    description: Enter console line configuration mode
+  - command: ip domain-name <name>
+    description: Set the IP domain name (required for SSH)
+  - command: crypto key generate rsa modulus <size>
+    description: Generate RSA keys for SSH encryption
+  - command: username <name> secret <password>
+    description: Create a local user account
+  - command: line vty 0 4
+    description: Enter VTY line configuration mode
+  - command: transport input ssh
+    description: Restrict remote access to SSH only
+  nodes:
+  - name: R1
+    host: gns3-server
+    console_port: 5000
+    device_type: cisco_ios_telnet
+  - name: SW1
+    host: gns3-server
+    console_port: 5001
+    device_type: cisco_ios_telnet
+  - name: PC1
+    host: gns3-server
+    console_port: 5002
+    device_type: cisco_ios_telnet
+  tasks:
+  - id: 1
+    description: Set Hostnames & MOTD Banner
+    instructions: 'Configure the hostnames and set a Message of the Day (MOTD) banner on both the router and switch.
+
+      1. On **R1**, enter global configuration mode and set the hostname to `R1`.
+      2. Set the MOTD banner to exactly `Authorized Access Only` (surrounded by delimiter characters like `#`).
+      3. Repeat these steps on **SW1**.'
+    hint: Use `hostname R1` and `banner motd # Authorized Access Only #`.
+  - id: 2
+    description: Secure Enable & Console Access
+    instructions: 'Secure the privileged EXEC mode and console line on both R1 and SW1.
+
+      1. On **R1**, set the enable secret password to `Cisco123!`.
+      2. Secure the console line (`line console 0`) with the password `ConsolePass1` and require login.
+      3. Set the console timeout to 5 minutes (`exec-timeout 5 0`).
+      4. Enable the password encryption service (`service password-encryption`).
+      5. Repeat these exact steps on **SW1**.'
+    hint: Use `enable secret Cisco123!`, then `line console 0`, `password ConsolePass1`, `login`, and `exec-timeout 5 0`. Finally `service password-encryption` in global config.
+  - id: 3
+    description: Configure IP Addresses
+    instructions: 'The interfaces have been pre-configured, but it is important to verify them.
+
+      1. On **R1**, verify that `Ethernet0/0` is configured with IP `192.168.10.1/24` and is up.
+      2. On **SW1**, verify that `Vlan1` is configured with IP `192.168.10.2/24`, is up, and `ip default-gateway 192.168.10.1` is set.'
+    hint: Run `show ip interface brief` to check the interfaces.
+  - id: 4
+    description: Prepare for SSH
+    instructions: 'SSH requires a domain name and RSA keys to function. Perform these steps on both R1 and SW1.
+
+      1. On **R1**, set the domain name to `netlabx.local`.
+      2. Generate RSA keys with a modulus of 2048 bits.
+      3. Create a local user named `admin` with the secret password `Cisco123!`.
+      4. Enforce SSH version 2 (`ip ssh version 2`).
+      5. Repeat these steps on **SW1**.'
+    hint: Use `ip domain-name netlabx.local`, `crypto key generate rsa modulus 2048`, `username admin secret Cisco123!`, and `ip ssh version 2`.
+  - id: 5
+    description: Restrict VTY Lines
+    instructions: 'Now that SSH is prepared, restrict the VTY lines (0 through 4) to only allow SSH access, blocking Telnet.
+
+      1. On **R1**, enter VTY line config (`line vty 0 4`).
+      2. Restrict the input transport to SSH only.
+      3. Set it to use the local database for login authentication (`login local`).
+      4. Set the idle timeout to 10 minutes (`exec-timeout 10 0`).
+      5. Repeat these steps on **SW1**.'
+    hint: Under `line vty 0 4`, configure `transport input ssh`, `login local`, and `exec-timeout 10 0`.
+  - id: 6
+    description: Verification
+    instructions: 'Verify your configuration by SSHing into the devices.
+
+      1. Access the **PC1** terminal.
+      2. Ping R1 (`ping 192.168.10.1`) and SW1 (`ping 192.168.10.2`) to verify connectivity.
+      3. SSH into R1: `ssh -l admin 192.168.10.1`
+      4. SSH into SW1: `ssh -l admin 192.168.10.2`
+      5. Attempt to Telnet to R1 (`telnet 192.168.10.1`). It should be refused.'
+    hint: The SSH command syntax on Cisco routers is `ssh -l <username> <ip>`.
+  links:
+  - - SW1
+    - Ethernet0/1
+    - R1
+    - Ethernet0/0
+  - - PC1
+    - Ethernet0/0
+    - SW1
+    - Ethernet0/2

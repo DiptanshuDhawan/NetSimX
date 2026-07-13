@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 from db.database import get_db
-from services.gns3_service import start_lab_project, stop_lab_project, push_startup_config, get_gns3_server, get_node_console_port
+from services.gns3_service import start_lab_project, stop_lab_project, get_gns3_server, get_node_console_port
 import os
 import yaml
 import json
@@ -31,18 +31,7 @@ async def start_lab(lab_slug: str):
         conn.close()
         raise HTTPException(status_code=500, detail=f"Failed to start GNS3 project: {e}")
 
-    # Push startup configs
-    try:
-        with open(lab_yaml_path, "r") as f:
-            lab_def = yaml.safe_load(f)
 
-        for node in lab_def["lab"]["nodes"]:
-            config_path = os.path.join(LABS_DIR, lab_slug, "configs", f"{node['name']}-startup.cfg")
-            if os.path.exists(config_path):
-                push_startup_config(gns3_info["project_id"], node["name"], config_path)
-    except Exception as e:
-        import logging
-        logging.getLogger("netlabx.sessions").warning(f"Could not push startup configs: {e}")
 
     # Save session to DB
     cursor = conn.cursor()
@@ -58,7 +47,7 @@ async def start_lab(lab_slug: str):
         "session_id": session_id,
         "gns3_project_id": gns3_info["project_id"],
         "status": "running",
-        "message": "Lab started. Routers are booting, please wait ~60 seconds before connecting.",
+        "message": "Lab started. Terminals are connecting.",
     }
 
 
@@ -143,16 +132,7 @@ async def reset_session(session_id: int):
         from services.gns3_service import reset_lab_project
         reset_lab_project(session["gns3_project_id"])
 
-        # Re-push configs
-        lab_slug = session["lab_slug"]
-        lab_yaml_path = os.path.join(LABS_DIR, lab_slug, "lab.yaml")
-        with open(lab_yaml_path, "r") as f:
-            lab_def = yaml.safe_load(f)
 
-        for node in lab_def["lab"]["nodes"]:
-            config_path = os.path.join(LABS_DIR, lab_slug, "configs", f"{node['name']}-startup.cfg")
-            if os.path.exists(config_path):
-                push_startup_config(session["gns3_project_id"], node["name"], config_path)
                 
         return {"message": "Lab reset successfully."}
     except Exception as e:

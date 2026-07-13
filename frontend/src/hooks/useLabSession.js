@@ -215,7 +215,15 @@ export function useLabSession(slug) {
     if (!session) return;
     setIsGrading(true);
     try {
+      const startTime = Date.now();
       const report = await api.gradeSession(session.session_id);
+      
+      // Ensure the grading loading screen plays for at least 1.5 seconds
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 1500) {
+        await new Promise(resolve => setTimeout(resolve, 1500 - elapsed));
+      }
+
       setGradeReport(report);
       
       if (report.passed) {

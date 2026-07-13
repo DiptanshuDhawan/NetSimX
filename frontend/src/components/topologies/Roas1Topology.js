@@ -3,7 +3,7 @@ import RouterIcon from '../icons/RouterIcon';
 import SwitchIcon from '../icons/SwitchIcon';
 import PCIcon from '../icons/PCIcon';
 
-export default function InterVlanTopology({ activeNode }) {
+export default function Roas1Topology({ activeNode }) {
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
       <svg width="100%" height="100%" viewBox="0 0 800 380" style={{ fontFamily: 'Inter, sans-serif' }}>

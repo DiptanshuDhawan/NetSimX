@@ -2,11 +2,12 @@ import sqlite3
 import os
 import json
 
-DB_FILE = os.path.join(os.path.dirname(__file__), "netlabx.db")
+# Ensure db directory exists
+os.makedirs("db", exist_ok=True)
 
 def get_db():
     """Get a database connection and return rows as dictionaries."""
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect("db/netlabx.db")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -50,22 +51,41 @@ def init_db():
     );
     """)
     
-    # Insert a dummy lab if the table is empty
+    # Auto-discover labs from the labs/ directory
+    import glob
+    import yaml
+    
+    # labs directory might be ../labs or ./labs depending on how backend is run
+    labs_dir = os.environ.get("LABS_DIR", "../labs")
+    
+    # Check if labs table is empty
     cursor.execute("SELECT COUNT(*) FROM labs")
     if cursor.fetchone()[0] == 0:
-        cursor.execute("""
-        INSERT INTO labs (slug, title, topic, difficulty, description, gns3_project_path, yaml_path)
-        VALUES (
-            'ospf-basic', 
-            'Basic OSPF Configuration', 
-            'OSPF', 
-            'Beginner', 
-            'Configure a basic OSPF adjacency between two routers.',
-            '/root/GNS3/projects/0487245c-23b3-4b2d-8346-22ece7856a99',
-            '../labs/ospf-basic/lab.yaml'
-        )
-        """)
-    
+        if os.path.exists(labs_dir):
+            for lab_path in glob.glob(os.path.join(labs_dir, "*", "lab.yaml")):
+                lab_slug = os.path.basename(os.path.dirname(lab_path))
+                
+                # Load metadata from yaml
+                try:
+                    with open(lab_path, "r") as f:
+                        lab_def = yaml.safe_load(f).get("lab", {})
+                        
+                    cursor.execute("""
+                    INSERT INTO labs (slug, title, topic, difficulty, description, yaml_path)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """, (
+                        lab_slug,
+                        lab_def.get("title", lab_slug.replace("-", " ").title()),
+                        lab_def.get("topic", "Networking"),
+                        lab_def.get("difficulty", "Beginner"),
+                        lab_def.get("objective", "Complete the lab objectives."),
+                        lab_path
+                    ))
+                except Exception as e:
+                    print(f"Error loading {lab_slug}: {e}")
+        else:
+            print(f"Warning: Labs directory {labs_dir} not found. No initial labs loaded.")
+            
     conn.commit()
     conn.close()
 

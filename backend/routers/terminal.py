@@ -12,6 +12,7 @@ async def terminal_websocket(
     session_id: int,
     node_name: str,
 ):
+    await websocket.accept()
     conn = get_db()
     session_row = conn.execute("SELECT gns3_project_id FROM lab_sessions WHERE id = ?", (session_id,)).fetchone()
     conn.close()

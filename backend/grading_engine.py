@@ -93,13 +93,31 @@ class BaseGrader:
             expected_set = self.sanitize_config(solution_text)
             actual_set = self.sanitize_config(actual_text)
             
-            missing_lines = expected_set - actual_set
+            missing_lines = []
+            for expected_line in expected_set:
+                matched = False
+                exp_norm = " ".join(expected_line.split()).lower()
+                for actual_line in actual_set:
+                    act_norm = " ".join(actual_line.split()).lower()
+                    if exp_norm == act_norm:
+                        matched = True
+                        break
+                    # If expected is a subcommand without context (e.g. "ip address 1.1.1.1 255.255.255.0")
+                    # but actual has context (e.g. "interface ethernet0/0 -> ip address 1.1.1.1 255.255.255.0")
+                    if " -> " in act_norm:
+                        parts = act_norm.split(" -> ", 1)
+                        if len(parts) == 2 and exp_norm == parts[1].strip():
+                            matched = True
+                            break
+                if not matched:
+                    missing_lines.append(expected_line)
+
             passed = len(missing_lines) == 0
 
             return {
                 "node": self.node_name,
                 "passed": passed,
-                "missing_lines": list(missing_lines)
+                "missing_lines": missing_lines
             }
         except (NetMikoTimeoutException, ConnectionRefusedError) as e:
             logger.error(f"Connection failed for {self.node_name}: {e}")
@@ -117,16 +135,18 @@ class IOSGrader(BaseGrader):
         """Override to also fetch VLAN database for Cisco IOS devices."""
         actual_text = super().fetch_actual_config(connection)
         
-        try:
-            vlan_text = connection.send_command("show vlan brief", read_timeout=10)
-            for line in vlan_text.splitlines():
-                parts = line.strip().split()
-                if parts and parts[0].isdigit():
-                    vid = int(parts[0])
-                    if vid not in [1, 1002, 1003, 1004, 1005]:
-                        actual_text += f"\nvlan {vid}\n"
-        except Exception as e:
-            logger.warning(f"Failed to fetch VLANs for {self.node_name}: {e}")
+        device_type = self.node_config.get("device_type", "")
+        if "cisco_iol_l2" in device_type:
+            try:
+                vlan_text = connection.send_command("show vlan brief", read_timeout=10)
+                for line in vlan_text.splitlines():
+                    parts = line.strip().split()
+                    if parts and parts[0].isdigit():
+                        vid = int(parts[0])
+                        if vid not in [1, 1002, 1003, 1004, 1005]:
+                            actual_text += f"\nvlan {vid}\n"
+            except Exception as e:
+                logger.warning(f"Failed to fetch VLANs for {self.node_name}: {e}")
             
         return actual_text
 

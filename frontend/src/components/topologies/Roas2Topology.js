@@ -3,7 +3,7 @@ import RouterIcon from '../icons/RouterIcon';
 import SwitchIcon from '../icons/SwitchIcon';
 import PCIcon from '../icons/PCIcon';
 
-export default function ComprehensiveTopology({ activeNode }) {
+export default function Roas2Topology({ activeNode }) {
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
       <svg width="100%" height="100%" viewBox="0 0 800 450" style={{ fontFamily: 'Inter, sans-serif' }}>

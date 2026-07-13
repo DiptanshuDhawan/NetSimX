@@ -182,16 +182,7 @@ export default function Dashboard() {
             );
           })}
           
-          {/* Coming Soon Placeholder */}
-          <div className="nx-category-card" style={{ borderStyle: 'dashed', borderColor: 'rgba(255, 255, 255, 0.1)', opacity: 0.6, cursor: 'default', background: 'transparent' }}>
-            <div className="nx-category-icon-badge" style={{ background: 'rgba(255, 255, 255, 0.03)', boxShadow: 'none' }}>
-              <MoreHorizontal size={22} className="nx-category-card-icon" />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-              <span className="nx-category-card-title">More Topics</span>
-              <span className="nx-category-card-count">Coming Soon</span>
-            </div>
-          </div>
+
         </div>
 
         {/* Divider */}
