@@ -257,8 +257,8 @@ export default function Dashboard() {
         
         <footer style={{ marginTop: 'auto', paddingTop: '48px', paddingBottom: '24px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '20px', height: '20px', background: 'var(--text-muted)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: 'var(--bg-base)', fontWeight: 700 }}>N</div>
-            <span>NetLabX v1.0.0</span>
+            <div style={{ width: '20px', height: '20px', background: 'var(--text-muted)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: 'var(--bg-base)', fontWeight: 700 }}>I</div>
+            <span>InstantNodes v1.0.0</span>
           </div>
           <div>Real Network Emulation Platform</div>
         </footer>
