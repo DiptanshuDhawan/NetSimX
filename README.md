@@ -1,6 +1,6 @@
 <div align="center">
 
-# NetLabX
+# InstantNodes
 
 **A browser-based CCNA training academy — no VMs, no clunky desktop tools, no friction.**
 
@@ -18,11 +18,11 @@ Configure real Cisco routers and switches from your browser. Get graded automati
 
 ---
 
-## Why NetLabX?
+## Why InstantNodes?
 
 Packet Tracer is closed-source and cartoonish. GNS3 is powerful but hands you a blank canvas and a wall of setup steps. Neither one tells you whether your configuration is actually *correct*.
 
-NetLabX is built around one idea: **a lab isn't done when you finish typing commands — it's done when something checks your work.**
+InstantNodes is built around one idea: **a lab isn't done when you finish typing commands — it's done when something checks your work.**
 
 You get curated, step-by-step labs (Inter-VLAN Routing, Router-on-a-Stick, trunking, and more), a real browser-based terminal wired straight into emulated Cisco gear, and an automated grading engine that logs into your devices, reads the running config, and scores you against a known-good solution — instantly, no instructor required.
 
@@ -52,10 +52,10 @@ Everything runs in Docker. Clone the repo, drop in your own Cisco images, and yo
 
 ## Architecture
 
-NetLabX runs as three coordinated Docker containers, all orchestrated locally on your machine — nothing leaves your network.
+InstantNodes runs as three coordinated Docker containers, all orchestrated locally on your machine — nothing leaves your network.
 
 <div align="center">
-  <img src="docs/architecture.png" alt="NetLabX Architecture Diagram" width="800">
+  <img src="docs/architecture.png" alt="InstantNodes Architecture Diagram" width="800">
 </div>
 
 | Layer | Technology | Responsibility |
@@ -76,7 +76,7 @@ Each lab is defined by a `lab.yaml` file paired with a `solution.cfg`, so adding
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Mac, Windows, or Linux)
 - Your own legally-obtained Cisco IOS/IOL `.bin` or `.image` file(s)
 
-> **A note on Cisco images:** Cisco IOS/IOL images are copyrighted software and are **not** distributed with this project. NetLabX only provides the platform — you must supply your own images.
+> **A note on Cisco images:** Cisco IOS/IOL images are copyrighted software and are **not** distributed with this project. InstantNodes only provides the platform — you must supply your own images.
 
 ### 1. Clone the repository
 
@@ -140,7 +140,7 @@ labs/
 
 ## Project Status
 
-NetLabX is in **active beta**. The core platform is functional end-to-end:
+InstantNodes is in **active beta**. The core platform is functional end-to-end:
 
 - ✅ Grading Engine handles complex configurations (ROAS, trunking, inter-VLAN routing)
 - ✅ Full Docker Compose stack, with `.dockerignore` tuned for lean images
