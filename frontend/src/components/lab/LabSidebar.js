@@ -85,7 +85,7 @@ export default function LabSidebar({
                     className={`nx-tree-item ${l.slug === slug ? 'selected' : ''}`}
                     onClick={() => router.push(`/labs/${l.slug}`)}
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: '4px', opacity: 0.8 }}><path d="m7 11 2-2-2-2"/><path d="M11 13h4"/><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
                     <span>{l.title}</span>
                   </div>
                 ))
