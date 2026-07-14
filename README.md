@@ -41,7 +41,7 @@ graph TD
 ### Prerequisites
 
 - Docker Desktop
-- Legally-obtained Cisco IOS/IOL `.bin` or `.image` files
+- Cisco IOS/IOL `.bin` or `.image` files
 
 > **Note:** Cisco images are not distributed with this project. You must supply your own images.
 
