@@ -86,7 +86,7 @@ export default function LabSidebar({
                     onClick={() => router.push(`/labs/${l.slug}`)}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: '4px', opacity: 0.8 }}><path d="m7 11 2-2-2-2"/><path d="M11 13h4"/><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
-                    <span>{l.title}</span>
+                    <span style={{ fontSize: '13px', letterSpacing: '0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.title}</span>
                   </div>
                 ))
               )}

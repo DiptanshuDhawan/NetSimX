@@ -102,8 +102,8 @@ export default function TerminalPanel({
                     <line x1="12" y1="16" x2="16" y2="16"/>
                   </svg>
                 </div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: 15, fontWeight: 500, marginBottom: 6 }}>Environment Offline</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Press the play button to start the lab session</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 14, letterSpacing: '0.5px', marginBottom: 6 }}>ENVIRONMENT OFFLINE</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: 13, letterSpacing: '0.5px' }}>PRESS THE PLAY BUTTON TO START THE LAB SESSION</div>
               </>
             )}
           </div>
