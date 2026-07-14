@@ -54,9 +54,20 @@ Everything runs in Docker. Clone the repo, drop in your own Cisco images, and yo
 
 InstantNodes runs as three coordinated Docker containers, all orchestrated locally on your machine — nothing leaves your network.
 
-<div align="center">
-  <img src="docs/architecture.png" alt="InstantNodes Architecture Diagram" width="800">
-</div>
+```mermaid
+graph TD
+    User([User Browser]) -->|HTTP / WebSocket| Frontend[React & Next.js Frontend]
+    
+    Frontend -->|REST API| Backend[FastAPI Backend]
+    
+    Backend -->|gns3fy API| GNS3[GNS3 Server Container]
+    Backend -->|netmiko SSH| GNS3
+    
+    GNS3 -->|Boots IOS/IOL| Routers((Emulated Devices))
+    
+    Backend -.->|Reads / Writes| DB[(SQLite Database)]
+    Backend -.->|Reads| Labs[YAML Lab Definitions]
+```
 
 | Layer | Technology | Responsibility |
 |---|---|---|
