@@ -65,10 +65,10 @@ export default function Dashboard() {
           
           {/* Center: Reconstructed Text Logo */}
           <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer' }} onClick={() => router.push('/')}>
-            <span style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '0.25em', color: '#FFFFFF', lineHeight: 1, paddingLeft: '0.25em' }}>REVELIO</span>
+            <span style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '0.25em', color: '#FFFFFF', lineHeight: 1, paddingLeft: '0.25em' }}>INSTANT</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
               <div style={{ height: '2px', flex: 1, backgroundColor: '#0284c7', borderRadius: '2px' }}></div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.5em', color: '#0284c7', lineHeight: 1, paddingLeft: '0.5em' }}>LABS</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.5em', color: '#0284c7', lineHeight: 1, paddingLeft: '0.5em' }}>NODES</span>
               <div style={{ height: '2px', flex: 1, backgroundColor: '#0284c7', borderRadius: '2px' }}></div>
             </div>
           </div>

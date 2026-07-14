@@ -22,10 +22,10 @@ export default function TopNav({
       {/* Left: logo + breadcrumbs */}
       <div className="nx-brand">
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer' }} onClick={() => router.push('/')}>
-          <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '0.2em', color: '#FFFFFF', lineHeight: 1, paddingLeft: '0.2em' }}>REVELIO</span>
+          <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '0.2em', color: '#FFFFFF', lineHeight: 1, paddingLeft: '0.2em' }}>INSTANT</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
             <div style={{ height: '2px', flex: 1, backgroundColor: '#0284c7', borderRadius: '2px' }}></div>
-            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.4em', color: '#0284c7', lineHeight: 1, paddingLeft: '0.4em' }}>LABS</span>
+            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.4em', color: '#0284c7', lineHeight: 1, paddingLeft: '0.4em' }}>NODES</span>
             <div style={{ height: '2px', flex: 1, backgroundColor: '#0284c7', borderRadius: '2px' }}></div>
           </div>
         </div>

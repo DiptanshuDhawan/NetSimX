@@ -1,7 +1,7 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Revelio Labs',
+  title: 'InstantNodes',
   description: 'Interactive network lab emulation platform.',
 };
 
