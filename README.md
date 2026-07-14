@@ -10,6 +10,12 @@ InstantNodes is a browser-based CCNA lab environment running on top of GNS3. It 
 
 ## Overview
 
+<div align="center">
+  <img src="docs/dashboard.png" alt="InstantNodes Dashboard" width="800">
+  <br>
+  <img src="docs/lab_terminal.png" alt="InstantNodes Lab UI with Terminal" width="800">
+</div>
+
 Setting up traditional network emulators can be frustrating and time-consuming. InstantNodes solves this by containerizing GNS3 and exposing a React frontend. You supply your own Cisco IOS/IOL images, and the platform handles the rest.
 
 - **Automated Grading Engine**: Configures devices in-browser. The Python backend (using Netmiko) connects via SSH, pulls running configurations, and evaluates them against a known-good solution file.
