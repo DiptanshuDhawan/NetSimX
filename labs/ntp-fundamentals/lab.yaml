@@ -1,6 +1,6 @@
 lab:
   id: ntp-fundamentals
-  title: NTP Fundamentals
+  title: "Lab 03 — NTP & Clock Synchronization"
   topic: NTP
   difficulty: Intermediate
   estimated_time_minutes: 30

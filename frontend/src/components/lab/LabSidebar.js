@@ -8,10 +8,11 @@ export default function LabSidebar({
 }) {
   const router = useRouter();
   
-  const [sidebarTopHeight, setSidebarTopHeight] = useState(25);
+  const [sidebarTopHeight, setSidebarTopHeight] = useState(30);
   const [isCommandSummaryOpen, setIsCommandSummaryOpen] = useState(false);
   const [isLabContentOpen, setIsLabContentOpen] = useState(true);
   const [isLabInstructionsOpen, setIsLabInstructionsOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const isSidebarDragging = useRef(false);
   const sidebarRef = useRef(null);
@@ -47,11 +48,11 @@ export default function LabSidebar({
     };
   }, []);
 
-  const topics = {};
-  allLabs.forEach(l => {
-    if (!topics[l.topic]) topics[l.topic] = [];
-    topics[l.topic].push(l);
-  });
+  const sortedLabs = [...allLabs].sort((a, b) => a.title.localeCompare(b.title));
+
+  const filteredLabs = searchQuery.trim()
+    ? sortedLabs.filter(l => l.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    : sortedLabs;
 
   return (
     <aside className="nx-sidebar-left nx-card" ref={sidebarRef}>
@@ -66,25 +67,29 @@ export default function LabSidebar({
             <div className="nx-search-wrap" style={{ flexShrink: 0 }}>
               <div className="nx-search-inner">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search Labs..." />
+                <input
+                  type="text"
+                  placeholder="Search Labs..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
               </div>
             </div>
             <div style={{ flex: 1, overflowY: 'auto' }}>
-              {Object.entries(topics).map(([topic, topicLabs]) => (
-              <div key={topic}>
-                <div className="nx-tree-section-label">{topic}</div>
-                {topicLabs.map(l => (
+              {filteredLabs.length === 0 ? (
+                <div style={{ padding: '12px 16px', color: 'var(--text-muted)', fontSize: '13px' }}>No labs found.</div>
+              ) : (
+                filteredLabs.map(l => (
                   <div
                     key={l.slug}
                     className={`nx-tree-item ${l.slug === slug ? 'selected' : ''}`}
                     onClick={() => router.push(`/labs/${l.slug}`)}
                   >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
                     <span>{l.title}</span>
                   </div>
-                ))}
-              </div>
-            ))}
+                ))
+              )}
             </div>
           </>
         )}

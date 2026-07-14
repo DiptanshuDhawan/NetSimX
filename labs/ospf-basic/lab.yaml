@@ -1,6 +1,6 @@
 lab:
   id: ospf-basic
-  title: Basic OSPF Configuration
+  title: "Lab 02 — OSPF Fundamentals"
   topic: OSPF
   difficulty: Beginner
   estimated_time_minutes: 30

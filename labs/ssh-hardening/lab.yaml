@@ -1,6 +1,6 @@
 lab:
   id: ssh-hardening
-  title: Initial Device Configuration & SSH Hardening
+  title: "Lab 01 — Device Hardening & SSH"
   topic: Network Fundamentals
   difficulty: Beginner
   estimated_time_minutes: 30

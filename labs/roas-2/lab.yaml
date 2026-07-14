@@ -1,6 +1,6 @@
 lab:
   id: comprehensive-lab
-  title: ROAS 2
+  title: "Lab 05 — Router on a Stick II"
   topic: Routing & Switching
   difficulty: Advanced
   estimated_time_minutes: 60

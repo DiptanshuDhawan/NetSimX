@@ -18,7 +18,7 @@ export default function LabEnvironment({ params }) {
 
   return (
     <>
-      <div key={slug} className="nx-layout nx-fade-in">
+      <div key={slug} className="nx-layout">
         <TopNav 
           session={sessionData.session}
           isBooting={sessionData.isBooting}

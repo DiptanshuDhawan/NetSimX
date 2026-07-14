@@ -1,6 +1,6 @@
 lab:
   id: inter-vlan-routing
-  title: ROAS 1
+  title: "Lab 04 — Router on a Stick I"
   topic: Switching & Routing
   difficulty: Intermediate
   estimated_time_minutes: 40

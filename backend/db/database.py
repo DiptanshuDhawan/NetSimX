@@ -51,41 +51,42 @@ def init_db():
     );
     """)
     
-    # Auto-discover labs from the labs/ directory
+    # Always sync labs from YAML files (upsert so title changes are reflected)
     import glob
     import yaml
     
-    # labs directory might be ../labs or ./labs depending on how backend is run
     labs_dir = os.environ.get("LABS_DIR", "../labs")
     
-    # Check if labs table is empty
-    cursor.execute("SELECT COUNT(*) FROM labs")
-    if cursor.fetchone()[0] == 0:
-        if os.path.exists(labs_dir):
-            for lab_path in glob.glob(os.path.join(labs_dir, "*", "lab.yaml")):
-                lab_slug = os.path.basename(os.path.dirname(lab_path))
-                
-                # Load metadata from yaml
-                try:
-                    with open(lab_path, "r") as f:
-                        lab_def = yaml.safe_load(f).get("lab", {})
-                        
-                    cursor.execute("""
-                    INSERT INTO labs (slug, title, topic, difficulty, description, yaml_path)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    """, (
-                        lab_slug,
-                        lab_def.get("title", lab_slug.replace("-", " ").title()),
-                        lab_def.get("topic", "Networking"),
-                        lab_def.get("difficulty", "Beginner"),
-                        lab_def.get("objective", "Complete the lab objectives."),
-                        lab_path
-                    ))
-                except Exception as e:
-                    print(f"Error loading {lab_slug}: {e}")
-        else:
-            print(f"Warning: Labs directory {labs_dir} not found. No initial labs loaded.")
+    if os.path.exists(labs_dir):
+        for lab_path in glob.glob(os.path.join(labs_dir, "*", "lab.yaml")):
+            lab_slug = os.path.basename(os.path.dirname(lab_path))
             
+            try:
+                with open(lab_path, "r") as f:
+                    lab_def = yaml.safe_load(f).get("lab", {})
+                    
+                cursor.execute("""
+                INSERT INTO labs (slug, title, topic, difficulty, description, yaml_path)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(slug) DO UPDATE SET
+                    title = excluded.title,
+                    topic = excluded.topic,
+                    difficulty = excluded.difficulty,
+                    description = excluded.description,
+                    yaml_path = excluded.yaml_path
+                """, (
+                    lab_slug,
+                    lab_def.get("title", lab_slug.replace("-", " ").title()),
+                    lab_def.get("topic", "Networking"),
+                    lab_def.get("difficulty", "Beginner"),
+                    lab_def.get("objective", "Complete the lab objectives."),
+                    lab_path
+                ))
+            except Exception as e:
+                print(f"Error loading {lab_slug}: {e}")
+    else:
+        print(f"Warning: Labs directory {labs_dir} not found. No labs loaded.")
+        
     conn.commit()
     conn.close()
 
