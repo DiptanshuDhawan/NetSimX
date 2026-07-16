@@ -31,51 +31,87 @@ class BaseGrader:
         lines = []
         current_context = ""
         import re
+
+        # IOS boilerplate lines that vary by image/version — never grade these
+        SKIP_PREFIXES = (
+            "Building configuration", "Current configuration",
+            "ntp clock-period", "Last configuration change",
+            "version ", "boot-start-marker", "boot-end-marker",
+            # AAA/model lines differ between IOS versions
+            "no aaa new-model", "aaa new-model",
+            # HTTP server lines differ
+            "no ip http", "ip http",
+            # IPv6 defaults differ
+            "no ipv6 cef", "ip cef", "ipv6 multicast", "ipv6 unicast",
+            # STP config varies by image
+            "spanning-tree",
+            # VLAN database lines (L2 switch boilerplate)
+            "vlan internal",
+            # Control plane lines
+            "control-plane",
+            # Interface defaults — duplex/speed auto are defaults, not graded
+            "duplex auto", "duplex full", "duplex half",
+            "speed auto",
+            # Timestamp/logging defaults differ
+            "service timestamps", "service compress-config",
+            "logging synchronous",
+            # Memory/hardware lines
+            "no ip domain lookup",
+        )
+
         for line in config_text.splitlines():
             stripped = line.strip()
 
-            # Skip blank lines, comments, and boilerplate
-            if not stripped:
+            # Skip blank lines and comments
+            if not stripped or stripped.startswith("!"):
                 continue
-            if stripped.startswith("!"):
-                continue
-            skip_prefixes = (
-                "Building configuration", "Current configuration",
-                "ntp clock-period", "Last configuration change",
-                "version ", "boot-start-marker", "boot-end-marker",
-                "no aaa new-model", "no ip http", "no ipv6 cef",
-                "ip cef", "ipv6 multicast", "spanning-tree",
-                "vlan internal", "control-plane", "duplex auto",
-                "service timestamps", "service compress-config",
-                "logging synchronous",
-            )
-            if any(stripped.startswith(p) for p in skip_prefixes):
+            if any(stripped.startswith(p) for p in SKIP_PREFIXES):
                 continue
             if stripped == "end":
                 continue
             if "NVRAM" in stripped or "bytes" in stripped:
                 continue
 
-            # --- Normalizations ---
-            # Normalize secret/password: strip type digit AND hash value entirely
-            # Also handles plaintext form (from solution files): "enable secret Cisco123!" -> "enable secret"
+            # ── Normalizations ──────────────────────────────────────────────
+
+            # 1. Secrets / passwords — strip type digit AND value entirely.
+            #    Handles: plaintext (solution files), type-5 MD5, type-4 SHA256,
+            #    type-7 Vigenere, type-8/9 PBKDF2 — all collapse to the same key.
             stripped = re.sub(r'\benable secret\b.*', 'enable secret', stripped)
+            stripped = re.sub(r'\busername (\S+) privilege \d+', r'username \1', stripped)
             stripped = re.sub(r'\busername (\S+) secret\b.*', r'username \1 secret', stripped)
-            # Hashed form: "password 7 <hash>" -> "password"
+            stripped = re.sub(r'\busername (\S+) password\b.*', r'username \1 password', stripped)
             stripped = re.sub(r'\bpassword \d+ \S+', 'password', stripped)
             stripped = re.sub(r'\bsecret \d+ \S+', 'secret', stripped)
-            # Plaintext form (solution files): "password ConsolePass1" -> "password"
             stripped = re.sub(r'\bpassword \S+', 'password', stripped)
 
-            # Normalize banner: ignore delimiter and message content
+            # 2. Banner — ignore delimiter character and message text entirely
             stripped = re.sub(r'^banner motd .*', 'banner motd', stripped)
 
-            # Normalize line abbreviations: IOS writes "line con 0" in show run
-            stripped = re.sub(r'^line con 0$', 'line con 0', stripped)
+            # 3. Line name abbreviations — IOS uses "line con 0" in show run
+            #    but humans write "line console 0". Normalise both to "line con 0".
             stripped = re.sub(r'^line console 0$', 'line con 0', stripped)
-            stripped = re.sub(r'^line aux 0$', 'line aux 0', stripped)
 
-            # Track context for sub-commands (indented lines)
+            # 4. Interface name normalization — IOS expands abbreviations in show run.
+            #    e.g. "int e0/0" -> "interface Ethernet0/0" -> normalise to lowercase short form.
+            def normalise_iface(m):
+                name = m.group(1).lower()
+                # Expand common abbreviations to full name
+                replacements = [
+                    (r'^et?h?e?r?n?e?t?(\d)', r'ethernet\1'),
+                    (r'^fa?s?t?e?t?h?e?r?n?e?t?(\d)', r'fastethernet\1'),
+                    (r'^gi?g?a?b?i?t?e?t?h?e?r?n?e?t?(\d)', r'gigabitethernet\1'),
+                    (r'^se?r?i?a?l?(\d)', r'serial\1'),
+                    (r'^lo?o?p?b?a?c?k?(\d)', r'loopback\1'),
+                    (r'^vl?a?n?(\d)', r'vlan\1'),
+                    (r'^tu?n?n?e?l?(\d)', r'tunnel\1'),
+                ]
+                for pattern, repl in replacements:
+                    name = re.sub(pattern, repl, name)
+                return 'interface ' + name
+            stripped = re.sub(r'^interface (\S+)$', normalise_iface, stripped, flags=re.IGNORECASE)
+
+            # ── Context tracking (indented subcommands) ──────────────────────
             if line.startswith(" ") or line.startswith("\t"):
                 if current_context:
                     lines.append(f"{current_context} -> {stripped}")
