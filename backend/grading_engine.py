@@ -40,9 +40,12 @@ class BaseGrader:
                 continue
 
             # Normalize hashed passwords and banners to ignore salts and delimiters
-            stripped = re.sub(r'(secret \d+) .*', r'\1', stripped)
-            stripped = re.sub(r'(password \d+) .*', r'\1', stripped)
+            stripped = re.sub(r'secret \d+ .*', r'secret', stripped)
+            stripped = re.sub(r'password \d+ .*', r'password', stripped)
             stripped = re.sub(r'^banner motd .*', r'banner motd', stripped)
+
+            if stripped == "line con 0":
+                stripped = "line console 0"
 
             if line.startswith(" ") or line.startswith("\t"):
                 if current_context:
