@@ -87,10 +87,9 @@ lab:
     instructions: 'Now that SSH is prepared, restrict the VTY lines (0 through 4) on R1 to only allow SSH access, blocking Telnet.
 
       1. On **R1**, enter VTY line config (`line vty 0 4`).
-      2. Restrict the input transport to SSH only.
-      3. Set it to use the local database for login authentication (`login local`).
-      4. Set the idle timeout to 10 minutes (`exec-timeout 10 0`).'
-    hint: Under `line vty 0 4`, configure `transport input ssh`, `login local`, and `exec-timeout 10 0`.
+      2. Restrict the input transport to SSH only (`transport input ssh`).
+      3. Set it to use the local database for login authentication (`login local`).'
+    hint: Under `line vty 0 4`, configure `transport input ssh` and `login local`.
   - id: 6
     description: Verification
     instructions: 'Verify your configuration by SSHing into the router.
