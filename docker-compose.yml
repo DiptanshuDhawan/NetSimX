@@ -39,7 +39,7 @@ services:
     privileged: true
     ports:
       - "3080:3080"
-      - "5000-5100:5000-5100" # Console ports for IOU/IOL devices
+      - "5000-5040:5000-5040" # Console ports for IOU/IOL devices
     volumes:
       # Mount images folder directly so users can drop Cisco images here
       - ./images:/root/GNS3/images/IOU
