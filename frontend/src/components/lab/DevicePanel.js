@@ -42,9 +42,9 @@ export default function DevicePanel({
     setOpenCategories(prev => ({ ...prev, [cat]: !prev[cat] }));
   };
 
-  const routers = lab?.nodes?.filter(n => n.device_type === 'cisco_ios_telnet' || n.device_type === 'cisco_ios') || [];
-  const switches = lab?.nodes?.filter(n => n.device_type === 'cisco_iol_l2') || [];
-  const endHosts = lab?.nodes?.filter(n => n.device_type === 'linux' || n.device_type === 'vpcs') || [];
+  const routers = lab?.nodes?.filter(n => (n.device_type === 'cisco_ios_telnet' || n.device_type === 'cisco_ios') && !n.name.startsWith('PC')) || [];
+  const switches = lab?.nodes?.filter(n => n.device_type === 'cisco_iol_l2' && !n.name.startsWith('PC')) || [];
+  const endHosts = lab?.nodes?.filter(n => n.device_type === 'linux' || n.device_type === 'vpcs' || n.name.startsWith('PC')) || [];
 
   return (
     <aside className="nx-sidebar-right nx-card">
