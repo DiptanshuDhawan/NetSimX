@@ -63,11 +63,12 @@ lab:
     hint: Use `enable secret Cisco123!`, then `line console 0`, `password ConsolePass1`, `login`, and `exec-timeout 5 0`. Finally `service password-encryption` in global config.
   - id: 3
     description: Configure IP Addresses
-    instructions: 'The interfaces have been pre-configured, but it is important to verify them.
+    instructions: 'Configure the IP addresses and default gateway so the devices can communicate.
 
-      1. On **R1**, verify that `Ethernet0/0` is configured with IP `192.168.10.1/24` and is up.
-      2. On **SW1**, verify that `Vlan1` is configured with IP `192.168.10.2/24`, is up, and `ip default-gateway 192.168.10.1` is set.'
-    hint: Run `show ip interface brief` to check the interfaces.
+      1. On **R1**, configure `Ethernet0/0` with IP address `192.168.10.1 255.255.255.0` and enable it.
+      2. On **SW1**, configure interface `Vlan1` with IP address `192.168.10.2 255.255.255.0` and enable it.
+      3. On **SW1**, set the default gateway to `192.168.10.1`.'
+    hint: Use `interface e0/0`, `ip address <ip> <mask>`, and `no shutdown`. On the switch use `ip default-gateway <ip>` in global config.
   - id: 4
     description: Prepare for SSH
     instructions: 'SSH requires a domain name and RSA keys to function. Perform these steps on both R1 and SW1.
