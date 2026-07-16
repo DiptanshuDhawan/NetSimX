@@ -30,6 +30,7 @@ class BaseGrader:
     def sanitize_config(self, config_text: str) -> set:
         lines = []
         current_context = ""
+        import re
         for line in config_text.splitlines():
             stripped = line.strip()
             if not stripped or stripped.startswith("!") or stripped.startswith("Building configuration") \
@@ -37,6 +38,11 @@ class BaseGrader:
                     or "NVRAM" in stripped or "bytes" in stripped or stripped.startswith("Last configuration change") \
                     or stripped.startswith("version") or stripped == "end":
                 continue
+
+            # Normalize hashed passwords and banners to ignore salts and delimiters
+            stripped = re.sub(r'(secret \d+) .*', r'\1', stripped)
+            stripped = re.sub(r'(password \d+) .*', r'\1', stripped)
+            stripped = re.sub(r'^banner motd .*', r'banner motd', stripped)
 
             if line.startswith(" ") or line.startswith("\t"):
                 if current_context:
