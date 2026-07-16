@@ -58,10 +58,14 @@ class BaseGrader:
 
             # --- Normalizations ---
             # Normalize secret/password: strip type digit AND hash value entirely
+            # Also handles plaintext form (from solution files): "enable secret Cisco123!" -> "enable secret"
             stripped = re.sub(r'\benable secret\b.*', 'enable secret', stripped)
             stripped = re.sub(r'\busername (\S+) secret\b.*', r'username \1 secret', stripped)
+            # Hashed form: "password 7 <hash>" -> "password"
             stripped = re.sub(r'\bpassword \d+ \S+', 'password', stripped)
             stripped = re.sub(r'\bsecret \d+ \S+', 'secret', stripped)
+            # Plaintext form (solution files): "password ConsolePass1" -> "password"
+            stripped = re.sub(r'\bpassword \S+', 'password', stripped)
 
             # Normalize banner: ignore delimiter and message content
             stripped = re.sub(r'^banner motd .*', 'banner motd', stripped)
