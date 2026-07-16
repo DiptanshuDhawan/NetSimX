@@ -33,20 +33,45 @@ class BaseGrader:
         import re
         for line in config_text.splitlines():
             stripped = line.strip()
-            if not stripped or stripped.startswith("!") or stripped.startswith("Building configuration") \
-                    or stripped.startswith("Current configuration") or stripped.startswith("ntp clock-period") \
-                    or "NVRAM" in stripped or "bytes" in stripped or stripped.startswith("Last configuration change") \
-                    or stripped.startswith("version") or stripped == "end":
+
+            # Skip blank lines, comments, and boilerplate
+            if not stripped:
+                continue
+            if stripped.startswith("!"):
+                continue
+            skip_prefixes = (
+                "Building configuration", "Current configuration",
+                "ntp clock-period", "Last configuration change",
+                "version ", "boot-start-marker", "boot-end-marker",
+                "no aaa new-model", "no ip http", "no ipv6 cef",
+                "ip cef", "ipv6 multicast", "spanning-tree",
+                "vlan internal", "control-plane", "duplex auto",
+                "service timestamps", "service compress-config",
+                "logging synchronous",
+            )
+            if any(stripped.startswith(p) for p in skip_prefixes):
+                continue
+            if stripped == "end":
+                continue
+            if "NVRAM" in stripped or "bytes" in stripped:
                 continue
 
-            # Normalize hashed passwords and banners to ignore salts and delimiters
-            stripped = re.sub(r'secret \d+ .*', r'secret', stripped)
-            stripped = re.sub(r'password \d+ .*', r'password', stripped)
-            stripped = re.sub(r'^banner motd .*', r'banner motd', stripped)
+            # --- Normalizations ---
+            # Normalize secret/password: strip type digit AND hash value entirely
+            stripped = re.sub(r'\benable secret\b.*', 'enable secret', stripped)
+            stripped = re.sub(r'\busername (\S+) secret\b.*', r'username \1 secret', stripped)
+            stripped = re.sub(r'\bpassword \d+ \S+', 'password', stripped)
+            stripped = re.sub(r'\bsecret \d+ \S+', 'secret', stripped)
 
-            if stripped == "line con 0":
-                stripped = "line console 0"
+            # Normalize banner: ignore delimiter and message content
+            stripped = re.sub(r'^banner motd .*', 'banner motd', stripped)
 
+            # Normalize line abbreviations: IOS writes "line con 0" in show run
+            stripped = re.sub(r'^line con 0$', 'line con 0', stripped)
+            stripped = re.sub(r'^line console 0$', 'line con 0', stripped)
+            stripped = re.sub(r'^line aux 0$', 'line aux 0', stripped)
+
+            # Track context for sub-commands (indented lines)
             if line.startswith(" ") or line.startswith("\t"):
                 if current_context:
                     lines.append(f"{current_context} -> {stripped}")
@@ -55,6 +80,7 @@ class BaseGrader:
             else:
                 current_context = stripped
                 lines.append(current_context)
+
         return set(lines)
 
     def _connect(self) -> ConnectHandler:
@@ -62,42 +88,42 @@ class BaseGrader:
         if netmiko_device_type in ["cisco_iol_l2", "cisco_iol"]:
             netmiko_device_type = "cisco_ios_telnet"
 
-        # Read grading credentials from lab.yaml node definition.
-        # These are set to the passwords the student is instructed to configure,
-        # so the grader can authenticate after the student completes the lab.
         console_password = self.node_config.get("console_password", "")
         enable_secret = self.node_config.get("enable_secret", "")
 
+        host = self.node_config["host"]
+        port = int(self.node_config["console_port"])
+
+        # Send Ctrl-Z to escape any config mode BEFORE Netmiko opens its session
+        import socket as _socket
+        try:
+            s = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+            s.settimeout(3)
+            s.connect((host, port))
+            time.sleep(0.3)
+            s.sendall(b"\x15")   # Ctrl-U: clear partial input
+            time.sleep(0.1)
+            s.sendall(b"\x1A")   # Ctrl-Z: exit ANY config sub-mode to enable#
+            time.sleep(0.8)
+            s.sendall(b"\r\n")
+            time.sleep(0.3)
+            s.close()
+            time.sleep(0.5)      # Give IOS a moment to settle before Netmiko connects
+        except Exception as e:
+            logger.warning(f"Pre-connect cleanup failed for {self.node_name}: {e}")
+
         device = {
             "device_type": netmiko_device_type,
-            "host": self.node_config["host"],
-            "port": self.node_config["console_port"],
+            "host": host,
+            "port": port,
             "username": "",
             "password": console_password,
             "secret": enable_secret,
             "global_delay_factor": 2,
             "timeout": 30,
         }
-        
-        # Ensure the device is out of config mode BEFORE Netmiko connects
-        # Otherwise Netmiko detects the config prompt as the base prompt and breaks
-        import socket
-        import time
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(2)
-            s.connect((self.node_config["host"], int(self.node_config["console_port"])))
-            s.sendall(b"\x15") # Ctrl-U
-            time.sleep(0.1)
-            s.sendall(b"\x1A") # Ctrl-Z
-            time.sleep(0.5)
-            s.sendall(b"\r\n")
-            time.sleep(0.5)
-            s.close()
-        except Exception as e:
-            logger.warning(f"Failed pre-connect cleanup for {self.node_name}: {e}")
-            
         return ConnectHandler(**device)
+
 
     def fetch_actual_config(self, connection: ConnectHandler) -> str:
         """Fetch running config from the device. Base implementation."""
