@@ -82,7 +82,9 @@ def auto_configure_templates():
             "compute_id": "local",
             "template_type": "iou",
             "path": switch_image,
-            "category": "switch"
+            "category": "switch",
+            "ethernet_adapters": 4,
+            "serial_adapters": 0
         }
         try:
             requests.post(f"{GNS3_URL}/v2/templates", json=payload)
