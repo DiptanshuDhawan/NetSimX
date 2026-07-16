@@ -75,19 +75,29 @@ class BaseGrader:
             "global_delay_factor": 2,
             "timeout": 30,
         }
+        
+        # Ensure the device is out of config mode BEFORE Netmiko connects
+        # Otherwise Netmiko detects the config prompt as the base prompt and breaks
+        import socket
+        import time
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(2)
+            s.connect((self.node_config["host"], int(self.node_config["console_port"])))
+            s.sendall(b"\x15") # Ctrl-U
+            time.sleep(0.1)
+            s.sendall(b"\x1A") # Ctrl-Z
+            time.sleep(0.5)
+            s.sendall(b"\r\n")
+            time.sleep(0.5)
+            s.close()
+        except Exception as e:
+            logger.warning(f"Failed pre-connect cleanup for {self.node_name}: {e}")
+            
         return ConnectHandler(**device)
 
     def fetch_actual_config(self, connection: ConnectHandler) -> str:
         """Fetch running config from the device. Base implementation."""
-        connection.write_channel("\x15")  # Ctrl-U (Clear line)
-        time.sleep(0.1)
-        connection.write_channel("\x1A")  # Ctrl-Z (Exit to Exec mode from ANY config mode)
-        time.sleep(0.5)
-        connection.write_channel("\r\n")
-        time.sleep(0.5)
-        
-        connection.set_base_prompt()
-            
         if not connection.check_enable_mode():
             connection.enable()
             
