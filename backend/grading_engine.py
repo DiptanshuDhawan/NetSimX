@@ -53,13 +53,19 @@ class BaseGrader:
         if netmiko_device_type in ["cisco_iol_l2", "cisco_iol"]:
             netmiko_device_type = "cisco_ios_telnet"
 
+        # Read grading credentials from lab.yaml node definition.
+        # These are set to the passwords the student is instructed to configure,
+        # so the grader can authenticate after the student completes the lab.
+        console_password = self.node_config.get("console_password", "")
+        enable_secret = self.node_config.get("enable_secret", "")
+
         device = {
             "device_type": netmiko_device_type,
             "host": self.node_config["host"],
             "port": self.node_config["console_port"],
             "username": "",
-            "password": "",
-            "secret": "",
+            "password": console_password,
+            "secret": enable_secret,
             "global_delay_factor": 2,
             "timeout": 30,
         }

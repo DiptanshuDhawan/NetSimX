@@ -34,10 +34,14 @@ lab:
     host: gns3-server
     console_port: 5000
     device_type: cisco_ios_telnet
+    console_password: ConsolePass1
+    enable_secret: Cisco123!
   - name: SW1
     host: gns3-server
     console_port: 5001
     device_type: cisco_iol_l2
+    console_password: ConsolePass1
+    enable_secret: Cisco123!
   - name: PC1
     host: gns3-server
     console_port: 5002
