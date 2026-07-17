@@ -46,22 +46,20 @@ lab:
     description: Verify IP Configuration
     instructions: 'The routers have been pre-configured with hostnames and IP addresses. Your job is to verify everything is up before starting NTP configuration.
 
-      **Pre-configured IP addresses:**
-      | Device | Interface   | IP Address       | Connects to |
-      |--------|-------------|------------------|-------------|
-      | R0     | Ethernet0/0 | 192.168.10.1 /24 | R1          |
-      | R1     | Ethernet0/2 | 192.168.10.2 /24 | R0          |
-      | R1     | Ethernet0/0 | 192.168.12.1 /24 | R2          |
-      | R1     | Ethernet0/1 | 192.168.13.1 /24 | R3          |
-      | R2     | Ethernet0/0 | 192.168.12.2 /24 | R1          |
-      | R3     | Ethernet0/0 | 192.168.13.2 /24 | R1          |
+      Pre-configured addresses:
+      - R0 Ethernet0/0 → 192.168.10.1/24 (link to R1)
+      - R1 Ethernet0/2 → 192.168.10.2/24 (link to R0)
+      - R1 Ethernet0/0 → 192.168.12.1/24 (link to R2)
+      - R1 Ethernet0/1 → 192.168.13.1/24 (link to R3)
+      - R2 Ethernet0/0 → 192.168.12.2/24 (link to R1)
+      - R3 Ethernet0/0 → 192.168.13.2/24 (link to R1)
 
-      1. On **R1**, verify all three interfaces are up: `show ip interface brief`
+      1. On R1, verify all three interfaces are up: `show ip interface brief`
       2. Verify full connectivity by pinging from R1:
-         - `ping 192.168.10.1` → should reach R0
-         - `ping 192.168.12.2` → should reach R2
-         - `ping 192.168.13.2` → should reach R3'
-    hint: All interfaces should show as "up/up". If any are down, check the topology and make sure the lab started cleanly by pressing the Reset button.
+         - `ping 192.168.10.1` (R0)
+         - `ping 192.168.12.2` (R2)
+         - `ping 192.168.13.2` (R3)'
+    hint: All interfaces should show as "up/up". If any are down, press the Reset button and wait for the lab to fully boot.
   - id: 2
     description: Baseline the System Clock
     instructions: 'Check and set the initial system clock manually.
