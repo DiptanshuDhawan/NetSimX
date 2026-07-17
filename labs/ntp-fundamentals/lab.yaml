@@ -44,15 +44,24 @@ lab:
   tasks:
   - id: 1
     description: Verify IP Configuration
-    instructions: 'The routers have been pre-configured with hostnames and IP addresses. Verify the point-to-point links between the routers.
+    instructions: 'The routers have been pre-configured with hostnames and IP addresses. Your job is to verify everything is up before starting NTP configuration.
 
-      1. On **R1**, verify the interfaces: `show ip interface brief`
+      **Pre-configured IP addresses:**
+      | Device | Interface   | IP Address       | Connects to |
+      |--------|-------------|------------------|-------------|
+      | R0     | Ethernet0/0 | 192.168.10.1 /24 | R1          |
+      | R1     | Ethernet0/2 | 192.168.10.2 /24 | R0          |
+      | R1     | Ethernet0/0 | 192.168.12.1 /24 | R2          |
+      | R1     | Ethernet0/1 | 192.168.13.1 /24 | R3          |
+      | R2     | Ethernet0/0 | 192.168.12.2 /24 | R1          |
+      | R3     | Ethernet0/0 | 192.168.13.2 /24 | R1          |
 
-      2. Verify connectivity by pinging the other routers:
-         - `ping 192.168.10.1` (R0)
-         - `ping 192.168.12.2` (R2)
-         - `ping 192.168.13.2` (R3)'
-    hint: Use `show ip interface brief` to check the interfaces, and `ping` to test connectivity.
+      1. On **R1**, verify all three interfaces are up: `show ip interface brief`
+      2. Verify full connectivity by pinging from R1:
+         - `ping 192.168.10.1` → should reach R0
+         - `ping 192.168.12.2` → should reach R2
+         - `ping 192.168.13.2` → should reach R3'
+    hint: All interfaces should show as "up/up". If any are down, check the topology and make sure the lab started cleanly by pressing the Reset button.
   - id: 2
     description: Baseline the System Clock
     instructions: 'Check and set the initial system clock manually.
