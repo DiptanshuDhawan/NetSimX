@@ -57,6 +57,8 @@ class BaseGrader:
             "logging synchronous",
             # Memory/hardware lines
             "no ip domain lookup",
+            # Interface state — "no shutdown" never appears in show run when up
+            "no shutdown",
         )
 
         for line in config_text.splitlines():
@@ -84,6 +86,12 @@ class BaseGrader:
             stripped = re.sub(r'\bpassword \d+ \S+', 'password', stripped)
             stripped = re.sub(r'\bsecret \d+ \S+', 'secret', stripped)
             stripped = re.sub(r'\bpassword \S+', 'password', stripped)
+
+            # 1b. NTP authentication key — IOS encrypts MD5 key in show run.
+            #     "ntp authentication-key 1 md5 cisco" and
+            #     "ntp authentication-key 1 md5 7 <hash>" both normalize to
+            #     "ntp authentication-key 1 md5"
+            stripped = re.sub(r'^(ntp authentication-key \d+ md5).*', r'\1', stripped)
 
             # 2. Banner — ignore delimiter character and message text entirely
             stripped = re.sub(r'^banner motd .*', 'banner motd', stripped)
