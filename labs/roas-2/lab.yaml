@@ -147,3 +147,20 @@ lab:
     - Ethernet0/3
     - PC3
     - Ethernet0/0
+  checks:
+  - node: PC0
+    type: ping
+    target: 192.168.20.2
+    description: "PC0 (VLAN10) pings PC1 (VLAN20) - Inter-VLAN Routing"
+  - node: PC0
+    type: ping
+    target: 192.168.30.2
+    description: "PC0 (VLAN10) pings PC2 (VLAN30) - Inter-VLAN Routing"
+  - node: PC2
+    type: ping
+    target: 192.168.10.2
+    description: "PC2 (VLAN30) pings PC0 (VLAN10) - Inter-VLAN Routing"
+  - node: PC3
+    type: ping
+    target: 192.168.10.2
+    description: "PC3 (VLAN20 via S2) pings PC0 (VLAN10) - Inter-VLAN Routing"
