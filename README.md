@@ -6,6 +6,12 @@
     <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI"></a>
     <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white" alt="Python"></a>
     <a href="#quick-start"><img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker"></a>
+    <a href="https://github.com/DiptanshuDhawan/NetSimX/commits/main"><img src="https://img.shields.io/github/last-commit/DiptanshuDhawan/NetSimX.svg?style=flat&color=blue" alt="Last Commit"></a>
+    <br>
+    <a href="https://github.com/DiptanshuDhawan/NetSimX/stargazers"><img src="https://img.shields.io/github/stars/DiptanshuDhawan/NetSimX.svg?style=flat&color=yellow" alt="Stars"></a>
+    <a href="https://github.com/DiptanshuDhawan/NetSimX/network/members"><img src="https://img.shields.io/github/forks/DiptanshuDhawan/NetSimX.svg?style=flat&color=orange" alt="Forks"></a>
+    <a href="https://github.com/DiptanshuDhawan/NetSimX/issues"><img src="https://img.shields.io/github/issues/DiptanshuDhawan/NetSimX.svg?style=flat&color=red" alt="Issues"></a>
+    <a href="https://github.com/DiptanshuDhawan/NetSimX"><img src="https://img.shields.io/github/repo-size/DiptanshuDhawan/NetSimX.svg?style=flat&color=brightgreen" alt="Repo Size"></a>
     <a href="#license"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
     <a href="https://github.com/DiptanshuDhawan/NetSimX/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
     <a href="#project-status"><img src="https://img.shields.io/badge/Status-Beta-orange.svg" alt="Status"></a>
