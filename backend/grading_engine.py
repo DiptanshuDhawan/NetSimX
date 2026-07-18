@@ -255,6 +255,73 @@ class IOSGrader(BaseGrader):
         return actual_text
 
 
+class BehavioralGrader:
+    def __init__(self, node_name: str, node_config: dict, checks: list):
+        self.node_name = node_name
+        self.node_config = node_config
+        self.checks = checks
+
+    def grade(self) -> dict:
+        if not self.checks:
+            return {"node": self.node_name, "passed": True, "missing_lines": []}
+
+        import socket
+        import time
+        missing_lines = []
+        host = self.node_config.get("host")
+        port_val = self.node_config.get("console_port")
+        if not host or not port_val:
+             return {"node": self.node_name, "passed": False, "missing_lines": ["Missing host/port for node"]}
+        port = int(port_val)
+
+        for check in self.checks:
+            if check.get("type") == "ping":
+                target = check.get("target")
+                desc = check.get("description", f"Ping {target}")
+                
+                try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.settimeout(3)
+                    s.connect((host, port))
+                    
+                    s.sendall(b"\r\n")
+                    time.sleep(0.5)
+                    # flush the prompt
+                    s.recv(1024)
+                    
+                    cmd = f"ping {target}\r\n"
+                    s.sendall(cmd.encode("utf-8"))
+                    
+                    end_time = time.time() + 5
+                    output = ""
+                    success = False
+                    while time.time() < end_time:
+                        try:
+                            data = s.recv(1024).decode("utf-8", errors="ignore")
+                            output += data
+                            # VPCS ping success is "bytes from", IOS ping success contains "!"
+                            if "bytes from" in output.lower() or "!" in output:
+                                success = True
+                                break
+                            if "not reachable" in output.lower() or "timeout" in output.lower() or "." in output:
+                                break
+                        except socket.timeout:
+                            break
+                    s.close()
+                    
+                    if not success:
+                        missing_lines.append(f"Connectivity: {desc} failed.")
+                except Exception as e:
+                    logger.error(f"Behavioral grading failed for {self.node_name}: {e}")
+                    missing_lines.append(f"Connectivity: {desc} failed (Connection Error).")
+                    
+        passed = len(missing_lines) == 0
+        return {
+            "node": self.node_name,
+            "passed": passed,
+            "missing_lines": missing_lines
+        }
+
 def get_grader_for_device(node_name: str, node_config: dict, solution_path: str) -> BaseGrader:
     """Factory to return the correct grader class based on device type."""
     device_type = node_config.get("device_type", "")
@@ -273,11 +340,50 @@ def grade_lab(yaml_path: str, skip_tasks: list = None, lab_dir: str = None) -> d
     nodes_map = {node["name"]: node for node in lab_info["nodes"]}
     all_results = []
     
+    behavioral_checks = lab_info.get("checks", [])
+    node_checks_map = {}
+    for check in behavioral_checks:
+        n = check.get("node")
+        if n:
+            node_checks_map.setdefault(n, []).append(check)
+            
+    # Track overall behavioral success
+    behavioral_ran = len(behavioral_checks) > 0
+    behavioral_passed = True
+
     for node_name, node_config in nodes_map.items():
         solution_path = os.path.join(lab_dir, f"solution_{node_name}.cfg")
+        
+        # 1. Config grading
         grader = get_grader_for_device(node_name, node_config, solution_path)
         result = grader.grade()
+        
+        # 2. Behavioral grading
+        if node_name in node_checks_map:
+            b_grader = BehavioralGrader(node_name, node_config, node_checks_map[node_name])
+            b_result = b_grader.grade()
+            
+            if not b_result["passed"]:
+                behavioral_passed = False
+                
+            if result.get("error", "").startswith("No solution file"):
+                result = b_result
+            else:
+                # Merge hybrid results (initially)
+                result["missing_lines"].extend(b_result.get("missing_lines", []))
+                result["passed"] = result["passed"] and b_result["passed"]
+                if "error" in b_result:
+                    result["error"] = result.get("error", "") + " " + b_result["error"]
+                    
         all_results.append(result)
+
+    # 3. Behavioral Override: If behavioral checks ran and ALL passed, override config failures for the whole lab
+    if behavioral_ran and behavioral_passed:
+        for r in all_results:
+            r["passed"] = True
+            r["missing_lines"] = []
+            if "No solution file" not in r.get("error", ""):
+                r["error"] = ""
 
     passed = all(r["passed"] for r in all_results) if all_results else False
 

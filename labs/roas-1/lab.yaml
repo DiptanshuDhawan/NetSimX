@@ -107,3 +107,12 @@ lab:
     - Ethernet0/2
     - PC2
     - Ethernet0/0
+  checks:
+  - node: PC1
+    type: ping
+    target: 192.168.20.2
+    description: "Ping from PC1 to PC2 (Inter-VLAN Routing)"
+  - node: PC2
+    type: ping
+    target: 192.168.10.2
+    description: "Ping from PC2 to PC1 (Inter-VLAN Routing)"
