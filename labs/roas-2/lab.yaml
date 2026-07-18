@@ -65,8 +65,7 @@ lab:
       3. On **S2**, configure `Ethernet0/0` as a trunk (this connects to R1).
 
       '
-    hint: Use `switchport trunk encapsulation dot1q` (if required by the image) and
-      `switchport mode trunk`.
+    hint: Use `switchport mode trunk` on each of the interfaces listed above.
   - id: 2
     description: VLANs & Access Ports (S1)
     instructions: 'Configure **S1** for the Blue (VLAN 10) and Red (VLAN 20) departments.
