@@ -6,8 +6,17 @@ import PCIcon from '../icons/PCIcon';
 export default function Roas1Topology({ activeNode }) {
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-      <svg width="100%" height="100%" viewBox="0 0 800 380" style={{ fontFamily: 'Inter, sans-serif' }}>
+      <svg width="100%" height="100%" viewBox="0 0 800 450" style={{ fontFamily: 'Inter, sans-serif' }}>
         <g transform="translate(0, 0)">
+          {/* VLAN Backgrounds */}
+          <rect x="190" y="250" width="120" height="170" fill="#2F80ED" opacity="0.40" stroke="#2F80ED" strokeWidth="2" rx="8" />
+          <text x="250" y="385" fill="#FFFFFF" fontSize="15" fontWeight="600" textAnchor="middle">VLAN 10</text>
+          <text x="250" y="405" fill="#E2E8F0" fontSize="12" textAnchor="middle">192.168.10.0/24</text>
+
+          <rect x="490" y="250" width="120" height="170" fill="#EB5757" opacity="0.40" stroke="#EB5757" strokeWidth="2" rx="8" />
+          <text x="550" y="385" fill="#FFFFFF" fontSize="15" fontWeight="600" textAnchor="middle">VLAN 20</text>
+          <text x="550" y="405" fill="#E2E8F0" fontSize="12" textAnchor="middle">192.168.20.0/24</text>
+
           {/* Connection Lines */}
           <line x1="400" y1="60" x2="400" y2="190" stroke="#2F80ED" strokeWidth="2.5" />
           <line x1="400" y1="190" x2="250" y2="320" stroke="#2F80ED" strokeWidth="2.5" />
@@ -25,13 +34,6 @@ export default function Roas1Topology({ activeNode }) {
           
           <text x="352" y="245" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">e0/1</text>
           <text x="448" y="245" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">e0/2</text>
-
-          {/* VLAN subnets */}
-          <text x="295" y="255" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="end">VLAN 10</text>
-          <text x="295" y="270" fill="#A1A9B6" fontSize="12" textAnchor="end">192.168.10.0/24</text>
-          
-          <text x="505" y="255" fill="#E2E8F0" fontSize="13" fontWeight="500" textAnchor="start">VLAN 20</text>
-          <text x="505" y="270" fill="#A1A9B6" fontSize="12" textAnchor="start">192.168.20.0/24</text>
         </g>
       </svg>
     </div>
