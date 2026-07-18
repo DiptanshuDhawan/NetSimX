@@ -86,8 +86,6 @@ export default function TopNav({
           </button>
         </div>
         
-        {/* Avatar */}
-        <div className="nx-avatar">N</div>
       </div>
     </header>
   );
