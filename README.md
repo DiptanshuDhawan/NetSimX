@@ -1,10 +1,16 @@
-# InstantNodes
+<div align="center">
+  <img src="docs/banner.svg" alt="InstantNodes Banner" width="100%">
 
-InstantNodes is a browser-based CCNA lab environment running on top of GNS3. It abstracts away the complex setup of network emulation by providing a unified web interface for topologies, SSH terminals, and automated configuration grading.
+  <p>
+    InstantNodes is a browser-based CCNA lab environment running on top of GNS3. It abstracts away the complex setup of network emulation by providing a unified web interface for topologies, SSH terminals, and automated configuration grading.
+  </p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](#quick-start)
-[![Status](https://img.shields.io/badge/Status-Beta-orange.svg)](#project-status)
+  <p>
+    <a href="#license"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+    <a href="#quick-start"><img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker"></a>
+    <a href="#project-status"><img src="https://img.shields.io/badge/Status-Beta-orange.svg" alt="Status"></a>
+  </p>
+</div>
 
 ---
 
