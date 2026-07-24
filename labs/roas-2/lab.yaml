@@ -150,17 +150,17 @@ lab:
   checks:
   - node: PC0
     type: ping
-    target: 192.168.20.2
-    description: "PC0 (VLAN10) pings PC1 (VLAN20) - Inter-VLAN Routing"
-  - node: PC0
+    target: 192.168.10.1
+    description: "PC0 (VLAN10) pings R1 VLAN10 gateway - Subinterface reachable"
+  - node: PC1
     type: ping
-    target: 192.168.30.2
-    description: "PC0 (VLAN10) pings PC2 (VLAN30) - Inter-VLAN Routing"
+    target: 192.168.20.1
+    description: "PC1 (VLAN20) pings R1 VLAN20 gateway - Subinterface reachable"
   - node: PC2
     type: ping
-    target: 192.168.10.2
-    description: "PC2 (VLAN30) pings PC0 (VLAN10) - Inter-VLAN Routing"
+    target: 192.168.30.1
+    description: "PC2 (VLAN30) pings R1 VLAN30 gateway - Subinterface reachable"
   - node: PC3
     type: ping
-    target: 192.168.10.2
-    description: "PC3 (VLAN20 via S2) pings PC0 (VLAN10) - Inter-VLAN Routing"
+    target: 192.168.20.1
+    description: "PC3 (VLAN20 via S2) pings R1 VLAN20 gateway - Subinterface reachable"
