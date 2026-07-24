@@ -4,6 +4,7 @@ import Roas1Topology from './Roas1Topology';
 import Roas2Topology from './Roas2Topology';
 import NtpFundamentalsTopology from './NtpFundamentalsTopology';
 import SshHardeningTopology from './SshHardeningTopology';
+import EtherchannelLacpTopology from './EtherchannelLacpTopology';
 
 export default function TopologyRenderer({ slug, activeNode }) {
   switch (slug) {
@@ -15,6 +16,8 @@ export default function TopologyRenderer({ slug, activeNode }) {
       return <Roas2Topology activeNode={activeNode} />;
     case 'roas-1':
       return <Roas1Topology activeNode={activeNode} />;
+    case 'etherchannel-lacp':
+      return <EtherchannelLacpTopology activeNode={activeNode} />;
     case 'ospf-basic':
     default:
       return <OspfBasicTopology activeNode={activeNode} />;

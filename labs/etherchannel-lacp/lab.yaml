@@ -1,0 +1,117 @@
+lab:
+  id: etherchannel-lacp
+  title: "Lab 07 — EtherChannel (LACP)"
+  topic: Network Access
+  difficulty: Intermediate
+  estimated_time_minutes: 25
+  objective: |
+    Configure a Link Aggregation Control Protocol (LACP) EtherChannel bundle between two switches to increase bandwidth and provide redundancy. Verify that the port-channel is active and that hosts on the same VLAN can communicate across it.
+
+  prerequisites:
+    - VLANs & Trunking
+    - Spanning Tree Protocol basics
+  command_reference:
+    - command: channel-group <id> mode active
+      description: Assign interface to EtherChannel bundle using LACP (active mode)
+    - command: interface port-channel <id>
+      description: Enter the logical Port-Channel interface
+    - command: switchport mode trunk
+      description: Set port-channel as a trunk
+    - command: show etherchannel summary
+      description: Verify EtherChannel bundle status
+    - command: show interfaces port-channel <id>
+      description: View Port-Channel interface details
+
+  nodes:
+    - name: S1
+      host: 100.120.167.31
+      console_port: 5000
+      device_type: cisco_iol_l2
+    - name: S2
+      host: 100.120.167.31
+      console_port: 5001
+      device_type: cisco_iol_l2
+    - name: PC1
+      host: 100.120.167.31
+      console_port: 5002
+      device_type: vpcs
+    - name: PC2
+      host: 100.120.167.31
+      console_port: 5003
+      device_type: vpcs
+
+  tasks:
+    - id: 1
+      description: Create VLANs on Both Switches
+      instructions: |
+        1. On both **S1** and **S2**, create **VLAN 10** (name it `SALES`) and **VLAN 20** (name it `HR`).
+      hint: Use `vlan <id>` followed by `name <name>` in global config mode.
+
+    - id: 2
+      description: Configure EtherChannel on S1
+      instructions: |
+        Configure a 2-link LACP EtherChannel on **S1** using `Ethernet0/0` and `Ethernet0/1`.
+
+        1. On **S1**, enter interface range `Ethernet0/0 - 1`.
+        2. Assign both to **channel-group 1** using **mode active** (LACP).
+        3. Enter the logical `Port-channel1` interface.
+        4. Set `Port-channel1` as a **trunk** port.
+      hint: |
+        Use `interface range Ethernet0/0 - 1` then `channel-group 1 mode active`.
+        Then `interface Port-channel1` and `switchport mode trunk`.
+
+    - id: 3
+      description: Configure EtherChannel on S2
+      instructions: |
+        Configure the matching 2-link LACP EtherChannel on **S2** using `Ethernet0/0` and `Ethernet0/1`.
+
+        1. On **S2**, enter interface range `Ethernet0/0 - 1`.
+        2. Assign both to **channel-group 1** using **mode active** (LACP).
+        3. Enter the logical `Port-channel1` interface.
+        4. Set `Port-channel1` as a **trunk** port.
+      hint: The configuration on S2 mirrors S1 exactly.
+
+    - id: 4
+      description: Configure Access Ports for PCs
+      instructions: |
+        1. On **S1**, configure `Ethernet0/2` as an access port for **VLAN 10** (connecting PC1).
+        2. On **S2**, configure `Ethernet0/2` as an access port for **VLAN 10** (connecting PC2).
+      hint: Use `switchport mode access` and `switchport access vlan 10` on each interface.
+
+    - id: 5
+      description: Assign IPs to PCs and Verify
+      instructions: |
+        1. On **PC1**, manually assign IP `10.10.10.1/24`.
+        2. On **PC2**, manually assign IP `10.10.10.2/24`.
+        3. From **PC1**, ping `10.10.10.2` to verify connectivity across the EtherChannel trunk.
+
+        Use `ip 10.10.10.1 255.255.255.0` on PC1 and `ip 10.10.10.2 255.255.255.0` on PC2.
+      hint: VPCS uses `ip <address> <mask>` syntax, not `ip address`.
+
+  links:
+    - - S1
+      - Ethernet0/0
+      - S2
+      - Ethernet0/0
+    - - S1
+      - Ethernet0/1
+      - S2
+      - Ethernet0/1
+    - - S1
+      - Ethernet0/2
+      - PC1
+      - Ethernet0/0
+    - - S2
+      - Ethernet0/2
+      - PC2
+      - Ethernet0/0
+
+  checks:
+    - node: PC1
+      type: ping
+      target: 10.10.10.2
+      description: "PC1 pings PC2 across EtherChannel trunk - Layer 2 connectivity"
+    - node: PC2
+      type: ping
+      target: 10.10.10.1
+      description: "PC2 pings PC1 across EtherChannel trunk - Layer 2 connectivity"
