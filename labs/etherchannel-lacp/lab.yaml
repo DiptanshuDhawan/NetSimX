@@ -44,8 +44,9 @@ lab:
     - id: 1
       description: Create VLANs on Both Switches
       instructions: |
-        1. On both **S1** and **S2**, create **VLAN 10** (name it `SALES`) and **VLAN 20** (name it `HR`).
-      hint: Use `vlan <id>` followed by `name <name>` in global config mode.
+        1. On both **S1** and **S2**, create **VLAN 10** and **VLAN 20**.
+        2. Optionally name them `SALES` and `HR` — this is real-world best practice even though the grader checks VLAN existence, not names.
+      hint: Use `vlan <id>` in global config mode. Optionally follow with `name <name>`.
 
     - id: 2
       description: Configure EtherChannel on S1
