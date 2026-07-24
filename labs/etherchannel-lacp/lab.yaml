@@ -79,14 +79,17 @@ lab:
       hint: Use `switchport mode access` and `switchport access vlan 10` on each interface.
 
     - id: 5
-      description: Assign IPs to PCs and Verify
+      description: Verify EtherChannel Connectivity
       instructions: |
-        1. On **PC1**, manually assign IP `10.10.10.1/24`.
-        2. On **PC2**, manually assign IP `10.10.10.2/24`.
-        3. From **PC1**, ping `10.10.10.2` to verify connectivity across the EtherChannel trunk.
+        The PCs already have IPs pre-configured at startup:
+        - **PC1**: `10.10.10.1/24`
+        - **PC2**: `10.10.10.2/24`
 
-        Use `ip 10.10.10.1 255.255.255.0` on PC1 and `ip 10.10.10.2 255.255.255.0` on PC2.
-      hint: VPCS uses `ip <address> <mask>` syntax, not `ip address`.
+        1. From **PC1**, run `ping 10.10.10.2` to verify traffic is flowing across the EtherChannel trunk.
+        2. From **PC1**, run `show etherchannel summary` on S1 to confirm the Port-channel shows `SU` (layer2, in use) and both member links show `P` (bundled in port-channel).
+      hint: |
+        A healthy EtherChannel shows flags `SU` on the Port-channel line and `P` on each member interface. If you see `SD` or `I`, the bundle is not negotiating — check that both sides use `mode active`.
+
 
   links:
     - - S1
