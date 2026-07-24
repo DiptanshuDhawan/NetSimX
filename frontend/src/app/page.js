@@ -19,7 +19,21 @@ export default function Dashboard() {
       .then(fetchedLabs => {
         setLabs(fetchedLabs);
         
-        // Find last visited lab
+        // Find the most recently active lab from the active session in localStorage
+        const activeSession = localStorage.getItem('netlabx_session');
+        if (activeSession) {
+          try {
+            const parsed = JSON.parse(activeSession);
+            if (parsed.slug) {
+              const found = fetchedLabs.find(l => l.slug === parsed.slug);
+              if (found) {
+                setHeroLab(found);
+                return;
+              }
+            }
+          } catch (e) { /* ignore parse errors */ }
+        }
+        // Fallback: check last visited lab slug
         const lastLabSlug = localStorage.getItem('netlabx_last_lab');
         if (lastLabSlug) {
           const found = fetchedLabs.find(l => l.slug === lastLabSlug);
@@ -28,9 +42,8 @@ export default function Dashboard() {
             return;
           }
         }
-        if (fetchedLabs.length > 0) {
-          setHeroLab(fetchedLabs[0]);
-        }
+        // No session or last lab found — don't show the hero section at all
+        setHeroLab(null);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -132,15 +145,7 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="nx-hero-progress-container">
-                  <div className="nx-hero-progress-header">
-                    <span>Progress</span>
-                    <span>0%</span>
-                  </div>
-                  <div className="nx-hero-progress-track">
-                    <div className="nx-hero-progress-fill" style={{ width: '0%' }}></div>
-                  </div>
-                </div>
+
 
                 <button 
                   className="nx-btn nx-btn-primary" 
